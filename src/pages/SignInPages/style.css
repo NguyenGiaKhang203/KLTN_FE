@@ -1,4 +1,4 @@
-.signup-container {
+.signin-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,9 +8,9 @@
   object-fit: cover;
   height: 100vh;
 }
-.signup-form {
+.signin-form {
   width: 600px;
-  height: 525px;
+  height: 425px;
   border-radius: 10px;
   background: transparent;
   display: flex;
@@ -19,49 +19,47 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   color: #ffffff;
 }
-.signup-input {
+.signin-content {
+  flex: 1;
+  padding: 40px 45px 24px;
+  display: flex;
+  flex-direction: column;
+}
+.signin-input {
   margin-bottom: 15px;
   padding: 10px;
   background: transparent;
   border: 1px solid #ffffff;
   color: #fff;
 }
-.signup-input:hover {
+.signin-input:hover {
   background: transparent;
 }
-.signup-input:focus {
+.signin-input:focus {
   background: transparent;
 }
-.signup-input::placeholder {
+.signin-input::placeholder {
   color: #fff;
-}
-.signup-content {
-  flex: 1;
-  padding: 40px 45px 24px;
-  display: flex;
-  flex-direction: column;
-}
-.link-navigate {
-  font-size: 13px;
-  cursor: pointer;
 }
 .Pic-Eye {
   padding: 10px;
 }
-.signup-link__text {
-  font-size: 16px;
-  color: #fff;
-  text-align: center;
-}
-
-.link-navigate {
-  font-size: 16px;
-  font-weight: bold;
+.signin-link__forgot {
   cursor: pointer;
-  text-decoration: none;
 }
-
-.link-navigate:hover {
+.signin-link__forgot:hover {
+  text-decoration: underline;
+  color: #1d1616;
+}
+.signin-link__signup {
+  margin-top: 5px;
+}
+.link__signup {
+  padding: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.link__signup:hover {
   text-decoration: underline;
   color: #1d1616;
 }
