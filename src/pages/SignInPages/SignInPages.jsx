@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useMutationHooks } from "../../hooks/useMutationHook";
+import { useMutationHooks } from "../../hooks/useMutationHooks";
 import * as UserService from "../../services/UserService";
 import { jwtDecode } from "jwt-decode";
 import * as message from "../../components/Message/Message";
@@ -9,7 +9,7 @@ import { updateUser } from "../../redux/slides/userSlide";
 import InputForm from "../../components/InputForm/InputForm";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
-import ButtonComponent from "../../components/ButtonComponents/ButtonComponents";
+import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import "./style.css";
 const SignInPages = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
