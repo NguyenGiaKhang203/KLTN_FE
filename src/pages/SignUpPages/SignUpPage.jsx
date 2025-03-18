@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import "./style.css";
-import ButtonComponent from "../../components/ButtonComponents/ButtonComponents";
+import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import InputForm from "../../components/InputForm/InputForm";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
 import * as Message from "../../components/Message/Message";
 import * as UserService from "../../services/UserService";
-import { useMutationHooks } from "../../hooks/useMutationHook";
+import { useMutationHooks } from "../../hooks/useMutationHooks";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
