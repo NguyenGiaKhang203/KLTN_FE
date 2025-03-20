@@ -38,6 +38,7 @@ export const WrapperTextHeaderSmall = styled.span`
     color: #000;
     white-space: nowrap;
     transition: transform 0.3s ease-in-out;
+    font-weight: bold;
     &:hover{
         color: #7D0A0A;
         transform: scaleX(1.1);

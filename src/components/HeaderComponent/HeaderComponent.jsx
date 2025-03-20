@@ -86,25 +86,24 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
         <Col span={12} className="nav-links">
           <WrapperTextHeader to="/">Trang Chủ</WrapperTextHeader>
           <WrapperTextHeader to="/course">Khóa Học</WrapperTextHeader>
-          <Dropdown overlay={menuHoc} trigger={['click']}>
+          <Dropdown overlay={menuHoc} trigger={['hover']} placement="bottom">
             <WrapperTextHeader to="#">Học <CaretDownOutlined /></WrapperTextHeader>
           </Dropdown>
           <WrapperTextHeader to="/bai-viet">Bài Viết</WrapperTextHeader>
-          <Dropdown overlay={menuDaisyChess} trigger={['click']}>
+          <Dropdown overlay={menuDaisyChess} trigger={['hover']} placement="bottom">
             <WrapperTextHeader to="#">Về Daisy Chess <CaretDownOutlined /></WrapperTextHeader>
           </Dropdown>
         </Col>
         {!isHiddenCart && (
-            <div className="cart-icon" onClick={() => navigate('/order')}>
-              <Badge count={order?.orderItems?.length} size="small">
-                <ShoppingCartOutlined className="icon" />
-              </Badge>
-              <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
-            </div>
-          )}
+          <div className="cart-icon" onClick={() => navigate('/order')}>
+            <Badge count={order?.orderItems?.length} size="small">
+              <ShoppingCartOutlined className="icon" />
+            </Badge>
+            <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
+          </div>
+        )}
         <Col span={5} className="account-section">
           <Loading isLoading={loading}>
-          
             <WrapperHeaderAccount>
               {userAvatar ? (
                 <img src={userAvatar} alt="avatar" className="avatar" />
@@ -124,8 +123,6 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
               )}
             </WrapperHeaderAccount>
           </Loading>
-
-          
         </Col>
       </WrapperHeader>
     </div>
