@@ -1,0 +1,109 @@
+.footer {
+  background-color: #111;
+  color: white;
+  padding: 40px 0;
+  font-family: "Arial", sans-serif;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 50px 200px;
+}
+
+.footer-container {
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  text-align: left;
+}
+
+/* Phần Logo và Mô tả */
+.footer-left {
+  flex: 1;
+  text-align: center;
+  margin-top: 0px;
+  margin-bottom: 15px;
+}
+
+.footer-left p {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.social-icons a:hover {
+  background-color: #f39c12;
+  color: white;
+}
+
+/* Phần Địa chỉ & Số điện thoại */
+.footer-center {
+  flex: 1.5;
+  text-align: center;
+}
+
+.footer-center h4 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.footer-center p {
+  font-size: 14px;
+  margin: 5px 0;
+  color: #ddd;
+}
+
+.footer-center span {
+  color: #f39c12;
+}
+
+.footer-center hr {
+  width: 250px;
+  margin: 10px auto;
+}
+/* Phần Liên kết Trang liên quan */
+.footer-right {
+  flex: 0.5;
+  text-align: left;
+  margin-top: 25px;
+}
+
+.footer-right h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.footer-right a {
+  display: block;
+  color: white;
+  font-size: 14px;
+  margin: 5px 0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-right a:hover {
+  color: rgb(96, 96, 238);
+  text-decoration: underline;
+}
+
+/* Responsive */
+/* @media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-center,
+  .footer-right {
+    text-align: center;
+    margin-top: 20px;
+  }
+} */

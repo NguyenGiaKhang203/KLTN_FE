@@ -138,12 +138,12 @@ const SignInPages = () => {
           />
           {/* </Loading> */}
           <p>
-            <div
+            <span
               className="signin-link__forgot"
               onClick={handleNavigateForgotPass}
             >
               Quên mật khẩu?
-            </div>
+            </span>
           </p>
           <p className="signin-link__signup">
             Chưa có tài khoản?{" "}
