@@ -1,31 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import "./style.css"; 
 import Heroimg from "../../assets/Hero-img.jpg";
 import ButtonComponent from "../ButtonComponent/ButtonComponent"; 
 
 const Hero = () => {
+  const [isHovered, setIsHovered]=useState(false);
   return (
     <section className="hero">
       <div className="hero-content">
         <h1>
           <span className="highlight">T-CHESS</span>
         </h1>
-        <p>Nơi đào tạo những kỳ thủ tương lai</p>
-        <p className="subtext">
-          <em>25 năm hình thành và phát triển – Nhiều hoạt động trải nghiệm thú vị ❤️</em>
-        </p>
+        <div className="hero-description">
+          <p className="subtext1">Nơi đào tạo những kỳ thủ tương lai</p>
+          <p className="subtext">
+            <em> Trung tâm cờ vua T– Nhiều hoạt động trải nghiệm thú vị ❤️</em>
+          </p>
+        </div>
         <ButtonComponent 
           size="large" 
           textbutton="HỌC THỬ NGAY" 
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           styleButton={{
-            background: "linear-gradient(to right, #3e8b6f, #d4e157)",
+            background:"linear-gradient(90deg, rgba(148,255,158,1) 0%, rgba(60,162,231,1) 100%, rgba(0,95,160,1) 100%)",
             borderRadius: "8px",
             border: "none",
-            color: "white",
-            padding: "10px 20px"
+            color: "#313e32",
+            padding: "10px 20px",
+            transition: "all 1s ease-in-out",
+            transform: isHovered ? "scale(1.1)":""
           }}
           styleTextButton={{
-            fontSize: "18px",
+            fontSize: "20px",
             fontWeight: "bold"
           }}
         />
