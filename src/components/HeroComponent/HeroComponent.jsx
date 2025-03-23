@@ -27,7 +27,7 @@ const Hero = () => {
             borderRadius: "8px",
             border: "none",
             color: "#313e32",
-            padding: "10px 20px",
+            padding: "20px 20px",
             transition: "all 1s ease-in-out",
             transform: isHovered ? "scale(1.1)":""
           }}

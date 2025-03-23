@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
 import { useLocation } from "react-router-dom";
-import ForgotPasswordPage from "../ForgotPasswordPage/ForgotPasswordPage";
+import ForgotPasswordPage from "../ForgotPasswordPages/ForgotPasswordPage";
 import { useNavigate } from 'react-router-dom'
 import Hero from '../../components/HeroComponent/HeroComponent';
 import ChessInforComponent from '../../components/ChessInforComponent/ChessInforComponent';
