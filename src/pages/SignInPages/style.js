@@ -1,32 +1,7 @@
 import styled from "styled-components";
 import backgroundImage from "../../assets/back-ground.jpg";
 
-export const WrapperContainerLeft = styled.div`
-  flex: 1;
-  padding: 40px 45px 24px;
-  display: flex;
-  flex-direction: column;
-`;
-
-export const WrapperContainerRight = styled.div`
-  width: 300px;
-  background: linear-gradient(
-    136deg,
-    rgb(240, 248, 255) -1%,
-    rgb(219, 238, 255) 85%
-  );
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-`;
-export const WrapperTextLight = styled.span`
-  color: rgb(13, 92, 182);
-  font-size: 13px;
-  cursor: pointer;
-`;
-export const PageContainer = styled.div`
+export const SigninContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,9 +11,9 @@ export const PageContainer = styled.div`
   height: 100vh;
 `;
 
-export const FormContainer = styled.div`
-  width: 550px;
-  height: 380px;
+export const SigninForm = styled.div`
+  width: 600px;
+  height: 425px;
   border-radius: 10px;
   background: transparent;
   display: flex;
@@ -48,26 +23,23 @@ export const FormContainer = styled.div`
   color: #ffffff;
 `;
 
-export const WrapperLeft = styled.div`
+export const SigninContent = styled.div`
   flex: 1;
   padding: 40px 45px 24px;
   display: flex;
   flex-direction: column;
 `;
 
-export const StyledInput = styled.div`
+export const StyledInputWrapper = styled.div`
   margin-bottom: 15px;
 
   input {
     padding: 10px;
     background: transparent;
     border: 1px solid #ffffff;
-    color: #ffffff;
+    color: #fff;
     width: 100%;
-
-    &::placeholder {
-      color: #ffffff;
-    }
+    border-radius: 4px;
 
     &:hover,
     &:focus {
@@ -75,17 +47,25 @@ export const StyledInput = styled.div`
       border-color: #ffffff;
       outline: none;
     }
+
+    &::placeholder {
+      color: #fff;
+    }
   }
 `;
 
-export const ForgotText = styled.p`
-  margin-top: 12px;
-  font-size: 14px;
+export const EyeIcon = styled.span`
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  z-index: 10;
+  padding: 10px;
   color: #fff;
+  cursor: pointer;
 `;
 
-export const ForgotNavigate = styled.span`
-  padding: 5px;
+export const ForgotLink = styled.p`
+  font-size: 14px;
   cursor: pointer;
 
   &:hover {
@@ -94,11 +74,16 @@ export const ForgotNavigate = styled.span`
   }
 `;
 
-export const ForgotSignup = styled.p`
+export const SignupLink = styled.p`
+  margin-top: 5px;
   font-size: 14px;
-  color: #fff;
+`;
 
-  span:hover {
+export const BoldText = styled.span`
+  padding: 5px;
+  cursor: pointer;
+
+  &:hover {
     text-decoration: underline;
     color: #1d1616;
   }

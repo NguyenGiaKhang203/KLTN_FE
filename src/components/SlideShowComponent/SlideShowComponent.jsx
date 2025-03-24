@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import "./style.css";
+import {
+  SlideshowContainer,
+  SlideImage,
+  NavButton,
+  IconWrapper,
+} from "./style";
 
 const Slideshow = ({ featureImageList }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -12,36 +17,43 @@ const Slideshow = ({ featureImageList }) => {
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + featureImageList.length) % featureImageList.length);
+    setCurrentSlide(
+      (prev) => (prev - 1 + featureImageList.length) % featureImageList.length
+    );
   };
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
-    },5000);
+    }, 5000);
 
     return () => clearInterval(interval);
-  },[currentSlide])
+  }, [currentSlide]);
+
   return (
-    <div className="slideshow-container">
+    <SlideshowContainer>
       {featureImageList.map((slide, index) => (
-        <img
+        <SlideImage
           key={index}
           src={slide.image}
           alt="Slide"
-          className={`slide ${index === currentSlide ? "active" : ""}`}
+          active={index === currentSlide}
           onClick={() => navigate("/courses")}
         />
       ))}
 
-      <button onClick={prevSlide} className="prev-button">
-        <ChevronLeftIcon className="icon" />
-      </button>
+      <NavButton onClick={prevSlide} position="left">
+        <IconWrapper>
+          <ChevronLeftIcon />
+        </IconWrapper>
+      </NavButton>
 
-      <button onClick={nextSlide} className="next-button">
-        <ChevronRightIcon className="icon" />
-      </button>
-    </div>
+      <NavButton onClick={nextSlide} position="right">
+        <IconWrapper>
+          <ChevronRightIcon />
+        </IconWrapper>
+      </NavButton>
+    </SlideshowContainer>
   );
 };
 

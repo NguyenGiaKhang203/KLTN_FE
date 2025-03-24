@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { useMutationHooks } from "../../hooks/useMutationHooks";
-import * as UserService from "../../services/UserService";
+import { useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
+import * as UserService from "../../services/UserService";
+import { useMutationHooks } from "../../hooks/useMutationHooks";
 import * as message from "../../components/Message/Message";
-import { updateUser } from "../../redux/slides/userSlide";
+import { updateUser } from "../../redux/slices/userSlice";
 import InputForm from "../../components/InputForm/InputForm";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
-import Loading from "../../components/LoadingComponent/LoadingComponent";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
-import "./style.css";
+
+import {
+  SigninContainer,
+  SigninForm,
+  SigninContent,
+  StyledInputWrapper,
+  EyeIcon,
+  ForgotLink,
+  SignupLink,
+  BoldText,
+} from "./style";
+
 const SignInPages = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -21,8 +31,7 @@ const SignInPages = () => {
   const dispatch = useDispatch();
 
   const mutation = useMutationHooks((data) => UserService.loginUser(data));
-  const { data, isLoading, isSuccess, isError, error } = mutation; // Get `error` from mutation
-  console.log("data", data);
+  const { data, isLoading, isSuccess, isError, error } = mutation;
 
   useEffect(() => {
     if (isSuccess) {
@@ -33,6 +42,7 @@ const SignInPages = () => {
         "refresh_token",
         JSON.stringify(data?.refresh_token)
       );
+
       if (data?.access_token) {
         const decoded = jwtDecode(data?.access_token);
         if (decoded?.id) {
@@ -55,68 +65,40 @@ const SignInPages = () => {
     dispatch(updateUser({ ...res?.data, access_token: token, refreshToken }));
   };
 
-  const handleNavigateSignUp = () => {
-    navigate("/sign-up");
-  };
-
-  const handleNavigateForgotPass = () => {
-    navigate("/forgot-password");
-  };
-
-  const handleOnChangeEmail = (value) => {
-    setEmail(value);
-  };
-
-  const handleOnChangePassword = (value) => {
-    setPassword(value);
-  };
-
   const handleSignIn = () => {
     setErrorMessage("");
     mutation.mutate({ email, password });
   };
+
   return (
-    <div className="signin-container">
-      <div className="signin-form">
-        <div className="signin-content">
+    <SigninContainer>
+      <SigninForm>
+        <SigninContent>
           <h1 style={{ textAlign: "center" }}>Hello Chess</h1>
           <p style={{ marginBottom: "15px", fontSize: "18px" }}>Đăng nhập</p>
-          <InputForm
-            className="signin-input"
-            placeholder="Abc@gmail.com"
-            value={email}
-            onChange={handleOnChangeEmail}
-          />
-          <div style={{ position: "relative" }}>
-            <span
-              onClick={() => setIsShowPassword((prev) => !prev)}
-              style={{
-                zIndex: 10,
-                position: "absolute",
-                top: "4px",
-                right: "8px",
-              }}
-            >
-              {isShowPassword ? (
-                <EyeFilled className="Pic-Eye" />
-              ) : (
-                <EyeInvisibleFilled className="Pic-Eye" />
-              )}
-            </span>
+
+          <StyledInputWrapper>
+            <InputForm
+              placeholder="Abc@gmail.com"
+              value={email}
+              onChange={(val) => setEmail(val)}
+            />
+          </StyledInputWrapper>
+
+          <StyledInputWrapper style={{ position: "relative" }}>
+            <EyeIcon onClick={() => setIsShowPassword((prev) => !prev)}>
+              {isShowPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
+            </EyeIcon>
             <InputForm
               placeholder="Password"
               type={isShowPassword ? "text" : "password"}
-              className="signin-input"
               value={password}
-              onChange={handleOnChangePassword}
+              onChange={(val) => setPassword(val)}
             />
-          </div>
-          {errorMessage && (
-            <span style={{ color: "red" }}>
-              {error?.response?.data?.message}
-            </span>
-          )}
-          {/* <Loading isLoading={isLoading}> */}
+          </StyledInputWrapper>
+
+          {errorMessage && <span style={{ color: "red" }}>{errorMessage}</span>}
+
           <ButtonComponent
             disabled={!email || !password}
             onClick={handleSignIn}
@@ -136,24 +118,20 @@ const SignInPages = () => {
               fontWeight: "700",
             }}
           />
-          {/* </Loading> */}
-          <p>
-            <span
-              className="signin-link__forgot"
-              onClick={handleNavigateForgotPass}
-            >
-              Quên mật khẩu?
-            </span>
-          </p>
-          <p className="signin-link__signup">
+
+          <ForgotLink onClick={() => navigate("/forgot-password")}>
+            Quên mật khẩu?
+          </ForgotLink>
+
+          <SignupLink>
             Chưa có tài khoản?{" "}
-            <span className="link__signup" onClick={handleNavigateSignUp}>
+            <BoldText onClick={() => navigate("/sign-up")}>
               Tạo tài khoản
-            </span>
-          </p>
-        </div>
-      </div>
-    </div>
+            </BoldText>
+          </SignupLink>
+        </SigninContent>
+      </SigninForm>
+    </SigninContainer>
   );
 };
 

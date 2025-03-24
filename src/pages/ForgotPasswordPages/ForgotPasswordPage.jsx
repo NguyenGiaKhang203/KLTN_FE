@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import InputForm from "../../components/InputForm/InputForm";
-// import { Image } from "antd";
 import * as UserService from "../../services/UserService";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
-import "./style.css";
+
+import {
+  PageContainer,
+  FormContainer,
+  WrapperLeft,
+  StyledInput,
+  ForgotText,
+  ForgotNavigate,
+  ForgotSignup,
+} from "./style";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -44,6 +52,7 @@ const ForgotPasswordPage = () => {
       const res = await UserService.resetPassword({ email, otp, newPassword });
       if (res?.status === "SUCCESS") {
         message.success("Mật khẩu đã được thay đổi thành công.");
+        navigate("/sign-in");
       } else {
         message.error(res.message);
       }
@@ -51,28 +60,29 @@ const ForgotPasswordPage = () => {
       message.error("Có lỗi xảy ra khi đặt lại mật khẩu.");
     } finally {
       setIsSubmitting(false);
-      navigate("/sign-in");
     }
   };
 
   return (
-    <div className="page-container">
-      <div className="form-container">
-        <div className="wrapper-left">
+    <PageContainer>
+      <FormContainer>
+        <WrapperLeft>
           <h1 style={{ textAlign: "center", marginBottom: "15px" }}>
             Quên mật khẩu
           </h1>
+
           {!otpSent ? (
             <>
               <p style={{ marginBottom: "10px", fontSize: "16px" }}>
                 Nhập email để nhận OTP
               </p>
-              <InputForm
-                className="wrapper-input"
-                placeholder="Abc@gmail.com"
-                value={email}
-                onChange={setEmail}
-              />
+              <StyledInput>
+                <InputForm
+                  placeholder="Abc@gmail.com"
+                  value={email}
+                  onChange={setEmail}
+                />
+              </StyledInput>
               <ButtonComponent
                 disabled={!email.length}
                 onClick={handleSendOtp}
@@ -96,19 +106,17 @@ const ForgotPasswordPage = () => {
           ) : (
             <>
               <p>Enter the OTP and your new password</p>
-              <InputForm
-                style={{ marginBottom: "10px" }}
-                placeholder="OTP"
-                value={otp}
-                onChange={setOtp}
-              />
-              <InputForm
-                style={{ marginBottom: "10px" }}
-                placeholder="New Password"
-                type="password"
-                value={newPassword}
-                onChange={setNewPassword}
-              />
+              <StyledInput>
+                <InputForm placeholder="OTP" value={otp} onChange={setOtp} />
+              </StyledInput>
+              <StyledInput>
+                <InputForm
+                  placeholder="New Password"
+                  type="password"
+                  value={newPassword}
+                  onChange={setNewPassword}
+                />
+              </StyledInput>
               <Loading isLoading={isSubmitting}>
                 <ButtonComponent
                   disabled={!otp.length || !newPassword.length}
@@ -132,21 +140,20 @@ const ForgotPasswordPage = () => {
               </Loading>
             </>
           )}
-          <p className="forgot-link__text">
+
+          <ForgotText>
             Bạn đã có tài khoản?{" "}
-            <span className="forgot-navigate" onClick={handleNavigateSignIn}>
+            <ForgotNavigate onClick={handleNavigateSignIn}>
               Đăng Nhập
-            </span>{" "}
-          </p>
-          <p className="forgot-link__signup">
+            </ForgotNavigate>
+          </ForgotText>
+          <ForgotSignup>
             Chưa có tài khoản?{" "}
-            <span className="forgot__signup" onClick={handleNavigateSignUp}>
-              Tạo tài khoản
-            </span>
-          </p>
-        </div>
-      </div>
-    </div>
+            <span onClick={handleNavigateSignUp}>Tạo tài khoản</span>
+          </ForgotSignup>
+        </WrapperLeft>
+      </FormContainer>
+    </PageContainer>
   );
 };
 
