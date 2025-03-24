@@ -1,13 +1,20 @@
 import React from "react";
-import "./style.css";
 import { motion } from "framer-motion";
 import ScrollCard from "../ScrollCardComponent/ScrollCardComponent";
-import PawnImg from "../../assets/pawn.png"; // Thay ảnh bằng đường dẫn đúng
+import PawnImg from "../../assets/pawn.png";
 import RookImg from "../../assets/rook.png";
 import KnightImg from "../../assets/knight.png";
 import BishopImg from "../../assets/bishop.png";
 import KingImg from "../../assets/king.png";
-import QueenImg from "../../assets/queen.png"
+import QueenImg from "../../assets/queen.png";
+import {
+  WrapperChessSection,
+  WrapperTitle,
+  WrapperParagraph,
+  WrapperCardContainer1,
+  WrapperCardContainer2,
+} from "./style";
+
 const ChessInforComponent = () => {
   const benefits = [
     {
@@ -45,14 +52,15 @@ const ChessInforComponent = () => {
   ];
 
   return (
-    <section className="chess-info-section">
-      <h2>Cờ vua là một hành trình tuyệt vời!</h2>
-      <p>
-        Hãy để T-Chess giúp bạn trên hành trình này. Với T-Chess, cờ vua là một môi trường tuyệt vời
-        để giúp trẻ <strong>Tập trung – Tư duy – Vui học</strong>.
-      </p>
+    <WrapperChessSection>
+      <WrapperTitle>Cờ vua là một hành trình tuyệt vời!</WrapperTitle>
+      <WrapperParagraph>
+        Hãy để T-Chess giúp bạn trên hành trình này. Với T-Chess, cờ vua là một
+        môi trường tuyệt vời để giúp trẻ{" "}
+        <strong>Tập trung – Tư duy – Vui học</strong>.
+      </WrapperParagraph>
 
-      <div className="chess-card-container1">
+      <WrapperCardContainer1>
         {benefits.map((item, index) => (
           <ScrollCard key={index} delay={index * 0.2}>
             <img src={item.img} alt={item.title} />
@@ -60,9 +68,9 @@ const ChessInforComponent = () => {
             <p>{item.desc}</p>
           </ScrollCard>
         ))}
-      </div>
+      </WrapperCardContainer1>
 
-      <div className="chess-card-container2">
+      <WrapperCardContainer2>
         {description.map((item, index) => (
           <ScrollCard key={index} delay={index * 0.2}>
             <img src={item.img} alt={item.title} />
@@ -70,9 +78,8 @@ const ChessInforComponent = () => {
             <p>{item.desc}</p>
           </ScrollCard>
         ))}
-      </div>
-
-    </section>
+      </WrapperCardContainer2>
+    </WrapperChessSection>
   );
 };
 
