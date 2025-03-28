@@ -103,7 +103,7 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
       </Menu.Item>
     </Menu>
   );
-
+  console.log("user:", user);
   return (
     <WrapperHeaderContainer>
       <WrapperHeader>
@@ -113,7 +113,7 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
 
         <WrapperNavLinks span={12}>
           <WrapperTextHeader to="/">Trang Chủ</WrapperTextHeader>
-          <WrapperTextHeader to="/course">Khóa Học</WrapperTextHeader>
+          <WrapperTextHeader to="/courses">Khóa Học</WrapperTextHeader>
           <Dropdown overlay={menuHoc} trigger={["hover"]}>
             <WrapperTextHeader to="#">
               Học <CaretDownOutlined />

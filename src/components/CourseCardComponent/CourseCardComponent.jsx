@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   WrapperCourseCard,
   WrapperThumbnail,
@@ -17,14 +18,16 @@ import {
   WrapperRate,
 } from "./style";
 
-function CourseCardComponent({
-  course,
-  handleGetCourseDetails,
-  handleAddToCart,
-}) {
+function CourseCardComponent({ course, handleAddToCart }) {
+  const navigate = useNavigate();
+
+  const handleGoToDetails = () => {
+    navigate(`/course-details/${course.id}`);
+  };
+
   return (
     <WrapperCourseCard>
-      <WrapperThumbnail>
+      <WrapperThumbnail onClick={handleGoToDetails} style={{ cursor: "pointer" }}>
         <img src={course.imageUrl} alt={course.name} />
         {course.badge && <WrapperBadge>{course.badge}</WrapperBadge>}
       </WrapperThumbnail>
@@ -35,7 +38,13 @@ function CourseCardComponent({
           <WrapperScore>{course.rating.toFixed(1)}</WrapperScore>
         </WrapperRating>
 
-        <WrapperTitle title={course.name}>{course.name}</WrapperTitle>
+        <WrapperTitle
+          title={course.name}
+          onClick={handleGoToDetails}
+          style={{ cursor: "pointer" }}
+        >
+          {course.name}
+        </WrapperTitle>
 
         <WrapperMeta>
           <span>👤 {course.studentsCount}</span>

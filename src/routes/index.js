@@ -5,6 +5,7 @@ import CoursePage from "../pages/CoursePages/CoursePage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPages/ForgotPasswordPage";
 import OrderPage from "../pages/OrderPages/OrderPages";
 import ProfilePage from "../pages/ProfilePages/ProfilePages";
+import CourseDetailPage from "../components/CourseDetailComponent/CourseDetailComponent";
 export const routes = [
   {
     path: "/",
@@ -25,8 +26,14 @@ export const routes = [
     isShowFooter: false,
   },
   {
-    path: "/course",
+    path: "/courses",
     page: CoursePage,
+    isShowHeader: true,
+    isShowFooter: true,
+  },
+  {
+    path: "/course-details/1",
+    page: CourseDetailPage,
     isShowHeader: true,
     isShowFooter: true,
   },

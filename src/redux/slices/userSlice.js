@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  name: "",
+  name: "",           // Tên học viên
+  dob: "",            // Ngày sinh
+  parentName: "",     // Tên phụ huynh
+  parentPhone: "",    // SĐT phụ huynh
   email: "",
-  phone: "",
+  phone: "",          // nếu cần, hoặc có thể bỏ
   address: "",
   avatar: "",
   access_token: "",
@@ -13,50 +16,48 @@ const initialState = {
   refreshToken: "",
 };
 
-export const userSlide = createSlice({
+export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     updateUser: (state, action) => {
       const {
         name = "",
+        dob = "",
+        parentName = "",
+        parentPhone = "",
         email = "",
-        access_token = "",
-        address = "",
         phone = "",
+        address = "",
         avatar = "",
-        _id = "",
-        isAdmin,
+        access_token = "",
+        isAdmin = false,
         city = "",
         refreshToken = "",
+        id = "",
+        _id = "",
       } = action.payload;
-      state.name = name ? name : state.name;
-      state.email = email ? email : state.email;
-      state.address = address ? address : state.address;
-      state.phone = phone ? phone : state.phone;
-      state.avatar = avatar ? avatar : state.avatar;
-      state.id = _id ? _id : state.id;
-      state.access_token = access_token ? access_token : state.access_token;
-      state.isAdmin = isAdmin ? isAdmin : state.isAdmin;
-      state.city = city ? city : state.city;
-      state.refreshToken = refreshToken ? refreshToken : state.refreshToken;
+
+      state.name = name || state.name;
+      state.dob = dob || state.dob;
+      state.parentName = parentName || state.parentName;
+      state.parentPhone = parentPhone || state.parentPhone;
+      state.email = email || state.email;
+      state.phone = phone || state.phone;
+      state.address = address || state.address;
+      state.avatar = avatar || state.avatar;
+      state.id = id || _id || state.id;
+      state.access_token = access_token || state.access_token;
+      state.isAdmin = typeof isAdmin === "boolean" ? isAdmin : state.isAdmin;
+      state.city = city || state.city;
+      state.refreshToken = refreshToken || state.refreshToken;
     },
+
     resetUser: (state) => {
-      state.name = "";
-      state.email = "";
-      state.address = "";
-      state.phone = "";
-      state.avatar = "";
-      state.id = "";
-      state.access_token = "";
-      state.isAdmin = false;
-      state.city = "";
-      state.refreshToken = "";
+      Object.assign(state, initialState);
     },
   },
 });
 
-// Action creators are generated for each case reducer function
-export const { updateUser, resetUser } = userSlide.actions;
-
-export default userSlide.reducer;
+export const { updateUser, resetUser } = userSlice.actions;
+export default userSlice.reducer;

@@ -131,8 +131,8 @@ const OrderPage = () => {
                   fontSize: "18px",
                 }}
               >
-                <span>Đơn giá</span>
-                <span>Thành tiền</span>
+                <span>Lịch học</span>
+                <span>Giá</span>
                 <DeleteOutlined
                   style={{ cursor: "pointer", color: "red", fontSize: "22px" }}
                   onClick={handleDeleteSelected}
@@ -147,7 +147,7 @@ const OrderPage = () => {
                     style={{
                       width: "400px",
                       display: "flex",
-                      alignItems: "center",
+                      alignItems: "flex-start",
                       gap: 10,
                     }}
                   >
@@ -166,17 +166,29 @@ const OrderPage = () => {
                         objectFit: "cover",
                       }}
                     />
-                    <div
-                      style={{
-                        width: 260,
-                        fontSize: "14px",
-                        fontWeight: "500",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {item?.name}
+                    <div style={{ width: 260 }}>
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item?.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          color: "#555",
+                          marginTop: "4px",
+                          whiteSpace: "normal",
+                          lineHeight: "1.4",
+                        }}
+                      >
+                        🗓 {item?.schedule || "Chưa có thông tin lịch học"}
+                      </div>
                     </div>
                   </div>
                   <div
@@ -187,9 +199,6 @@ const OrderPage = () => {
                       justifyContent: "space-between",
                     }}
                   >
-                    <span style={{ fontWeight: "700", fontSize: "18px" }}>
-                      {convertPrice(item?.price)}
-                    </span>
                     <span
                       style={{
                         color: "#ff4040",

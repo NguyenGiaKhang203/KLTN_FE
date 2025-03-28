@@ -86,3 +86,4 @@ const mockCourses = [
 ];
 
 export default mockCourses;
+

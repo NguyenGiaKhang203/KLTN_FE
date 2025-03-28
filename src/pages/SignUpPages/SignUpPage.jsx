@@ -33,10 +33,12 @@ const SignUpPage = () => {
   const { data, isLoading, isSuccess, isError, error } = mutation;
 
   useEffect(() => {
+    console.log("👉 Mutation data:", data);
     if (isSuccess) {
       Message.success("Bạn đã đăng ký thành công! Vui lòng đăng nhập.");
       navigate("/sign-in");
     } else if (isError) {
+      console.log(" Mutation error:", error);
       const errorMessage =
         error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
       Message.error(errorMessage);
@@ -67,18 +69,20 @@ const SignUpPage = () => {
 
   const handleSendOtp = async () => {
     try {
+      console.log("Gửi OTP:", email);
       const res = await UserService.sendOtp({ email });
       res?.status === "OK"
         ? Message.success(res.message)
         : Message.error(res.message);
-    } catch {
+    } catch (err){
+      console.log("Lỗi gọi OTP:", err);
       Message.error("Lỗi khi gửi OTP.");
     }
   };
 
   const handleReSendOtp = async () => {
     try {
-      await UserService.sendOtp({ email });
+      await UserService.resendOtp({ email });
       Message.success("Mã OTP đã được gửi lại!");
     } catch {
       Message.error("Không thể gửi lại mã OTP.");
