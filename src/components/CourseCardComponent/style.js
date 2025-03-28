@@ -12,7 +12,7 @@ export const WrapperCourseCard = styled.div`
   height: 450px; /* tăng chiều cao thêm một chút */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s;
-
+  cursor:pointer;
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }

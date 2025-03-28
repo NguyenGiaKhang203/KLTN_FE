@@ -9,25 +9,43 @@ export const WrapperHeader = styled.h1`
   text-align: center;
 `;
 
-export const WrapperContentProfile = styled.div`
+export const WrapperProfileContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  gap: 40px;
   border: 1px solid #ccc;
-  width: 700px;
-  margin: 0 auto;
   padding: 30px 40px;
   border-radius: 12px;
   background-color: #fefefe;
-  gap: 20px;
+  width: fit-content;
+  margin: 0 auto;
 `;
 
-export const WrapperLabel = styled.label`
-  color: #333;
-  font-size: 14px;
-  font-weight: 600;
-  width: 140px;
-  margin-bottom :4px;
-  white-space: nowrap;
+export const WrapperAvatarSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+`;
+
+export const AvatarImage = styled.img`
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+`;
+
+export const DefaultAvatar = styled.div`
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #999;
+  border: 2px solid #ccc;
 `;
 
 export const WrapperUploadFile = styled(Upload)`
@@ -39,6 +57,22 @@ export const WrapperUploadFile = styled(Upload)`
   & .ant-upload-list-item-info {
     display: none;
   }
+`;
+
+export const WrapperInfoSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 400px;
+`;
+
+export const WrapperLabel = styled.label`
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  width: 140px;
+  margin-bottom: 4px;
+  white-space: nowrap;
 `;
 
 export const WrapperInput = styled.div`
@@ -67,7 +101,7 @@ export const WrapperInput = styled.div`
 export const WrapperButton = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center; 
-  justify-content: center; 
-  margin-top: 20px; 
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 `;
