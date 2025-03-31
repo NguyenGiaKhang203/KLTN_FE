@@ -6,6 +6,8 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPages/ForgotPasswordPage"
 import OrderPage from "../pages/OrderPages/OrderPages";
 import ProfilePage from "../pages/ProfilePages/ProfilePages";
 import CourseDetailPage from "../components/CourseDetailComponent/CourseDetailComponent";
+import AdminLayout from "../pages/Admin/AdminDashboard/AdminDashboard";
+import ClassPage from "../pages/Admin/ClassPage/ClassPage";
 export const routes = [
   {
     path: "/",
@@ -54,5 +56,17 @@ export const routes = [
     page: ProfilePage,
     isShowHeader:true,
     isShowFooter:false
-  }
+  },
+  {
+    path:"/system/admin",
+    page: AdminLayout,
+    isShowHeader:false,
+    isShowFooter:false
+  },
+  {
+    path:"system/admin/classes",
+    page: ClassPage,
+    isShowHeader:false,
+    isShowFooter:false
+  },
 ];

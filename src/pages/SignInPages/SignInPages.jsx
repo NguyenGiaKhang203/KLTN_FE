@@ -48,6 +48,13 @@ const SignInPages = () => {
         if (decoded?.id) {
           handleGetDetailsUser(decoded?.id, data?.access_token);
         }
+        if ( decoded?.isAdmin ){
+          navigate("/system/admin")
+        } else {
+          const redirecPath = location?.state || "/" ;
+          navigate(redirecPath)
+        }
+
       }
     }
 
