@@ -24,8 +24,8 @@ const Sidebar = () => {
     <Sider width={240} theme="dark">
       <SidebarWrapper>
         <LogoSection>
-          <img src="/logo.png" alt="Athena" />
-          <h3>CLB CỜ VUA ATHENA</h3>
+          <img src="/logo.png" alt="King-chess" />
+          <h3>KING-CHESS </h3>
           <span className="status">● Online</span>
         </LogoSection>
         <Menu
