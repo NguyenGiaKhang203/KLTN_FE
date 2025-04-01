@@ -1,16 +1,14 @@
+// src/components/HeaderComponent.jsx
+
 import React, { useState, useEffect } from "react";
-import { Col, Badge, Popover, Menu, Dropdown } from "antd";
-import {
-  UserOutlined,
-  CaretDownOutlined,
-  ShoppingCartOutlined,
-} from "@ant-design/icons";
+import { Col, Badge, Popover } from "antd";
+import { UserOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/slices/userSlice";
 import Loading from "../LoadingComponent/LoadingComponent";
-
+import Logo from "../../assets/Logo1.png";
 import {
   WrapperHeaderContainer,
   WrapperHeader,
@@ -25,6 +23,8 @@ import {
   WrapperLoginSection,
   WrapperCartIcon,
   WrapperContentPopup,
+  WrapperLogoLink,
+  LogoImage,
 } from "./style";
 
 const HeaderComponent = ({ isHiddenCart = false }) => {
@@ -85,46 +85,23 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
       </WrapperContentPopup>
     </div>
   );
-
-  const menuHoc = (
-    <Menu>
-      <Menu.Item onClick={() => navigate("/hoc/coban")}>Cơ bản</Menu.Item>
-      <Menu.Item onClick={() => navigate("/hoc/nangcao")}>Nâng cao</Menu.Item>
-    </Menu>
-  );
-
-  const menuDaisyChess = (
-    <Menu>
-      <Menu.Item onClick={() => navigate("/ve-daisy/gioithieu")}>
-        Giới thiệu
-      </Menu.Item>
-      <Menu.Item onClick={() => navigate("/ve-daisy/lienhe")}>
-        Liên hệ
-      </Menu.Item>
-    </Menu>
-  );
-  console.log("user:", user);
   return (
     <WrapperHeaderContainer>
       <WrapperHeader>
         <WrapperLogo span={7}>
-          <WrapperTextHeader to="/">Daisy Chess</WrapperTextHeader>
+          <WrapperLogo span={7}>
+            <WrapperLogoLink to="/">
+              <LogoImage src={Logo} alt="logo" />
+            </WrapperLogoLink>
+          </WrapperLogo>
         </WrapperLogo>
 
         <WrapperNavLinks span={12}>
           <WrapperTextHeader to="/">Trang Chủ</WrapperTextHeader>
           <WrapperTextHeader to="/courses">Khóa Học</WrapperTextHeader>
-          <Dropdown overlay={menuHoc} trigger={["hover"]}>
-            <WrapperTextHeader to="#">
-              Học <CaretDownOutlined />
-            </WrapperTextHeader>
-          </Dropdown>
-          <WrapperTextHeader to="/bai-viet">Bài Viết</WrapperTextHeader>
-          <Dropdown overlay={menuDaisyChess} trigger={["hover"]}>
-            <WrapperTextHeader to="#">
-              Về Daisy Chess <CaretDownOutlined />
-            </WrapperTextHeader>
-          </Dropdown>
+          <WrapperTextHeader to="/blogs">Bài Viết</WrapperTextHeader>
+          <WrapperTextHeader to="/gioithieu">Giới Thiệu</WrapperTextHeader>
+          <WrapperTextHeader to="/ve-daisy/lienhe">Liên Hệ</WrapperTextHeader>
         </WrapperNavLinks>
 
         {!isHiddenCart && (

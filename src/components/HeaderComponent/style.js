@@ -1,5 +1,7 @@
+// src/components/style.js
+
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Avatar } from "antd";
 
 export const WrapperHeaderContainer = styled.div`
@@ -32,17 +34,42 @@ export const WrapperNavLinks = styled.div`
   flex-grow: 1;
   justify-content: center;
 `;
-
-export const WrapperTextHeader = styled(Link)`
+export const LogoImage = styled.img`
+  height: 25px; // ✅ chỉnh to lên theo header
+  object-fit: contain;
+  transform: scale(2.7);
+  transformorigin: left center;
+`;
+// Sử dụng NavLink để highlight active route
+export const WrapperTextHeader = styled(NavLink)`
   color: #1a1a1a;
   font-size: 16px;
   font-weight: 500;
   text-decoration: none;
-  transition: transform 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  position: relative;
 
   &:hover {
-    color: #7d0a0a;
+    color: rgb(230, 51, 51);
     transform: scaleX(1.1);
+  }
+
+  &.active {
+    color: rgb(230, 51, 51);
+    font-weight: 600;
+    border-bottom: 2px solid rgb(230, 51, 51);
+  }
+`;
+export const WrapperLogoLink = styled(NavLink)`
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  top: 10px;
+  &:hover {
+    transform: scaleX(1.5);
+  }
+
+  &.active {
+    font-weight: 600;
   }
 `;
 
@@ -52,7 +79,7 @@ export const WrapperTextHeaderSmall = styled.div`
   transition: transform 0.3s ease-in-out;
 
   &:hover {
-    color: #7d0a0a;
+    color: rgb(230, 51, 51);
     transform: scaleX(1.1);
   }
 `;

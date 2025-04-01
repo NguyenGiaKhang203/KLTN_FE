@@ -1,3 +1,5 @@
+// src/components/Footer.jsx
+
 import React from "react";
 import {
   WrapperFooter,
@@ -9,66 +11,86 @@ import {
   WrapperParagraph,
   WrapperSocialIcons,
   WrapperLinkGroup,
+  WrapperTextFooter,
+  WrapperCopyright,
+  CustomDivider,
+  LogoImage,
 } from "./style";
-import { WrapperTextFooter } from "./style"; // cái bạn đã có
+
 import {
-  createFromIconfontCN,
+  FacebookFilled,
   YoutubeFilled,
   HomeFilled,
   PhoneFilled,
 } from "@ant-design/icons";
-import { Space } from "antd";
+import { Space, Typography, Divider } from "antd";
+import Logo from "../../assets/Logo2.png";
+const { Title } = Typography;
 
 const Footer = () => {
-  const IconFont = createFromIconfontCN({
-    scriptUrl: "//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js",
-  });
-
   return (
     <WrapperFooter>
       <WrapperFooterContainer>
+        {/* Trái */}
         <WrapperLeft>
-          <h1>Daisy Chess</h1>
+          <Title level={3} style={{ color: "#fff", marginBottom: 10 }}>
+            <LogoImage src={Logo} />
+          </Title>
+
           <WrapperParagraph>
             Trực thuộc Liên đoàn cờ vua Đà Nẵng
           </WrapperParagraph>
           <WrapperParagraph>Top 100 CLB tốt nhất tại Đà Nẵng</WrapperParagraph>
+          {/* 👇 Icon căn giữa tại đây */}
           <WrapperSocialIcons>
-            <Space>
-              <IconFont className="icons-a" type="icon-facebook" />
-              <YoutubeFilled style={{ fontSize: "20px" }} />
+            <Space size="middle">
+              <a href="https://facebook.com" target="_blank" rel="noreferrer">
+                <FacebookFilled className="social-icon facebook" />
+              </a>
+              <a href="https://youtube.com" target="_blank" rel="noreferrer">
+                <YoutubeFilled className="social-icon youtube" />
+              </a>
             </Space>
           </WrapperSocialIcons>
         </WrapperLeft>
 
+        {/* Giữa */}
         <WrapperCenter>
           <WrapperSectionTitle>
-            <HomeFilled style={{ padding: "5px", color: "#f39c12" }} />
+            <HomeFilled style={{ marginRight: 8, color: "#f39c12" }} />
             Địa chỉ
           </WrapperSectionTitle>
           <WrapperParagraph>
             50 Trường Chinh 1, Thanh Khê, Đà Nẵng.
           </WrapperParagraph>
-          <hr />
+          <CustomDivider />
           <WrapperSectionTitle>
-            <PhoneFilled style={{ padding: "5px", color: "#f39c12" }} />
+            <PhoneFilled style={{ marginRight: 8, color: "#f39c12" }} />
             Số điện thoại
           </WrapperSectionTitle>
-          <WrapperParagraph>0905112113 (Cô Huệ)</WrapperParagraph>
-          <WrapperParagraph>0613998996 (Thầy Linh)</WrapperParagraph>
+          <WrapperParagraph>0905 112 113 (Cô Huệ)</WrapperParagraph>
+          <WrapperParagraph>0613 998 996 (Thầy Linh)</WrapperParagraph>
         </WrapperCenter>
 
+        {/* Phải */}
         <WrapperRight>
-          <h3>Trang liên quan</h3>
+          <Title level={4} style={{ color: "#fff", marginBottom: 10 }}>
+            Trang liên quan
+          </Title>
           <WrapperLinkGroup>
             <WrapperTextFooter to="/">Trang Chủ</WrapperTextFooter>
             <WrapperTextFooter to="/courses">Khóa Học</WrapperTextFooter>
             <WrapperTextFooter to="/about">
-              Thông tin CLB Daisy
+              Thông tin CLB King-Chess
             </WrapperTextFooter>
           </WrapperLinkGroup>
         </WrapperRight>
       </WrapperFooterContainer>
+
+      <Divider style={{ backgroundColor: "#444" }} />
+      <WrapperCopyright>
+        © {new Date().getFullYear()} King Chess. All rights reserved.
+      </WrapperCopyright>
     </WrapperFooter>
   );
 };

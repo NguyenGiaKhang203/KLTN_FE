@@ -19,12 +19,12 @@ const Hero = () => {
     <WrapperHeroSection>
       <WrapperHeroContent>
         <HeroTitle>
-          <HighlightText>T-CHESS</HighlightText>
+          <HighlightText>KING-CHESS</HighlightText>
         </HeroTitle>
         <HeroDescription>
           <SubText1>Nơi đào tạo những kỳ thủ tương lai</SubText1>
           <SubText>
-            <em>Trung tâm cờ vua T – Nhiều hoạt động trải nghiệm thú vị ❤️</em>
+            <em>King-Chess Center – Many interesting experiences❤️</em>
           </SubText>
         </HeroDescription>
         <ButtonComponent
