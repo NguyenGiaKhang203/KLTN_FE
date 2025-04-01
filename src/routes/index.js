@@ -8,6 +8,8 @@ import ProfilePage from "../pages/ProfilePages/ProfilePages";
 import CourseDetailPage from "../components/CourseDetailComponent/CourseDetailComponent";
 import AdminLayout from "../pages/Admin/AdminDashboard/AdminDashboard";
 import ClassPage from "../pages/Admin/ClassPage/ClassPage";
+import BlogPage from "../pages/BlogPages/BlogPage";
+import AboutPage from "../pages/AboutPages/AboutPage";
 export const routes = [
   {
     path: "/",
@@ -46,27 +48,40 @@ export const routes = [
     isShowFooter: false,
   },
   {
-    path:"/order",
+    path: "/order",
     page: OrderPage,
-    isShowHeader:true,
-    isShowFooter:true,
+    isShowHeader: true,
+    isShowFooter: true,
   },
   {
-    path:"/profile-user",
+    path: "/profile-user",
     page: ProfilePage,
-    isShowHeader:true,
-    isShowFooter:false
+
+    isShowHeader: true,
+    isShowFooter: false,
   },
   {
-    path:"/system/admin",
+    path: "/system/admin",
     page: AdminLayout,
-    isShowHeader:false,
-    isShowFooter:false
+    isShowHeader: false,
+    isShowFooter: false,
   },
   {
-    path:"system/admin/classes",
+    path: "system/admin/classes",
     page: ClassPage,
-    isShowHeader:false,
-    isShowFooter:false
+    isShowHeader: false,
+    isShowFooter: false,
+  },
+  {
+    path: "/blogs",
+    page: BlogPage,
+    isShowHeader: true,
+    isShowFooter: true,
+  },
+  {
+    path: "/gioithieu",
+    page: AboutPage,
+    isShowHeader: true,
+    isShowFooter: true,
   },
 ];

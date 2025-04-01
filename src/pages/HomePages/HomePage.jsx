@@ -2,26 +2,26 @@ import React, { useEffect, useState } from "react";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
 import { useLocation } from "react-router-dom";
 import ForgotPasswordPage from "../ForgotPasswordPages/ForgotPasswordPage";
-import { useNavigate } from 'react-router-dom'
-import Hero from '../../components/HeroComponent/HeroComponent';
-import ChessInforComponent from '../../components/ChessInforComponent/ChessInforComponent';
-import Slideshow from '../../components/SlideShowComponent/SlideShowComponent';
-import FlexibleLearningProgram from '../../components/FlexibleProgramComponent/FlexibleProgramComponent';
-import GalleryComponent from '../../components/GallaryComponents/GallaryComponents';
-import banner1 from '../../assets/banner.png';
-import banner2 from '../../assets/banner2.png';
-import banner3 from '../../assets/banner3.png';
-import banner4 from '../../assets/banner4.png';
-import banner5 from '../../assets/banner5.png';
+import { useNavigate } from "react-router-dom";
+import Hero from "../../components/HeroComponent/HeroComponent";
+import ChessInforComponent from "../../components/ChessInforComponent/ChessInforComponent";
+import Slideshow from "../../components/SlideShowComponent/SlideShowComponent";
+import FlexibleLearningProgram from "../../components/FlexibleProgramComponent/FlexibleProgramComponent";
+import GalleryComponent from "../../components/GallaryComponents/GallaryComponents";
+import banner1 from "../../assets/banner.png";
+import banner2 from "../../assets/banner2.png";
+import banner3 from "../../assets/banner3.png";
+import banner4 from "../../assets/banner4.png";
+import banner5 from "../../assets/banner5.png";
+import BlogPage from "../BlogPages/BlogPage";
 
-
-const featureImageList =[
-  { image: banner1},
-  { image: banner2},
-  { image: banner3},
-  { image: banner4},
-  { image: banner5},
-]
+const featureImageList = [
+  { image: banner1 },
+  { image: banner2 },
+  { image: banner3 },
+  { image: banner4 },
+  { image: banner5 },
+];
 console.log("Feature Image List:", featureImageList);
 const HomePage = () => {
   // const dispatch = useDispatch();
@@ -33,8 +33,8 @@ const HomePage = () => {
     <div>
       <Hero />
       <ChessInforComponent />
-      <Slideshow featureImageList={featureImageList}/>
-      <FlexibleLearningProgram/>
+      <Slideshow featureImageList={featureImageList} />
+      <FlexibleLearningProgram />
       <GalleryComponent />
     </div>
   );
