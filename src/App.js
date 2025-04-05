@@ -74,29 +74,47 @@ function App() {
     <div style={{ height: "100vh", width: "100%" }}>
       <Loading isLoading={isLoading}>
         <Router>
-          <Routes>
-            {routes.map((route) => {
-              const Page = route.page;
-              const Layout = route.isShowHeader ? DefaultComponent : Fragment;
-              const ShowFooter = route.isShowFooter
-                ? FooterComponent
-                : Fragment;
+        <Routes>
+          {routes.map((route) => {
+            if (route.children) {
+              const Layout = route.layout;
               return (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={
-                    <>
-                      <Layout>
-                        <Page />
-                      </Layout>
-                      <ShowFooter />
-                    </>
-                  }
-                />
+                <Route path={route.path} element={<Layout />} key={route.path}>
+                  {route.children.map((child) => {
+                    const ChildPage = child.page;
+                    return (
+                      <Route
+                        key={child.path}
+                        path={child.path}
+                        element={<ChildPage />}
+                      />
+                    );
+                  })}
+                </Route>
               );
-            })}
-          </Routes>
+            }
+
+            // Route bình thường
+            const Page = route.page;
+            const Layout = route.isShowHeader ? DefaultComponent : Fragment;
+            const ShowFooter = route.isShowFooter ? FooterComponent : Fragment;
+
+            return (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={
+                  <>
+                    <Layout>
+                      <Page />
+                    </Layout>
+                    <ShowFooter />
+                  </>
+                }
+              />
+            );
+          })}
+        </Routes>
         </Router>
       </Loading>
     </div>

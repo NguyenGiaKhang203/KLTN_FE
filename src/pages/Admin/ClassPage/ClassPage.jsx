@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, Button, Space, Tooltip } from 'antd';
 import {
   EditOutlined,
@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { TableWrapper, Toolbar } from './style';
 import mockClassData from '../../../lib/mockdataClass';
+import ClassForm from '../../../components/Admin/AdminClassForm/AdminClassForm';
 
 const columns = [
   {
@@ -63,27 +64,51 @@ const columns = [
 ];
 
 const ClassPage = () => {
-  return (
-    <TableWrapper>
-      <Toolbar>
-        <Space>
-          <Button type="primary" icon={<PlusOutlined />}>Thêm lớp</Button>
-          <Button icon={<AppstoreAddOutlined />}>Thêm nhanh</Button>
-          <Button icon={<UnorderedListOutlined />}>Danh mục hệ đào tạo</Button>
-          <Button icon={<SortAscendingOutlined />}>Sắp xếp thứ tự</Button>
-        </Space>
-      </Toolbar>
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-      <Table
-        columns={columns}
-        dataSource={mockClassData}
-        rowKey="id"
-        pagination={false}
-        rowClassName="table-row"
-        size="middle"
+  const handleCreateOrUpdate = (data) => {
+    console.log('Submit form data:', data);
+    setIsFormOpen(false);
+  };
+
+  return (
+    <>
+      <TableWrapper>
+        <Toolbar>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setIsFormOpen(true)}
+            >
+              Thêm lớp
+            </Button>
+            <Button icon={<AppstoreAddOutlined />}>Thêm nhanh</Button>
+            <Button icon={<UnorderedListOutlined />}>Danh mục hệ đào tạo</Button>
+            <Button icon={<SortAscendingOutlined />}>Sắp xếp thứ tự</Button>
+          </Space>
+        </Toolbar>
+
+        <Table
+          columns={columns}
+          dataSource={mockClassData}
+          rowKey="id"
+          pagination={false}
+          rowClassName="table-row"
+          size="middle"
+        />
+        <div className="table-footer">Tổng số: {mockClassData.length} kết quả</div>
+      </TableWrapper>
+
+      <ClassForm
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSubmit={handleCreateOrUpdate}
+        initialValues={null}
+        courses={[]}
+        teachers={[]}
       />
-      <div className="table-footer">Tổng số: {mockClassData.length} kết quả</div>
-    </TableWrapper>
+    </>
   );
 };
 
