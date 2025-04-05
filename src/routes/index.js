@@ -13,6 +13,8 @@ import AboutPage from "../pages/AboutPages/AboutPage";
 import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import SchedulePage from "../pages/Admin/SchedulePage/SchedulePage";
 import StudentPage from "../pages/Admin/StudentPage/StudentPage";
+import ContactPage from "../pages/ContactPages/ContactPage";
+
 export const routes = [
   {
     path: "/",
@@ -70,8 +72,14 @@ export const routes = [
     isShowFooter: true,
   },
   {
-    path: "/gioithieu",
+    path: "/introduce",
     page: AboutPage,
+    isShowHeader: true,
+    isShowFooter: true,
+  },
+  {
+    path: "/contact",
+    page: ContactPage,
     isShowHeader: true,
     isShowFooter: true,
   },
@@ -98,8 +106,8 @@ export const routes = [
       },
       {
         path: "students",
-        page: StudentPage
-      }
+        page: StudentPage,
+      },
     ],
-  }
+  },
 ];

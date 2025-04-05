@@ -51,3 +51,8 @@ export const SortSelect = styled.select`
   border-radius: 4px;
   border: 1px solid #ccc;
 `;
+export const CenteredPagination = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 7px 0px 0px 850px;
+`;
