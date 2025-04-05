@@ -16,6 +16,7 @@ import {
   WrapperCourseHeader,
   WrapperCourseGrid,
   SortSelect,
+  CenteredPagination,
 } from "./style";
 import mockCourses from "../../lib/mockdata";
 import { Pagination } from "antd";
@@ -160,12 +161,9 @@ function CoursePage() {
         </WrapperCourseGrid>
       </WrapperCourseContainer>
 
-      <CourseDetailComponent
-        open={openDetailsDialog}
-        setOpen={setOpenDetailsDialog}
-        courseDetails={courseDetails}
-      />
-      <Pagination align="center" defaultCurrent={1} total={50} />
+      <CenteredPagination>
+        <Pagination defaultCurrent={1} total={50} />
+      </CenteredPagination>
     </WrapperCoursePage>
   );
 }
