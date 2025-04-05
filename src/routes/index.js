@@ -6,10 +6,13 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPages/ForgotPasswordPage"
 import OrderPage from "../pages/OrderPages/OrderPages";
 import ProfilePage from "../pages/ProfilePages/ProfilePages";
 import CourseDetailPage from "../components/CourseDetailComponent/CourseDetailComponent";
-import AdminLayout from "../pages/Admin/AdminDashboard/AdminDashboard";
+import AdminLayout from "../pages/Admin/AdminLayout/AdminLayout";
 import ClassPage from "../pages/Admin/ClassPage/ClassPage";
 import BlogPage from "../pages/BlogPages/BlogPage";
 import AboutPage from "../pages/AboutPages/AboutPage";
+import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
+import SchedulePage from "../pages/Admin/SchedulePage/SchedulePage";
+import StudentPage from "../pages/Admin/StudentPage/StudentPage";
 export const routes = [
   {
     path: "/",
@@ -61,18 +64,6 @@ export const routes = [
     isShowFooter: false,
   },
   {
-    path: "/system/admin",
-    page: AdminLayout,
-    isShowHeader: false,
-    isShowFooter: false,
-  },
-  {
-    path: "system/admin/classes",
-    page: ClassPage,
-    isShowHeader: false,
-    isShowFooter: false,
-  },
-  {
     path: "/blogs",
     page: BlogPage,
     isShowHeader: true,
@@ -84,4 +75,31 @@ export const routes = [
     isShowHeader: true,
     isShowFooter: true,
   },
+  // Admin Routes
+  {
+    path: "/system/admin",
+    layout: AdminLayout,
+    children: [
+      {
+        path: "", // /system/admin
+        page: AdminDashboard,
+      },
+      {
+        path: "classes", // /system/admin/classes
+        page: ClassPage,
+      },
+      {
+        path: "schedule",
+        page: SchedulePage,
+      },
+      {
+        path: "courses",
+        page: CoursePage,
+      },
+      {
+        path: "students",
+        page: StudentPage
+      }
+    ],
+  }
 ];

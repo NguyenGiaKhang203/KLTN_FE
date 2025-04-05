@@ -4,6 +4,7 @@ export const ClassCardWrapper = styled.div`
   width: 100%;
   margin-bottom: 20px;
   border-radius: 16px;
+  border: 1px solid #fff;
   overflow: hidden; /* Quan trọng để bo góc cả vạch */
 
   .ant-card {

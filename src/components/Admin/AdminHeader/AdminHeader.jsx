@@ -1,11 +1,25 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { Select, Avatar, Badge } from 'antd';
 import { HomeFilled, BellOutlined, SearchOutlined } from '@ant-design/icons';
 import { HeaderWrapper } from './style';
 
 const { Option } = Select;
 
-const ClassPageHeader = ({ title = "Hệ thống" }) => {
+const ClassPageHeader = () => {
+  const location = useLocation();
+
+  const getTitleFromPath = (pathname) => {
+    if (pathname.includes('classes')) return 'Danh sách lớp';
+    if (pathname.includes('schedule')) return 'Thời khóa biểu';
+    if (pathname.includes('courses')) return 'Quản lý khóa học';
+    if (pathname.includes('attendance')) return 'Điểm danh';
+    if (pathname.includes('students')) return 'Học sinh';
+    return 'Hệ thống';
+  };
+
+  const title = getTitleFromPath(location.pathname);
+
   return (
     <HeaderWrapper>
       <div className="left">
@@ -19,12 +33,7 @@ const ClassPageHeader = ({ title = "Hệ thống" }) => {
           Cơ sở số 1
         </span>
 
-        <Select
-          defaultValue="2024-2025"
-          className="year-select"
-          showSearch={false}
-          bordered
-        >
+        <Select defaultValue="2024-2025" className="year-select" bordered>
           <Option value="2023-2024">2023-2024</Option>
           <Option value="2024-2025">2024-2025</Option>
           <Option value="2025-2026">2025-2026</Option>
