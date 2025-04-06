@@ -5,7 +5,7 @@ import CoursePage from "../pages/CoursePages/CoursePage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPages/ForgotPasswordPage";
 import OrderPage from "../pages/OrderPages/OrderPages";
 import ProfilePage from "../pages/ProfilePages/ProfilePages";
-import CourseDetailPage from "../components/CourseDetailComponent/CourseDetailComponent";
+import CourseDetailPage from "../pages/CourseDetailPage/CourseDetailPage";
 import AdminLayout from "../pages/Admin/AdminLayout/AdminLayout";
 import ClassPage from "../pages/Admin/ClassPage/ClassPage";
 import BlogPage from "../pages/BlogPages/BlogPage";
@@ -47,7 +47,7 @@ export const routes = [
     isShowFooter: true,
   },
   {
-    path: "/course-details/1",
+    path: "/course-details/:id",
     page: CourseDetailPage,
     isShowHeader: true,
     isShowFooter: true,
@@ -138,6 +138,7 @@ export const routes = [
         path: "attendance",
         page: AttendancePage,
       },
+
     ],
   },
 ];
