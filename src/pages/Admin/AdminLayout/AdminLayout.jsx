@@ -11,6 +11,8 @@ import CoursePage from "../CoursePage/CoursePage";
 import StudentPage from "../StudentPage/StudentPage";
 import TeacherPage from "../TeacherPage/TeacherPage";
 import ExamPage from "../ExamPage/ExamPage";
+import PaymentManagement from "../PaymentManagementPage/PaymentManagement";
+import ReportPage from "../ReportPage/ReportPage";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -33,6 +35,12 @@ const AdminLayout = ({ children }) => {
     }
     if (location.pathname === "/system/admin/exams") {
       return <ExamPage />;
+    }
+    if (location.pathname === "/system/admin/payment") {
+      return <PaymentManagement/>
+    }
+    if (location.pathname === "/system/admin/report") {
+      return <ReportPage/>
     }
     return <AdminDashboard />;
   };

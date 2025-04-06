@@ -7,10 +7,11 @@ import {
   TeamOutlined,
   UserOutlined,
   DropboxOutlined,
-  GiftOutlined,
+  BookOutlined,
   BarChartOutlined,
-  QuestionCircleOutlined,
+  CommentOutlined ,
   LogoutOutlined,
+  FormOutlined 
 } from "@ant-design/icons";
 import { SidebarWrapper, LogoSection, StyledModal } from "./style";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -53,13 +54,14 @@ const Sidebar = () => {
         </Link>
 
         <Menu mode="inline" theme="dark" selectedKeys={[location.pathname]}>
+
           <Menu.Item key="/system/admin/classes" icon={<AppstoreOutlined />}>
             <Link to="/system/admin/classes">Danh sách lớp</Link>
           </Menu.Item>
           <Menu.Item key="/system/admin/schedule" icon={<CalendarOutlined />}>
             <Link to="/system/admin/schedule">Thời khóa biểu</Link>
           </Menu.Item>
-          <Menu.Item key="/system/admin/courses" icon={<DollarOutlined />}>
+          <Menu.Item key="/system/admin/courses" icon={<BookOutlined />}>
             <Link to="/system/admin/courses">Quản lý khóa học</Link>
           </Menu.Item>
           <Menu.Item key="/system/admin/students" icon={<TeamOutlined />}>
@@ -68,18 +70,23 @@ const Sidebar = () => {
           <Menu.Item key="/system/admin/teachers" icon={<UserOutlined />}>
             <Link to="/system/admin/teachers">Giảng viên</Link>
           </Menu.Item>
+          <Menu.Item key="/help" icon={<FormOutlined />}>
+            <Link to="/help">Điểm danh</Link>
+          </Menu.Item>
           <Menu.Item key="/system/admin/exams" icon={<DropboxOutlined />}>
             <Link to="/system/admin/exams">Quản lý bài thi</Link>
           </Menu.Item>
-          <Menu.Item key="/system/admin/rewards" icon={<GiftOutlined />}>
-            <Link to="/system/admin/rewards">Đổi sao lấy quà</Link>
+          <Menu.Item key="/system/admin/payment" icon={<DollarOutlined />}>
+            <Link to="/system/admin/payment">Quản lý thanh toán</Link>
           </Menu.Item>
-          <Menu.Item key="/system/admin/reports" icon={<BarChartOutlined />}>
-            <Link to="/system/admin/reports">Báo cáo</Link>
+          <Menu.Item key="/system/admin/assess" icon={<CommentOutlined />}>
+            <Link to="/system/admin/assess">Quản lý đánh giá</Link>
           </Menu.Item>
-          <Menu.Item key="/help" icon={<QuestionCircleOutlined />}>
-            <Link to="/help">Trợ giúp</Link>
+          <Menu.Item key="/system/admin/report" icon={<BarChartOutlined />}>
+            <Link to="/system/admin/report">Báo cáo & Thống kê</Link>
           </Menu.Item>
+          
+         
 
           {/* Thoát - không dùng Link để custom xác nhận */}
           <Menu.Item
