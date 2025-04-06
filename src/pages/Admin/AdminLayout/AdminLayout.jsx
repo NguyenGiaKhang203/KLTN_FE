@@ -13,6 +13,8 @@ import TeacherPage from "../TeacherPage/TeacherPage";
 import ExamPage from "../ExamPage/ExamPage";
 import PaymentManagement from "../PaymentManagementPage/PaymentManagement";
 import ReportPage from "../ReportPage/ReportPage";
+import AssessPage from "../AssessPage/AssessPage";
+import AttendancePage from "../AttendancePage/AttendancePage";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -37,10 +39,16 @@ const AdminLayout = ({ children }) => {
       return <ExamPage />;
     }
     if (location.pathname === "/system/admin/payment") {
-      return <PaymentManagement/>
+      return <PaymentManagement />;
     }
     if (location.pathname === "/system/admin/report") {
-      return <ReportPage/>
+      return <ReportPage />;
+    }
+    if (location.pathname === "/system/admin/assess") {
+      return <AssessPage />;
+    }
+    if (location.pathname === "/system/admin/attendance") {
+      return <AttendancePage />;
     }
     return <AdminDashboard />;
   };
