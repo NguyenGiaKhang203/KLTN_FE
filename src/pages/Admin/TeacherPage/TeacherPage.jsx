@@ -1,7 +1,11 @@
-// StudentPage.jsx
+// TeacherPage.jsx
 import { useState, useEffect } from "react";
 import { Table, Input, Button, Tooltip, Avatar, Select, message } from "antd";
-import { DeleteOutlined, SortAscendingOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  SortAscendingOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import {
   PageHeader,
   FilterContainer,
@@ -10,43 +14,40 @@ import {
 } from "./style";
 
 const { Option } = Select;
-
-const sampleStudents = [
+const sampleTeacher = [
   {
     key: "1",
-    name: "Nguyễn Văn A",
-    email: "a@example.com",
-    phone: "0909123456",
+    name: "Nguyễn Hoàng Minh",
+    email: "teacher1@example.com",
+    phone: "09091236829",
     address: "123 Đường ABC",
-    city: "Hà Nội",
-    parentname: "Nguyễn Văn B",
+    city: "Đà Nẵng",
     avatar: "https://i.pravatar.cc/150?img=3",
   },
   {
     key: "2",
-    name: "Trần Thị B",
-    email: "b@example.com",
-    phone: "0909988776",
+    name: "Trần Thùy Linh",
+    email: "teacher2@example.com",
+    phone: "0903488776",
     address: "456 Đường XYZ",
     city: "Hồ Chí Minh",
-    parentname: "Trần Văn C",
-    avatar: "",
+    avatar: "https://i.pravatar.cc/150?img=3",
   },
 ];
 
-export default function StudentPage() {
+export default function TeacherPage() {
   const [search, setSearch] = useState("");
   const [filterCity, setFilterCity] = useState("");
   const [sortOrder, setSortOrder] = useState("");
-  const [filteredData, setFilteredData] = useState(sampleStudents);
+  const [filteredData, setFilteredData] = useState(sampleTeacher);
 
   useEffect(() => {
-    let results = sampleStudents.filter((student) => {
+    let results = sampleTeacher.filter((teacher) => {
       const matchesSearch =
-        student.name.toLowerCase().includes(search.toLowerCase()) ||
-        student.email.toLowerCase().includes(search.toLowerCase()) ||
-        student.phone.includes(search);
-      const matchesCity = filterCity ? student.city === filterCity : true;
+        teacher.name.toLowerCase().includes(search.toLowerCase()) ||
+        teacher.email.toLowerCase().includes(search.toLowerCase()) ||
+        teacher.phone.includes(search);
+      const matchesCity = filterCity ? teacher.city === filterCity : true;
       return matchesSearch && matchesCity;
     });
 
@@ -60,8 +61,13 @@ export default function StudentPage() {
   }, [search, filterCity, sortOrder]);
 
   const handleDelete = (record) => {
-    message.success(`Đã xóa học viên: ${record.name}`);
+    message.success(`Đã xóa giảng viên: ${record.name}`);
     // TODO: Gọi API xóa thật ở đây
+  };
+
+  const handleEdit = (record) => {
+    message.info(`Chỉnh sửa giảng viên: ${record.name}`);
+    // TODO: Mở form hoặc modal chỉnh sửa thông tin
   };
 
   const columns = [
@@ -71,12 +77,12 @@ export default function StudentPage() {
       key: "avatar",
       render: (text) => (
         <Avatar src={text} size={48} style={{ backgroundColor: "#87d068" }}>
-          {!text && "HV"}
+          {!text && "GV"}
         </Avatar>
       ),
     },
     {
-      title: "Tên học viên",
+      title: "Tên giảng viên",
       dataIndex: "name",
       key: "name",
     },
@@ -101,15 +107,17 @@ export default function StudentPage() {
       key: "address",
     },
     {
-      title: "Phụ huynh",
-      dataIndex: "parentname",
-      key: "parentname",
-    },
-    {
       title: "Hành động",
       key: "action",
       render: (_, record) => (
         <CenteredAction>
+          <Tooltip title="Sửa">
+            <Button
+              type="link"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
           <Tooltip title="Xóa">
             <Button
               danger
@@ -123,12 +131,12 @@ export default function StudentPage() {
     },
   ];
 
-  const cityOptions = [...new Set(sampleStudents.map((s) => s.city))];
+  const cityOptions = [...new Set(sampleTeacher.map((s) => s.city))];
 
   return (
     <div style={{ padding: 24 }}>
       <PageHeader>
-        <h2>Quản lý học viên</h2>
+        <h2>Quản lý giảng viên</h2>
         <HeaderActions />
       </PageHeader>
 
@@ -155,7 +163,9 @@ export default function StudentPage() {
         <Button
           icon={<SortAscendingOutlined />}
           ghost
-          onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+          onClick={() => {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+          }}
         >
           Sắp xếp {sortOrder === "asc" ? "↓ Z-A" : "↑ A-Z"}
         </Button>

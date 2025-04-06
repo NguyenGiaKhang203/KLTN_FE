@@ -9,6 +9,8 @@ import ClassPage from "../../Admin/ClassPage/ClassPage";
 import SchedulePage from "../SchedulePage/SchedulePage";
 import CoursePage from "../CoursePage/CoursePage";
 import StudentPage from "../StudentPage/StudentPage";
+import TeacherPage from "../TeacherPage/TeacherPage";
+import ExamPage from "../ExamPage/ExamPage";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -21,10 +23,16 @@ const AdminLayout = ({ children }) => {
       return <SchedulePage />;
     }
     if (location.pathname === "/system/admin/courses") {
-      return <CoursePage />
+      return <CoursePage />;
     }
     if (location.pathname === "/system/admin/students") {
-      return <StudentPage/>
+      return <StudentPage />;
+    }
+    if (location.pathname === "/system/admin/teachers") {
+      return <TeacherPage />;
+    }
+    if (location.pathname === "/system/admin/exams") {
+      return <ExamPage />;
     }
     return <AdminDashboard />;
   };
@@ -35,9 +43,7 @@ const AdminLayout = ({ children }) => {
       <Content>
         <Header />
         <div>{children}</div>
-        <Main>
-          {renderPage()}
-        </Main>
+        <Main>{renderPage()}</Main>
       </Content>
     </Wrapper>
   );

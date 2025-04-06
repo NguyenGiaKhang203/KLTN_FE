@@ -1,8 +1,8 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { Select, Avatar, Badge } from 'antd';
-import { HomeFilled, BellOutlined, SearchOutlined } from '@ant-design/icons';
-import { HeaderWrapper } from './style';
+import React from "react";
+import { useLocation } from "react-router-dom";
+import { Select, Avatar, Badge } from "antd";
+import { HomeFilled, BellOutlined, SearchOutlined } from "@ant-design/icons";
+import { HeaderWrapper } from "./style";
 
 const { Option } = Select;
 
@@ -10,12 +10,14 @@ const ClassPageHeader = () => {
   const location = useLocation();
 
   const getTitleFromPath = (pathname) => {
-    if (pathname.includes('classes')) return 'Danh sách lớp';
-    if (pathname.includes('schedule')) return 'Thời khóa biểu';
-    if (pathname.includes('courses')) return 'Quản lý khóa học';
-    if (pathname.includes('attendance')) return 'Điểm danh';
-    if (pathname.includes('students')) return 'Học sinh';
-    return 'Hệ thống';
+    if (pathname.includes("classes")) return "Danh sách lớp";
+    if (pathname.includes("schedule")) return "Thời khóa biểu";
+    if (pathname.includes("courses")) return "Quản lý khóa học";
+    if (pathname.includes("attendance")) return "Điểm danh";
+    if (pathname.includes("students")) return "Học viên";
+    if (pathname.includes("teachers")) return "Giảng viên";
+    if (pathname.includes("exams")) return "Quản lý bài thi";
+    return "Hệ thống";
   };
 
   const title = getTitleFromPath(location.pathname);
@@ -43,7 +45,7 @@ const ClassPageHeader = () => {
         <Badge count={2} size="small">
           <BellOutlined className="icon" />
         </Badge>
-        <Avatar style={{ backgroundColor: '#ccc' }}>A</Avatar>
+        <Avatar style={{ backgroundColor: "#ccc" }}>A</Avatar>
         <span className="username">admin</span>
       </div>
     </HeaderWrapper>
