@@ -1,4 +1,5 @@
-import styled from 'styled-components';
+import styled from "styled-components";
+import { Modal } from "antd";
 
 export const SidebarWrapper = styled.div`
   display: flex;
@@ -11,7 +12,7 @@ export const SidebarWrapper = styled.div`
   }
 
   .ant-menu-item {
-    color: #b0bec5; /* màu xám xanh sáng */
+    color: #b0bec5;
     font-weight: 500;
     border-radius: 8px;
     margin: 4px 0;
@@ -24,7 +25,7 @@ export const SidebarWrapper = styled.div`
   }
 
   .ant-menu-item-selected {
-    background-color: #1e88e5 !important;
+    background-color: #1e88e5;
     color: #ffffff !important;
     font-weight: 600;
   }
@@ -40,13 +41,13 @@ export const SidebarWrapper = styled.div`
   .ant-menu-item .anticon {
     font-size: 18px;
   }
-  .logo-link {
-  text-decoration: none;
-  display: block;
-  color: inherit;
-}
-`;
 
+  .logo-link {
+    text-decoration: none;
+    display: block;
+    color: inherit;
+  }
+`;
 
 export const LogoSection = styled.div`
   text-align: center;
@@ -69,5 +70,37 @@ export const LogoSection = styled.div`
   .status {
     font-size: 12px;
     color: #4cd137;
+  }
+`;
+
+export const StyledModal = styled(Modal)`
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+
+  .ant-modal-content {
+    text-align: center;
+  }
+
+  .ant-modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .ant-btn-primary {
+    background-color: #e53935 !important;
+    border-color: #e53935 !important;
+    color: #ffffff !important;
+    transition: all 0.3s ease;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #e53935 !important;
+      border-color: #e53935 !important;
+      color: #ffffff !important;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+    }
   }
 `;
