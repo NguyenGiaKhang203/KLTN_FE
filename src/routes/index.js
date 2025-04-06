@@ -18,6 +18,8 @@ import TeacherPage from "../pages/Admin/TeacherPage/TeacherPage";
 import ExamPage from "../pages/Admin/TeacherPage/TeacherPage";
 import PaymentManagement from "../pages/Admin/PaymentManagementPage/PaymentManagement";
 import ReportPage from "../pages/Admin/ReportPage/ReportPage";
+import AssessPage from "../pages/Admin/AssessPage/AssessPage";
+import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 
 export const routes = [
   {
@@ -122,11 +124,19 @@ export const routes = [
       },
       {
         path: "payment",
-        page: PaymentManagement
+        page: PaymentManagement,
+      },
+      {
+        path: "assess",
+        page: AssessPage,
       },
       {
         path: "report",
-        page: ReportPage
+        page: ReportPage,
+      },
+      {
+        path: "attendance",
+        page: AttendancePage,
       },
     ],
   },

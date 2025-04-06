@@ -10,15 +10,16 @@ const ClassPageHeader = () => {
   const location = useLocation();
 
   const getTitleFromPath = (pathname) => {
-    if (pathname.includes('classes')) return 'Danh sách lớp';
-    if (pathname.includes('schedule')) return 'Thời khóa biểu';
-    if (pathname.includes('courses')) return 'Quản lý khóa học';
-    if (pathname.includes('attendance')) return 'Điểm danh';
-    if (pathname.includes('students')) return 'Học sinh';
-    if (pathname.includes('payment')) return 'Quản lý thanh toán';
+    if (pathname.includes("classes")) return "Danh sách lớp";
+    if (pathname.includes("schedule")) return "Thời khóa biểu";
+    if (pathname.includes("courses")) return "Quản lý khóa học";
+    if (pathname.includes("attendance")) return "Điểm danh";
+    if (pathname.includes("students")) return "Học sinh";
+    if (pathname.includes("payment")) return "Quản lý thanh toán";
     if (pathname.includes("teachers")) return "Giảng viên";
     if (pathname.includes("exams")) return "Quản lý bài thi";
-    return 'Hệ thống';
+    if (pathname.includes("assess")) return "Quản lý đánh giá";
+    return "Hệ thống";
   };
 
   const title = getTitleFromPath(location.pathname);

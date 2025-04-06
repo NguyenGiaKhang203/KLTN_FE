@@ -9,9 +9,9 @@ import {
   DropboxOutlined,
   BookOutlined,
   BarChartOutlined,
-  CommentOutlined ,
+  CommentOutlined,
   LogoutOutlined,
-  FormOutlined 
+  FormOutlined,
 } from "@ant-design/icons";
 import { SidebarWrapper, LogoSection, StyledModal } from "./style";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -54,7 +54,6 @@ const Sidebar = () => {
         </Link>
 
         <Menu mode="inline" theme="dark" selectedKeys={[location.pathname]}>
-
           <Menu.Item key="/system/admin/classes" icon={<AppstoreOutlined />}>
             <Link to="/system/admin/classes">Danh sách lớp</Link>
           </Menu.Item>
@@ -70,8 +69,8 @@ const Sidebar = () => {
           <Menu.Item key="/system/admin/teachers" icon={<UserOutlined />}>
             <Link to="/system/admin/teachers">Giảng viên</Link>
           </Menu.Item>
-          <Menu.Item key="/help" icon={<FormOutlined />}>
-            <Link to="/help">Điểm danh</Link>
+          <Menu.Item key="/system/admin/attendance" icon={<FormOutlined />}>
+            <Link to="/system/admin/attendance">Điểm danh</Link>
           </Menu.Item>
           <Menu.Item key="/system/admin/exams" icon={<DropboxOutlined />}>
             <Link to="/system/admin/exams">Quản lý bài thi</Link>
@@ -85,8 +84,6 @@ const Sidebar = () => {
           <Menu.Item key="/system/admin/report" icon={<BarChartOutlined />}>
             <Link to="/system/admin/report">Báo cáo & Thống kê</Link>
           </Menu.Item>
-          
-         
 
           {/* Thoát - không dùng Link để custom xác nhận */}
           <Menu.Item
