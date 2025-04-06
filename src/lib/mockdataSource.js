@@ -50,14 +50,23 @@ const mockCourseDetail = {
       schedule: "Thứ 3 - 5 - 7 (19:00 - 21:00)",
       enrolled: 5,
       capacity: 8,
+      teacher: "Thầy Nguyễn Văn A",
+      address: "Phòng 101, Tòa A",
+      startDate: "2025-04-10",
+      endDate: "2025-06-10"
     },
     {
       id: "class2",
       schedule: "Thứ 2 - 4 - 6 (18:00 - 20:00)",
       enrolled: 8,
       capacity: 8,
-    },
+      teacher: "Cô Trần Thị B",
+      address: "Phòng 202, Tòa B",
+      startDate: "2025-04-15",
+      endDate: "2025-06-15"
+    }
   ]
+  
 };
 
 export default mockCourseDetail;

@@ -16,6 +16,8 @@ import StudentPage from "../pages/Admin/StudentPage/StudentPage";
 import ContactPage from "../pages/ContactPages/ContactPage";
 import TeacherPage from "../pages/Admin/TeacherPage/TeacherPage";
 import ExamPage from "../pages/Admin/TeacherPage/TeacherPage";
+import PaymentManagement from "../pages/Admin/PaymentManagementPage/PaymentManagement";
+import ReportPage from "../pages/Admin/ReportPage/ReportPage";
 
 export const routes = [
   {
@@ -117,6 +119,14 @@ export const routes = [
       {
         path: "exams",
         page: ExamPage,
+      },
+      {
+        path: "payment",
+        page: PaymentManagement
+      },
+      {
+        path: "report",
+        page: ReportPage
       },
     ],
   },
