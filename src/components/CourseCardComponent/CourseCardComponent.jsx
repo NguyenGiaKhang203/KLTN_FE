@@ -53,7 +53,7 @@ function CourseCardComponent({ course, handleAddToCart }) {
 
         <WrapperInstructor>
           Bởi <strong>{course.instructor}</strong> trong{" "}
-          {course.categories.join(", ")}
+          {course.categories}
         </WrapperInstructor>
 
         <WrapperFooter>

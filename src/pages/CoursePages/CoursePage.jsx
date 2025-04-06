@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Filter from "../../components/FilterComponent/FilterComponet";
 import CourseCardComponent from "../../components/CourseCardComponent/CourseCardComponent";
-import CourseDetailComponent from "../../components/CourseDetailComponent/CourseDetailComponent";
+import CourseDetailComponent from "../CourseDetailPage/CourseDetailPage";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-import {
-  fetchCourses,
-  fetchCourseDetails,
-} from "../../redux/slices/productSlice";
+import { fetchCourseDetails } from "../../redux/slices/productSlice";
 import { addToCart, fetchCartItems } from "../../redux/slices/cartSlice";
 import { toast } from "react-toastify";
 import {
@@ -18,8 +15,9 @@ import {
   SortSelect,
   CenteredPagination,
 } from "./style";
-import mockCourses from "../../lib/mockdata";
 import { Pagination } from "antd";
+import * as CourseService from "../../services/CourseService";
+import { useNavigate } from "react-router-dom";
 
 const sortOptions = [
   { id: "price-lowtohigh", label: "Giá: Thấp đến Cao" },
@@ -40,17 +38,16 @@ function createSearchParamsHelper(filterParams) {
 }
 
 function CoursePage() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const { productList: courseList, productDetails: courseDetails } =
-  //   useSelector((state) => state.product);
-  const courseList = mockCourses;
-  const courseDetails = mockCourses[0];
   const { cartItems } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.user);
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState(null);
+  const [courseList, setCourseList] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [courseDetails, setCourseDetails] = useState(null);
 
   const categorySearchParam = searchParams.get("category");
 
@@ -75,7 +72,12 @@ function CoursePage() {
   }
 
   function handleGetCourseDetails(courseId) {
-    dispatch(fetchCourseDetails(courseId));
+    dispatch(fetchCourseDetails(courseId)).then((res) => {
+      if (res?.payload) {
+        setCourseDetails(res.payload);
+        setOpenDetailsDialog(true);
+      }
+    });
   }
 
   function handleAddToCart(courseId, totalStock) {
@@ -105,25 +107,40 @@ function CoursePage() {
   }
 
   useEffect(() => {
+    try {
+      const storedFilters = JSON.parse(sessionStorage.getItem("filters"));
+      setFilters(storedFilters || {});
+    } catch (err) {
+      setFilters({});
+    }
     setSort("price-lowtohigh");
-    setFilters(JSON.parse(sessionStorage.getItem("filters")) || {});
   }, [categorySearchParam]);
 
+  // useEffect(() => {
+  //   if (filters && Object.keys(filters).length > 0) {
+  //     const queryString = createSearchParamsHelper(filters);
+  //     setSearchParams(new URLSearchParams(queryString));
+  //   }
+  // }, [filters]);
+
   useEffect(() => {
-    if (filters && Object.keys(filters).length > 0) {
-      const queryString = createSearchParamsHelper(filters);
-      setSearchParams(new URLSearchParams(queryString));
+    const fetchCoursesFromDB = async () => {
+      try {
+        const res = await CourseService.getAllCourse(filters, sort);
+        if (res?.status === "OK") {
+          setCourseList(res.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi fetch khóa học:", error);
+      }
+    };
+
+    if (filters && sort) {
+      fetchCoursesFromDB();
     }
-  }, [filters]);
+  }, [filters, sort]);
 
-  useEffect(() => {
-    if (filters && sort)
-      dispatch(fetchCourses({ filterParams: filters, sortParams: sort }));
-  }, [dispatch, sort, filters]);
-
-  useEffect(() => {
-    if (courseDetails) setOpenDetailsDialog(true);
-  }, [courseDetails]);
+  console.log("courseList", courseList);
 
   return (
     <WrapperCoursePage>
@@ -148,22 +165,41 @@ function CoursePage() {
         </WrapperCourseHeader>
 
         <WrapperCourseGrid>
-          {courseList &&
+          {/* {courseList &&
             courseList.length > 0 &&
             courseList.map((course) => (
               <CourseCardComponent
-                key={course.id}
+                key={course._id}
                 course={course}
                 handleGetCourseDetails={handleGetCourseDetails}
                 handleAddToCart={handleAddToCart}
+                onClick={() => 
+                  {
+                    console.log("Navigating to course id:", course._id);
+                    navigate(`/course-details/${course._id}`)}}
               />
-            ))}
+            ))} */}
+          {courseList.map((course) => (
+            <CourseCardComponent
+              key={course._id}
+              course={course}
+              onClick={() => navigate(`/course-details/${course._id}`)}
+            />
+          ))}
         </WrapperCourseGrid>
       </WrapperCourseContainer>
 
       <CenteredPagination>
-        <Pagination defaultCurrent={1} total={50} />
+        <Pagination defaultCurrent={1} total={courseList.length} />
       </CenteredPagination>
+
+      {openDetailsDialog && courseDetails && (
+        <CourseDetailComponent
+          open={openDetailsDialog}
+          setOpen={setOpenDetailsDialog}
+          course={courseDetails}
+        />
+      )}
     </WrapperCoursePage>
   );
 }
