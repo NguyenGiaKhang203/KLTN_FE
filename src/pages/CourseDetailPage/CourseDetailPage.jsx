@@ -29,7 +29,6 @@ import { updateUser } from "../../redux/slices/userSlice";
 const CourseDetailPage = () => {
   const { id } = useParams();
   const { user } = useSelector((state) => state.user);
-  const { cartItems } = useSelector((state) => state.cart); // Lấy giỏ hàng từ Redux store
   const dispatch = useDispatch();
 
   const [course, setCourse] = useState(null);
