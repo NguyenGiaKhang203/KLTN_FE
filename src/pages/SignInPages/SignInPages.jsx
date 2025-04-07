@@ -1,7 +1,7 @@
+import { jwtDecode } from "jwt-decode";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { jwtDecode } from "jwt-decode";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHooks";
 import * as message from "../../components/Message/Message";
@@ -9,7 +9,6 @@ import { updateUser } from "../../redux/slices/userSlice";
 import InputForm from "../../components/InputForm/InputForm";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
-
 import {
   SigninContainer,
   SigninForm,
@@ -35,45 +34,45 @@ const SignInPages = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      const redirectPath = location?.state || "/";
-      navigate(redirectPath);
-      localStorage.setItem("access_token", JSON.stringify(data?.access_token));
-      localStorage.setItem(
-        "refresh_token",
-        JSON.stringify(data?.refresh_token)
-      );
+      localStorage.setItem('access_token', JSON.stringify(data?.access_token));
+      localStorage.setItem('refresh_token', JSON.stringify(data?.refresh_token));
+      const decoded = jwtDecode(data?.access_token);
 
-      if (data?.access_token) {
-        const decoded = jwtDecode(data?.access_token);
-        if (decoded?.id) {
-          handleGetDetailsUser(decoded?.id, data?.access_token);
-        }
-        if ( decoded?.isAdmin ){
-          navigate("/system/admin")
-        } else {
-          const redirecPath = location?.state || "/" ;
-          navigate(redirecPath)
-        }
+      if (decoded?.id) {
+        handleGetDetailsUser(decoded?.id, data?.access_token);
+      }
 
+      if (decoded?.isAdmin) {
+        navigate("/system/admin");
+      } else {
+        const redirectPath = location?.state || "/";
+        navigate(redirectPath);
       }
     }
 
     if (isError) {
-      const errorMessage =
-        error?.response?.data?.message ||
-        "An error occurred. Please try again.";
+      const errorMessage = error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
       message.error(errorMessage);
     }
   }, [isSuccess, isError, error]);
 
   const handleGetDetailsUser = async (id, token) => {
     const refreshToken = JSON.parse(localStorage.getItem("refresh_token"));
-    const res = await UserService.getDetailsUser(id, token);
-    dispatch(updateUser({ ...res?.data, access_token: token, refreshToken }));
+    try {
+      const res = await UserService.getDetailsUser(id, token);
+      console.log("Dữ liệu người dùng trả về:", res?.data);  // Kiểm tra dữ liệu trả về
+      dispatch(updateUser({ ...res?.data, access_token: token, refreshToken }));
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin người dùng:", error);
+    }
   };
 
   const handleSignIn = () => {
-    setErrorMessage("");
+    setErrorMessage("");  // Xóa thông báo lỗi trước khi đăng nhập
+    if (!email || !password) {
+      setErrorMessage("Vui lòng điền đầy đủ thông tin.");
+      return;
+    }
     mutation.mutate({ email, password });
   };
 
@@ -97,7 +96,7 @@ const SignInPages = () => {
               {isShowPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
             </EyeIcon>
             <InputForm
-              placeholder="Password"
+              placeholder="Mật khẩu"
               type={isShowPassword ? "text" : "password"}
               value={password}
               onChange={(val) => setPassword(val)}

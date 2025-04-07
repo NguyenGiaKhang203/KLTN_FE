@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ModalBackdrop,
   ModalContent,
@@ -10,20 +10,48 @@ import {
   ClassInfoContainer,
   ClassDetail
 } from "./style";
+import * as ClassService from "../../services/ClassService";
 
 const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString("vi-VN");
 };
 
-const ClassSelectModal = ({ isOpen, onClose, course, onConfirm }) => {
+const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
   const [selectedClassId, setSelectedClassId] = useState(null);
+  const [allClasses, setAllClasses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      setLoading(true);
+      try {
+        const res = await ClassService.getAllClasses();
+        setAllClasses(res?.data || []);
+      } catch (err) {
+        setError("Không thể tải danh sách lớp học.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen && course?._id) {
+      fetchClasses();
+      setSelectedClassId(null);
+    }
+  }, [isOpen, course?._id, token]);
 
   const handleConfirm = () => {
     if (selectedClassId) {
-      onConfirm(course.id, selectedClassId);
+      onConfirm(course._id, selectedClassId); // dùng course._id thay vì id
       onClose();
     }
   };
+
+  // Filter lớp học thuộc khóa học hiện tại
+  const filteredClasses = allClasses.filter(
+    (cls) => cls.course?._id === course?._id
+  );
 
   return (
     <ModalBackdrop open={isOpen}>
@@ -31,31 +59,58 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm }) => {
         <CloseButton onClick={onClose}>×</CloseButton>
         <Title>Chọn lớp cho khóa học: {course?.name}</Title>
 
-        <ClassList>
-          {course?.classes?.map((cls) => (
-            <ClassOption
-              key={cls.id}
-              disabled={cls.enrolled >= cls.capacity}
-              selected={selectedClassId === cls.id}
-            >
-              <input
-                type="radio"
-                name="selectedClass"
-                value={cls.id}
-                disabled={cls.enrolled >= cls.capacity}
-                onChange={() => setSelectedClassId(cls.id)}
-                checked={selectedClassId === cls.id}
-              />
-              <ClassInfoContainer>
-                <strong>{cls.schedule}</strong>
-                <ClassDetail>Đã đăng ký: <span>{cls.enrolled}/{cls.capacity} học viên</span></ClassDetail>
-                <ClassDetail>Giảng viên: <span>{cls.teacher}</span></ClassDetail>
-                <ClassDetail>Phòng học: <span>{cls.address}</span></ClassDetail>
-                <ClassDetail>Thời gian: <span>Từ {formatDate(cls.startDate)} đến {formatDate(cls.endDate)}</span></ClassDetail>
-              </ClassInfoContainer>
-            </ClassOption>
-          ))}
-        </ClassList>
+        {loading ? (
+          <p>Đang tải lớp học...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : filteredClasses.length === 0 ? (
+          <p>Hiện tại chưa có lớp học nào cho khóa này.</p>
+        ) : (
+          <ClassList>
+            {filteredClasses.map((cls) => (
+              <ClassOption
+                key={cls._id}
+                disabled={cls.studentCount >= cls.capacity}
+                selected={selectedClassId === cls._id}
+              >
+                <input
+                  type="radio"
+                  name="selectedClass"
+                  value={cls._id}
+                  disabled={cls.studentCount >= cls.capacity}
+                  onChange={() => setSelectedClassId(cls._id)}
+                  checked={selectedClassId === cls._id}
+                />
+                <ClassInfoContainer>
+                  <strong>{cls.name}</strong>
+                  <ClassDetail>
+                    Đã đăng ký:{" "}
+                    <span>{cls.studentCount}/{cls.capacity} học viên</span>
+                  </ClassDetail>
+                  <ClassDetail>
+                    Giảng viên: <span>{cls.teacher?.email}</span>
+                  </ClassDetail>
+                  <ClassDetail>
+                    Phòng học: <span>{cls.address}</span>
+                  </ClassDetail>
+                  <ClassDetail>
+                    Thời gian:
+                    <span>
+                      {cls.schedule.map((item, index) => (
+                        <div key={index}>
+                          {item.day}, {item.startTime} - {item.endTime}
+                        </div>
+                      ))}
+                    </span>
+                  </ClassDetail>
+                  <ClassDetail>
+                    Từ {formatDate(cls.startDate)} đến {formatDate(cls.endDate)}
+                  </ClassDetail>
+                </ClassInfoContainer>
+              </ClassOption>
+            ))}
+          </ClassList>
+        )}
 
         <ConfirmButton
           onClick={handleConfirm}
