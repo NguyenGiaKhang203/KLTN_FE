@@ -3,7 +3,7 @@ import axios from "axios";
 export const axiosJWT = axios.create();
 
 export const getDetailsCourse = async (id, access_token) => {
-  const res = await axios.post(
+  const res = await axios.get(
     `${process.env.REACT_APP_API_URL}/course/get-details/${id}`,
     {
       headers: {

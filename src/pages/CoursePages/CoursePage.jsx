@@ -5,7 +5,6 @@ import CourseDetailComponent from "../CourseDetailPage/CourseDetailPage";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { fetchCourseDetails } from "../../redux/slices/productSlice";
-import { addToCart, fetchCartItems } from "../../redux/slices/cartSlice";
 import { toast } from "react-toastify";
 import {
   WrapperCoursePage,
@@ -97,10 +96,9 @@ function CoursePage() {
     }
 
     dispatch(
-      addToCart({ userId: user?.id, productId: courseId, quantity: 1 })
+     
     ).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
         toast.success("Khóa học đã được thêm vào giỏ hàng");
       }
     });
@@ -129,6 +127,7 @@ function CoursePage() {
         const res = await CourseService.getAllCourse(filters, sort);
         if (res?.status === "OK") {
           setCourseList(res.data);
+          console.log("response:", res.data);
         }
       } catch (error) {
         console.error("Lỗi khi fetch khóa học:", error);
@@ -165,27 +164,15 @@ function CoursePage() {
         </WrapperCourseHeader>
 
         <WrapperCourseGrid>
-          {/* {courseList &&
-            courseList.length > 0 &&
-            courseList.map((course) => (
-              <CourseCardComponent
-                key={course._id}
-                course={course}
-                handleGetCourseDetails={handleGetCourseDetails}
-                handleAddToCart={handleAddToCart}
-                onClick={() => 
-                  {
-                    console.log("Navigating to course id:", course._id);
-                    navigate(`/course-details/${course._id}`)}}
-              />
-            ))} */}
           {courseList.map((course) => (
             <CourseCardComponent
               key={course._id}
-              course={course}
+              course={{ ...course, id: course._id }} // Chuyển _id → id cho chuẩn
+              handleAddToCart={handleAddToCart}
               onClick={() => navigate(`/course-details/${course._id}`)}
             />
           ))}
+
         </WrapperCourseGrid>
       </WrapperCourseContainer>
 
