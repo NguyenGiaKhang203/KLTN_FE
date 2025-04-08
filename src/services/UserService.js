@@ -133,3 +133,18 @@ export const deleteManyUser = async (data, access_token) => {
   return res.data;
 };
 
+export const createTeacher = async (data) => {
+  try {
+    const res = await axios.post(
+      `${process.env.REACT_APP_API_URL}/user/create-teacher`,
+      data
+    );
+    return res.data;
+  } catch (error) {
+    console.log(" Lỗi:", error);
+    throw {
+      status: "ERR",
+      message: error.response?.data?.message || "Đăng ký thất bại.",
+    };
+  }
+};
