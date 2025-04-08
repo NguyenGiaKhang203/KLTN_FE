@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { Table, Input, Button, Tooltip, Avatar, Select, message, Modal, Form, Input as AntInput } from "antd";
+import {
+  Table,
+  Input,
+  Button,
+  Tooltip,
+  Avatar,
+  Select,
+  message,
+  Modal,
+} from "antd";
 import {
   DeleteOutlined,
   SortAscendingOutlined,
@@ -16,30 +25,41 @@ import {
 
 const { Option } = Select;
 
-export default function UserPage() {
+export default function TeacherPage() {
   const [search, setSearch] = useState("");
   const [filterCity, setFilterCity] = useState("");
   const [sortOrder, setSortOrder] = useState("");
-  const [users, setUsers] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
-  const [newUser, setNewUser] = useState({
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [currentTeacher, setCurrentTeacher] = useState(null);
+  const [editedTeacherData, setEditedTeacherData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
     city: "",
   });
-  const [form] = Form.useForm();
+  const [newTeacherData, setNewTeacherData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+   
+  });
+
+
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchTeachers = async () => {
       try {
         const res = await UserService.getAllUser(user?.access_token);
-        const userList = res.data.filter((u) => u.isTeacher)
+        const teacherList = res.data
+          .filter((u) => u.isTeacher)
           .map((user, index) => ({
             key: user._id || index,
             name: user.name,
@@ -49,19 +69,19 @@ export default function UserPage() {
             city: user.city || "",
             avatar: user.avatar || "",
           }));
-        setUsers(userList);
-        setFilteredData(userList);
+        setTeachers(teacherList);
+        setFilteredData(teacherList);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách người dùng:", error);
-        message.error("Không thể tải danh sách người dùng");
+        message.error("Không thể tải danh sách giảng viên");
       }
     };
 
-    fetchUsers();
+    fetchTeachers();
   }, []);
 
   useEffect(() => {
-    let results = users.filter((user) => {
+    let results = teachers.filter((user) => {
       const name = user.name?.toLowerCase() || "";
       const email = user.email?.toLowerCase() || "";
       const phone = user.phone || "";
@@ -76,46 +96,102 @@ export default function UserPage() {
     });
 
     if (sortOrder === "asc") {
-      results = results.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      results = results.sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "")
+      );
     } else if (sortOrder === "desc") {
-      results = results.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+      results = results.sort((a, b) =>
+        (b.name || "").localeCompare(a.name || "")
+      );
     }
 
     setFilteredData(results);
-  }, [search, filterCity, sortOrder, users]);
+  }, [search, filterCity, sortOrder, teachers]);
 
   const handleDelete = (record) => {
-    setEditingUser(record);
+    setCurrentTeacher(record);
     setIsDeleteModalVisible(true);
   };
 
-  const handleConfirmDelete = () => {
-    message.success(`Đã xóa người dùng: ${editingUser.name}`);
-    setIsDeleteModalVisible(false);
+  const handleConfirmDelete = async () => {
+    try {
+      await UserService.deleteUser(currentTeacher.key, user?.access_token);
+      message.success(`Đã xóa giảng viên: ${currentTeacher.name}`);
+      setFilteredData((prev) =>
+        prev.filter((item) => item.key !== currentTeacher.key)
+      );
+      setIsDeleteModalVisible(false);
+    } catch (error) {
+      message.error("Xóa giảng viên thất bại!");
+    }
   };
 
   const handleEdit = (record) => {
-    setEditingUser(record);
-    form.setFieldsValue(record);
-    setIsModalVisible(true);
+    setCurrentTeacher(record);
+    setEditedTeacherData({
+      name: record.name,
+      email: record.email,
+      phone: record.phone,
+      address: record.address,
+      city: record.city,
+    });
+    setIsEditModalVisible(true);
   };
 
-  const handleSave = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        if (editingUser) {
-          message.success(`Chỉnh sửa người dùng: ${values.name}`);
-          // TODO: Gọi API sửa người dùng ở đây
-        } else {
-          message.success(`Thêm người dùng: ${values.name}`);
-          // TODO: Gọi API thêm người dùng ở đây
-        }
-        setIsModalVisible(false);
-      })
-      .catch((error) => {
-        console.log("Error:", error);
+  const handleEditSubmit = async () => {
+    try {
+      const updatedTeacher = await UserService.updateUser(
+        currentTeacher.key,
+        editedTeacherData,
+        user?.access_token
+      );
+      message.success(`Đã cập nhật giảng viên: ${updatedTeacher.name}`);
+      setFilteredData((prev) =>
+        prev.map((item) =>
+          item.key === currentTeacher.key
+            ? { ...item, ...editedTeacherData }
+            : item
+        )
+      );
+      setIsEditModalVisible(false);
+    } catch (error) {
+      message.error("Cập nhật giảng viên thất bại!");
+    }
+  };
+
+  const handleCreateTeacher = async () => {
+    try {
+      const payload = {
+        ...newTeacherData,
+        isTeacher: true,
+      };
+      const res = await UserService.createTeacher(payload);
+      message.success("Thêm giảng viên thành công!");
+      setIsModalVisible(false);
+
+      const addedTeacher = {
+        key: res._id,
+        name: res.name,
+        email: res.email,
+        phone: res.phone || "",
+        address: res.address || "",
+        city: res.city || "",
+        avatar: res.avatar || "",
+      };
+
+      setTeachers((prev) => [...prev, addedTeacher]);
+      setFilteredData((prev) => [...prev, addedTeacher]);
+      setNewTeacherData({
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+        address: "",
+        city: "",
       });
+    } catch (error) {
+      message.error(error.message || "Thêm giảng viên thất bại!");
+    }
   };
 
   const columns = [
@@ -130,7 +206,7 @@ export default function UserPage() {
       ),
     },
     {
-      title: "Tên người dùng",
+      title: "Tên giảng viên",
       dataIndex: "name",
       key: "name",
     },
@@ -153,11 +229,6 @@ export default function UserPage() {
       title: "Địa chỉ",
       dataIndex: "address",
       key: "address",
-    },
-    {
-      title: "Vai trò",
-      dataIndex: "role",
-      key: "role",
     },
     {
       title: "Hành động",
@@ -184,19 +255,20 @@ export default function UserPage() {
     },
   ];
 
-  const cityOptions = [...new Set(users.map((s) => s.city).filter(Boolean))];
+  const cityOptions = [
+    ...new Set(teachers.map((s) => s.city).filter(Boolean)),
+  ];
 
   return (
     <div style={{ padding: 24 }}>
       <PageHeader>
-        <h2>Quản lý người dùng</h2>
+        <h2>Quản lý giảng viên</h2>
         <HeaderActions>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => {
-              setEditingUser(null);
-              form.resetFields();
+              setCurrentTeacher(null);
               setIsModalVisible(true);
             }}
           >
@@ -243,59 +315,111 @@ export default function UserPage() {
         bordered
       />
 
-      {/* Modal sửa và thêm giảng viên */}
+      {/* Modal Sửa */}
       <Modal
-        title={editingUser ? "Chỉnh sửa người dùng" : "Thêm người dùng"}
-        visible={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        onOk={handleSave}
+        title="Chỉnh sửa giảng viên"
+        open={isEditModalVisible}
+        onOk={handleEditSubmit}
+        onCancel={() => setIsEditModalVisible(false)}
+        okText="Lưu"
+        cancelText="Hủy"
       >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Tên"
-            rules={[{ required: true, message: "Vui lòng nhập tên" }]}
-          >
-            <AntInput />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[{ required: true, message: "Vui lòng nhập email" }]}
-          >
-            <AntInput />
-          </Form.Item>
-          <Form.Item
-            name="phone"
-            label="Điện thoại"
-          >
-            <AntInput />
-          </Form.Item>
-          <Form.Item
-            name="address"
-            label="Địa chỉ"
-          >
-            <AntInput />
-          </Form.Item>
-          <Form.Item
-            name="city"
-            label="Thành phố"
-          >
-            <AntInput />
-          </Form.Item>
-        </Form>
+        <Input
+          placeholder="Tên giảng viên"
+          value={editedTeacherData.name}
+          onChange={(e) =>
+            setEditedTeacherData({ ...editedTeacherData, name: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Email"
+          value={editedTeacherData.email}
+          onChange={(e) =>
+            setEditedTeacherData({ ...editedTeacherData, email: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Số điện thoại"
+          value={editedTeacherData.phone}
+          onChange={(e) =>
+            setEditedTeacherData({ ...editedTeacherData, phone: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Địa chỉ"
+          value={editedTeacherData.address}
+          onChange={(e) =>
+            setEditedTeacherData({ ...editedTeacherData, address: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Thành phố"
+          value={editedTeacherData.city}
+          onChange={(e) =>
+            setEditedTeacherData({ ...editedTeacherData, city: e.target.value })
+          }
+        />
       </Modal>
 
-      {/* Modal xác nhận xóa */}
+      {/* Modal Xác nhận Xóa */}
       <Modal
         title="Xác nhận xóa"
-        visible={isDeleteModalVisible}
+        open={isDeleteModalVisible}
         onOk={handleConfirmDelete}
         onCancel={() => setIsDeleteModalVisible(false)}
         okText="Xóa"
         cancelText="Hủy"
       >
-        <p>Bạn có chắc chắn muốn xóa người dùng {editingUser?.name}?</p>
+        <p>Bạn có chắc chắn muốn xóa giảng viên {currentTeacher?.name}?</p>
+      </Modal>
+
+      {/* Modal Thêm */}
+      <Modal
+        title="Thêm Giảng Viên"
+        open={isModalVisible}
+        onOk={handleCreateTeacher}
+        onCancel={() => setIsModalVisible(false)}
+        okText="Tạo mới"
+        cancelText="Hủy"
+      >
+        <Input
+          placeholder="Tên giảng viên"
+          value={newTeacherData.name}
+          onChange={(e) =>
+            setNewTeacherData({ ...newTeacherData, name: e.target.value })
+          }
+        />
+        <Input
+          placeholder="Email"
+          value={newTeacherData.email}
+          onChange={(e) =>
+            setNewTeacherData({ ...newTeacherData, email: e.target.value })
+          }
+        />
+        <Input.Password
+          placeholder="Mật khẩu"
+          value={newTeacherData.password}
+          onChange={(e) =>
+            setNewTeacherData({ ...newTeacherData, password: e.target.value })
+          }
+        />
+        <Input.Password
+          placeholder="Xác nhận mật khẩu"
+          value={newTeacherData.confirmPassword}
+          onChange={(e) =>
+            setNewTeacherData({
+              ...newTeacherData,
+              confirmPassword: e.target.value,
+            })
+          }
+        />
+        <Input
+          placeholder="Số điện thoại"
+          value={newTeacherData.phone}
+          onChange={(e) =>
+            setNewTeacherData({ ...newTeacherData, phone: e.target.value })
+          }
+        />
       </Modal>
     </div>
   );
