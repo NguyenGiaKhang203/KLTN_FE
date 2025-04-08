@@ -1,96 +1,144 @@
-import { Checkbox } from "antd";
-import styled  from "styled-components";
+import styled from "styled-components";
+import { Checkbox as AntCheckbox } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 
-export const WrapperStyleHeader = styled.div`
-  background: rgb(255, 255, 255);
-  padding: 9px 16px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  span {
-    color: rgb(36, 36, 36);
-    font-weight: 400;
-    font-size: 13px;
-  }
-`
-export const WrapperStyleHeaderDilivery = styled.div`
-  background: rgb(255, 255, 255);
-  padding: 9px 16px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  span {
-    color: rgb(36, 36, 36);
-    font-weight: 400;
-    font-size: 13px;
-  };
-  margin-bottom: 4px;
-`
+export const PageContainer = styled.div`
+  background: #f8f9fa;
+  padding: 20px;
+  min-height: 100vh;
+`;
 
-export const WrapperLeft = styled.div`
-  width: 910px;
-`
-
-export const WrapperListOrder = styled.div`
-
-`
-
-export const WrapperItemOrder = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 9px 16px;
+export const CardContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
   background: #fff;
-  margin-top: 12px;
-`
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+`;
 
-export const WrapperPriceDiscount = styled.span`
-  color: #999;
-  font-size: 12px;
-  text-decoration: line-through;
-  margin-left: 4px;
-`
-export const WrapperCountOrder  = styled.div`
+export const Title = styled.h2`
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+export const ContentWrapper = styled.div`
   display: flex;
+  justify-content: space-between;
+  gap: 30px;
+`;
+
+export const LeftSection = styled.div`
+  flex: 3;
+`;
+
+export const RightSection = styled.div`
+  flex: 1;
+  background: #f6f6f6;
+  padding: 20px;
+  border-radius: 8px;
+  height: fit-content;
+`;
+
+export const HeaderRow = styled.div`
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.8fr auto;
+  font-weight: 600;
+  padding-bottom: 10px;
   align-items: center;
-  width: 84px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`
+`;
 
-export const WrapperRight = styled.div`
-  width: 320px;
-  margin-left: 20px;
-  display: flex ;
-  flex-direction: column; 
-  gap: 10px; 
-  align-items: center
-`
-
-export const WrapperInfo = styled.div`
-  padding: 17px 20px;
-  border-bottom: 1px solid #f5f5f5;
-  background: #fff;
-  border-top-right-radius: 6px;
-  border-top-left-radius: 6px;
-  width: 100%
-`
-
-export const WrapperTotal = styled.div`
+export const ListOrder = styled.div`
   display: flex;
-   align-items: flex-start; 
-   justify-content: space-between;
-    padding: 17px 20px;
-    background: #fff ;
-    border-bottom-right-radius: 6px;
-    border-bottom-left-radius: 6px;
-`
+  flex-direction: column;
+  gap: 15px;
+`;
 
-export const CustomCheckbox = styled(Checkbox)`
-  .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: #9255FD;
-    border-color: #9255FD;
+export const ItemOrder = styled.div`
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.8fr auto;
+  align-items: center;
+  padding: 12px;
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  gap: 10px;
+`;
+
+export const CourseInfo = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
   }
-  .ant-checkbox:hover .ant-checkbox-inner {
-    border-color: #9255FD;
+`;
+
+export const Checkbox = styled(AntCheckbox)``;
+
+export const CourseImage = styled.img`
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+`;
+
+export const CourseName = styled.div`
+  font-weight: 600;
+  font-size: 14px;
+  width: 150px;
+`;
+
+export const CourseSchedule = styled.div`
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+export const CoursePrice = styled.div`
+  font-weight: 700;
+  color: #ff4040;
+  font-size: 18px;
+`;
+
+export const DeleteIcon = styled(DeleteOutlined)`
+  color: #ff4040;
+  font-size: 20px;
+  cursor: pointer;
+`;
+
+export const TotalWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 20px;
+`;
+
+export const TotalPrice = styled.div`
+  font-size: 24px;
+  color: #ff4040;
+`;
+
+export const CheckoutButton = styled.button`
+  background: #ff4040;
+  color: white;
+  width: 100%;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(255, 64, 64, 0.3);
+
+  &:hover {
+    opacity: 0.95;
   }
-`
+`;
