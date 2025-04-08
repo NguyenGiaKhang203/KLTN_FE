@@ -42,11 +42,25 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
   }, [isOpen, course?._id, token]);
 
   const handleConfirm = () => {
-    if (selectedClassId) {
-      onConfirm(course._id, selectedClassId); // dùng course._id thay vì id
-      onClose();
-    }
+    const selected = filteredClasses.find((cls) => cls._id === selectedClassId);
+    if (!selected) return;
+  
+    const scheduleText = selected.schedule
+      .map((s) => `${s.day}, ${s.startTime} - ${s.endTime}`)
+      .join(" | ");
+  
+    onConfirm({
+      courseId: course._id,
+      classId: selected._id,
+      name: course.name,
+      image: course.image,
+      price: course.price,
+      schedule: scheduleText,
+    });
+  
+    onClose();
   };
+  
 
   // Filter lớp học thuộc khóa học hiện tại
   const filteredClasses = allClasses.filter(

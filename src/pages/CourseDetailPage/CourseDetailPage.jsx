@@ -25,7 +25,8 @@ import { useSelector, useDispatch } from "react-redux";
 import * as CourseService from "../../services/CourseService";
 import * as UserService from "../../services/UserService";
 import { updateUser } from "../../redux/slices/userSlice";
-
+import { addOrderProduct } from "../../redux/slices/orderSlice";
+import { toast } from "react-toastify";
 const CourseDetailPage = () => {
   const { id } = useParams();
   const { user } = useSelector((state) => state.user);
@@ -36,7 +37,26 @@ const CourseDetailPage = () => {
   const [activeTab, setActiveTab] = useState("intro");
   const [selectedClass, setSelectedClass] = useState(null); // Lưu class đã chọn
 
-  function handleAddToCart(){};
+  const handleAddToCart = (selectedClass) => {
+    if (!selectedClass || !course) return;
+  
+    const { courseId, classId, name, image, price, schedule } = selectedClass;
+  
+    dispatch(
+      addOrderProduct({
+        courseId,
+        classId,
+        name,
+        image,
+        price,
+        schedule,
+      })
+    );
+  
+    toast.success("Đã thêm vào giỏ hàng!");
+    setIsModalOpen(false);
+  };
+  
 
   useEffect(() => {
     const fetchCourseDetails = async () => {

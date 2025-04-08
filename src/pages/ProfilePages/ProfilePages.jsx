@@ -24,11 +24,11 @@ import {
 } from "./style";
 
 const ProfilePage = () => {
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
 
   const [studentName, setStudentName] = useState("");
-  const [dob, setDob] = useState("");
+  const [birthday, setBirthday] = useState("");
   const [parentName, setParentName] = useState("");
   const [parentPhone, setParentPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -53,9 +53,22 @@ const ProfilePage = () => {
   const { isSuccess, isError } = mutation;
 
   useEffect(() => {
-    setEmail(user?.email || "");
-    setStudentName(user?.name || "");
-    setAvatar(user?.avatar || "");
+    if (user) {
+      setEmail(user.email || "");
+      setStudentName(user.name || "");
+      setAvatar(user.avatar || "");
+      setBirthday(user.birthday || "");
+      setParentName(user.parentname || "");
+      setParentPhone(user.phone || "");
+
+      if (user.address) {
+        const parts = user.address.split(",").map((part) => part.trim());
+        setStreet(parts[0] || "");
+        setWardName(parts[1] || "");
+        setDistrictName(parts[2] || "");
+        setProvinceName(parts[3] || "");
+      }
+    }
   }, [user]);
 
   useEffect(() => {
@@ -90,17 +103,39 @@ const ProfilePage = () => {
   }, [district]);
 
   useEffect(() => {
-    if (ward) {
-      fetch(`https://provinces.open-api.vn/api/w/${ward}`)
-        .then((res) => res.json())
-        .then((data) => setWardName(data.name));
+    if (ward && wards.length > 0) {
+      const selected = wards.find((w) => w.code === Number(ward));
+      if (selected) {
+        setWardName(selected.name);
+      }
     }
-  }, [ward]);
+  }, [ward, wards]);
+
+  useEffect(() => {
+    if (provinces.length > 0 && provinceName) {
+      const found = provinces.find((p) => p.name === provinceName);
+      if (found) setProvince(found.code.toString());
+    }
+  }, [provinces, provinceName]);
+
+  useEffect(() => {
+    if (districts.length > 0 && districtName) {
+      const found = districts.find((d) => d.name === districtName);
+      if (found) setDistrict(found.code.toString());
+    }
+  }, [districts, districtName]);
+
+  useEffect(() => {
+    if (wards.length > 0 && wardName) {
+      const found = wards.find((w) => w.name === wardName);
+      if (found) setWard(found.code.toString());
+    }
+  }, [wards, wardName]);
 
   useEffect(() => {
     if (isSuccess) {
       message.success("Cập nhật thông tin thành công!");
-      handleGetDetailsUser(user?.id, user?.access_token);
+      handleGetDetailsUser(user?._id, user?.access_token);
     } else if (isError) {
       message.error("Cập nhật thất bại!");
     }
@@ -117,14 +152,14 @@ const ProfilePage = () => {
       .join(", ");
 
     mutation.mutate({
-      id: user?.id,
+      id: user?._id,
       name: studentName,
       email,
       avatar,
       address,
-      dob,
-      parentName,
-      parentPhone,
+      birthday,
+      parentname: parentName,
+      phone: parentPhone,
       access_token: user?.access_token,
     });
   };
@@ -149,7 +184,11 @@ const ProfilePage = () => {
               <i className="fas fa-user" />
             </DefaultAvatar>
           )}
-          <WrapperUploadFile onChange={handleChangeAvatar} maxCount={1} showUploadList={false}>
+          <WrapperUploadFile
+            onChange={handleChangeAvatar}
+            maxCount={1}
+            showUploadList={false}
+          >
             <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
           </WrapperUploadFile>
         </WrapperAvatarSection>
@@ -162,17 +201,25 @@ const ProfilePage = () => {
 
           <WrapperInput>
             <WrapperLabel>Ngày sinh</WrapperLabel>
-            <InputForm type="date" value={dob} onChange={setDob} />
+            <InputForm type="date" value={birthday} onChange={setBirthday} />
           </WrapperInput>
 
           <WrapperInput>
             <WrapperLabel>Phụ huynh</WrapperLabel>
-            <InputForm value={parentName} onChange={setParentName} placeholder="Nhập tên phụ huynh" />
+            <InputForm
+              value={parentName}
+              onChange={setParentName}
+              placeholder="Nhập tên phụ huynh"
+            />
           </WrapperInput>
 
           <WrapperInput>
             <WrapperLabel>SĐT PH</WrapperLabel>
-            <InputForm value={parentPhone} onChange={setParentPhone} placeholder="Nhập Sđt phụ huynh"/>
+            <InputForm
+              value={parentPhone}
+              onChange={setParentPhone}
+              placeholder="Nhập SĐT phụ huynh"
+            />
           </WrapperInput>
 
           <WrapperInput>
@@ -182,7 +229,11 @@ const ProfilePage = () => {
 
           <WrapperInput>
             <WrapperLabel>Đường</WrapperLabel>
-            <InputForm value={street} onChange={setStreet} placeholder="Nhập tên đường" />
+            <InputForm
+              value={street}
+              onChange={setStreet}
+              placeholder="Nhập tên đường"
+            />
           </WrapperInput>
 
           <WrapperInput>
@@ -190,7 +241,9 @@ const ProfilePage = () => {
             <select value={province} onChange={(e) => setProvince(e.target.value)}>
               <option value="">Chọn tỉnh</option>
               {provinces.map((p) => (
-                <option key={p.code} value={p.code}>{p.name}</option>
+                <option key={p.code} value={p.code}>
+                  {p.name}
+                </option>
               ))}
             </select>
           </WrapperInput>
@@ -200,7 +253,9 @@ const ProfilePage = () => {
             <select value={district} onChange={(e) => setDistrict(e.target.value)}>
               <option value="">Chọn huyện</option>
               {districts.map((d) => (
-                <option key={d.code} value={d.code}>{d.name}</option>
+                <option key={d.code} value={d.code}>
+                  {d.name}
+                </option>
               ))}
             </select>
           </WrapperInput>
@@ -210,7 +265,9 @@ const ProfilePage = () => {
             <select value={ward} onChange={(e) => setWard(e.target.value)}>
               <option value="">Chọn phường</option>
               {wards.map((w) => (
-                <option key={w.code} value={w.code}>{w.name}</option>
+                <option key={w.code} value={w.code}>
+                  {w.name}
+                </option>
               ))}
             </select>
           </WrapperInput>
@@ -220,8 +277,16 @@ const ProfilePage = () => {
               textbutton="Cập nhật"
               onClick={handleUpdate}
               size="large"
-              styleButton={{ background: "#1890ff", borderRadius: "8px", padding: "6px 20px", border: "none" }}
-              styleTextButton={{ color: "#fff", fontWeight: "bold" }}
+              styleButton={{
+                background: "#1890ff",
+                borderRadius: "8px",
+                padding: "6px 20px",
+                border: "none",
+              }}
+              styleTextButton={{
+                color: "#fff",
+                fontWeight: "bold",
+              }}
             />
           </WrapperButton>
         </WrapperInfoSection>

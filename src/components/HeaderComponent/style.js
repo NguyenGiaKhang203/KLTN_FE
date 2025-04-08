@@ -1,5 +1,4 @@
-// src/components/style.js
-
+// style.js
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import { Avatar } from "antd";
@@ -34,13 +33,14 @@ export const WrapperNavLinks = styled.div`
   flex-grow: 1;
   justify-content: center;
 `;
+
 export const LogoImage = styled.img`
-  height: 25px; // ✅ chỉnh to lên theo header
+  height: 25px;
   object-fit: contain;
   transform: scale(2.7);
-  transformorigin: left center;
+  transform-origin: left center;
 `;
-// Sử dụng NavLink để highlight active route
+
 export const WrapperTextHeader = styled(NavLink)`
   color: #1a1a1a;
   font-size: 16px;
@@ -60,10 +60,12 @@ export const WrapperTextHeader = styled(NavLink)`
     border-bottom: 2px solid rgb(230, 51, 51);
   }
 `;
+
 export const WrapperLogoLink = styled(NavLink)`
   transition: all 0.3s ease-in-out;
   position: relative;
   top: 10px;
+
   &:hover {
     transform: scaleX(1.5);
   }
@@ -150,3 +152,26 @@ export const WrapperContentPopup = styled.div`
     background-color: #f0f0f0;
   }
 `;
+
+// ✅ Modal style tách riêng
+export const customModalStyles = {
+  body: {
+    fontSize: 16,
+  },
+  header: {
+    fontSize: 18,
+  },
+  footer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 10,
+  },
+  okButton: {
+    backgroundColor: "#ff4d4f",
+    borderColor: "#ff4d4f",
+    color: "white",
+  },
+  cancelButton: {
+    color: "#444",
+  },
+};

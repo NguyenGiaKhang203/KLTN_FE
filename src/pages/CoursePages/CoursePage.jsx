@@ -3,8 +3,9 @@ import Filter from "../../components/FilterComponent/FilterComponet";
 import CourseCardComponent from "../../components/CourseCardComponent/CourseCardComponent";
 import CourseDetailComponent from "../CourseDetailPage/CourseDetailPage";
 import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { fetchCourseDetails } from "../../redux/slices/productSlice";
+import { addOrderProduct } from "../../redux/slices/orderSlice";
 import { toast } from "react-toastify";
 import {
   WrapperCoursePage,
@@ -16,7 +17,6 @@ import {
 } from "./style";
 import { Pagination } from "antd";
 import * as CourseService from "../../services/CourseService";
-import { useNavigate } from "react-router-dom";
 
 const sortOptions = [
   { id: "price-lowtohigh", label: "Giá: Thấp đến Cao" },
@@ -39,7 +39,7 @@ function createSearchParamsHelper(filterParams) {
 function CoursePage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { cartItems } = useSelector((state) => state.cart);
+  const { orderItems } = useSelector((state) => state.order);
   const { user } = useSelector((state) => state.user);
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState(null);
@@ -50,11 +50,11 @@ function CoursePage() {
 
   const categorySearchParam = searchParams.get("category");
 
-  function handleSort(value) {
+  const handleSort = (value) => {
     setSort(value);
-  }
+  };
 
-  function handleFilter(sectionId, optionId) {
+  const handleFilter = (sectionId, optionId) => {
     let updatedFilters = { ...filters };
     if (!updatedFilters[sectionId]) {
       updatedFilters[sectionId] = [optionId];
@@ -68,41 +68,21 @@ function CoursePage() {
     }
     setFilters(updatedFilters);
     sessionStorage.setItem("filters", JSON.stringify(updatedFilters));
-  }
+  };
 
-  function handleGetCourseDetails(courseId) {
+  const handleGetCourseDetails = (courseId) => {
     dispatch(fetchCourseDetails(courseId)).then((res) => {
       if (res?.payload) {
         setCourseDetails(res.payload);
         setOpenDetailsDialog(true);
       }
     });
-  }
+  };
 
-  function handleAddToCart(courseId, totalStock) {
-    const currentCartItems = cartItems.items || [];
-    const itemIndex = currentCartItems.findIndex(
-      (item) => item.productId === courseId
-    );
-
-    if (
-      itemIndex > -1 &&
-      currentCartItems[itemIndex].quantity + 1 > totalStock
-    ) {
-      toast.warning(
-        `Chỉ có thể thêm ${currentCartItems[itemIndex].quantity} số lượng cho khóa học này`
-      );
-      return;
-    }
-
-    dispatch(
-     
-    ).then((data) => {
-      if (data?.payload?.success) {
-        toast.success("Khóa học đã được thêm vào giỏ hàng");
-      }
-    });
-  }
+  const handleAddToCart = (courseId, classId) => {
+    dispatch(addOrderProduct({ courseId, classId }));
+    toast.success("Đã thêm khóa học vào giỏ hàng!");
+  };
 
   useEffect(() => {
     try {
@@ -113,13 +93,6 @@ function CoursePage() {
     }
     setSort("price-lowtohigh");
   }, [categorySearchParam]);
-
-  // useEffect(() => {
-  //   if (filters && Object.keys(filters).length > 0) {
-  //     const queryString = createSearchParamsHelper(filters);
-  //     setSearchParams(new URLSearchParams(queryString));
-  //   }
-  // }, [filters]);
 
   useEffect(() => {
     const fetchCoursesFromDB = async () => {
@@ -138,8 +111,6 @@ function CoursePage() {
       fetchCoursesFromDB();
     }
   }, [filters, sort]);
-
-  console.log("courseList", courseList);
 
   return (
     <WrapperCoursePage>
@@ -167,12 +138,11 @@ function CoursePage() {
           {courseList.map((course) => (
             <CourseCardComponent
               key={course._id}
-              course={{ ...course, id: course._id }} // Chuyển _id → id cho chuẩn
-              handleAddToCart={handleAddToCart}
+              course={{ ...course, id: course._id }}
+              handleAddToCart={() => handleAddToCart(course._id, course.classId)}
               onClick={() => navigate(`/course-details/${course._id}`)}
             />
           ))}
-
         </WrapperCourseGrid>
       </WrapperCourseContainer>
 

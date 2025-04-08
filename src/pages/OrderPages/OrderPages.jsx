@@ -4,264 +4,153 @@ import { useNavigate } from "react-router-dom";
 import { DeleteOutlined } from "@ant-design/icons";
 import { convertPrice } from "../../utils";
 import {
-  WrapperInfo,
-  WrapperItemOrder,
-  WrapperLeft,
-  WrapperListOrder,
-  WrapperRight,
-  WrapperStyleHeader,
-  WrapperTotal,
-  CustomCheckbox,
+  PageContainer,
+  CardContainer,
+  Title,
+  ContentWrapper,
+  LeftSection,
+  RightSection,
+  HeaderRow,
+  ListOrder,
+  ItemOrder,
+  CourseInfo,
+  Checkbox,
+  CourseImage,
+  CourseName,
+  CourseSchedule,
+  CoursePrice,
+  DeleteIcon,
+  TotalWrapper,
+  TotalPrice,
+  CheckoutButton,
 } from "./style";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import {
   removeOrderProduct,
-  selectedOrder,
+  removeAllOrderProduct,
 } from "../../redux/slices/orderSlice";
 import { toast } from "react-toastify";
 
 const OrderPage = () => {
   const order = useSelector((state) => state.order);
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [listChecked, setListChecked] = useState([]);
 
+  // ✅ Mặc định tick tất cả khi có orderItems
   useEffect(() => {
-    dispatch(selectedOrder({ listChecked }));
-  }, [listChecked]);
+    const allIds = order?.orderItems?.map((item) => item.courseId);
+    setListChecked(allIds);
+  }, [order]);
 
-  const handleOnchangeCheckAll = (e) => {
-    if (e.target.checked) {
-      const allIds = order?.orderItems?.map((item) => item.product);
-      setListChecked(allIds);
-    } else {
-      setListChecked([]);
-    }
+  const handleCheckAll = (e) => {
+    const checked = e.target.checked;
+    const allIds = order?.orderItems?.map((item) => item.courseId);
+    setListChecked(checked ? allIds : []);
   };
 
-  const onChange = (e) => {
-    const value = e.target.value;
-    if (listChecked.includes(value)) {
-      setListChecked(listChecked.filter((item) => item !== value));
-    } else {
-      setListChecked([...listChecked, value]);
-    }
+  const handleCheck = (e) => {
+    const id = e.target.value;
+    setListChecked((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
 
-  const handleDeleteOrder = (idProduct) => {
-    dispatch(removeOrderProduct({ idProduct }));
-    toast.success("Đã xóa khóa học khỏi giỏ hàng!");
+  const handleDelete = (id) => {
+    dispatch(removeOrderProduct({ idProduct: id }));
+    setListChecked((prev) => prev.filter((cid) => cid !== id));
+    toast.success("Đã xóa khóa học!");
   };
 
   const handleDeleteSelected = () => {
-    if (listChecked.length === 0) {
-      toast.warning("Vui lòng chọn ít nhất một khóa học để xóa!");
-      return;
-    }
-    listChecked.forEach((id) =>
-      dispatch(removeOrderProduct({ idProduct: id }))
-    );
+    if (listChecked.length === 0) return;
+    dispatch(removeAllOrderProduct({ listChecked }));
     setListChecked([]);
     toast.success("Đã xóa các khóa học đã chọn!");
   };
 
+  const selectedItems = useMemo(() => {
+    return order?.orderItems?.filter((item) =>
+      listChecked.includes(item.courseId)
+    );
+  }, [order, listChecked]);
+
   const totalPrice = useMemo(() => {
-    return order?.orderItemsSlected?.reduce((sum, item) => sum + item.price, 0);
-  }, [order]);
+    return selectedItems.reduce((sum, item) => sum + (item.price || 0), 0);
+  }, [selectedItems]);
 
   const handleCheckout = () => {
-    if (!user?.isLoggedIn) {
-      toast.error("Bạn cần đăng nhập để tiếp tục!");
-      setTimeout(() => {
-        navigate("/sign-in");
-      }, 2000);
-    } else {
-      toast.success("Chuyển đến thanh toán...");
+    if (!user?.access_token) {
+      toast.error("Vui lòng đăng nhập trước!");
+      return navigate("/sign-in");
     }
+    toast.success("Chuyển đến thanh toán...");
   };
-
+  console.log("USER", user);
   return (
-    <div
-      style={{
-        background: "#f8f9fa",
-        width: "100%",
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "20px",
-          borderRadius: "12px",
-          background: "#ffffff",
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <h2
-          style={{
-            fontWeight: "700",
-            color: "#333",
-            textAlign: "center",
-            marginBottom: "20px",
-          }}
-        >
-          🛒 Giỏ hàng khóa học
-        </h2>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <WrapperLeft>
-            <WrapperStyleHeader>
-              <span
-                style={{ width: "390px", fontWeight: "600", fontSize: "16px" }}
-              >
-                <CustomCheckbox
-                  onChange={handleOnchangeCheckAll}
-                  checked={listChecked.length === order?.orderItems?.length}
+    <PageContainer>
+      <CardContainer>
+        <Title>🛒 Giỏ hàng khóa học</Title>
+        <ContentWrapper>
+          <LeftSection>
+            <HeaderRow>
+              <span>
+                <Checkbox
+                  onChange={handleCheckAll}
+                  checked={
+                    listChecked.length === order?.orderItems?.length &&
+                    order?.orderItems?.length > 0
+                  }
                 />
-                <span> Tất cả ({order?.orderItems?.length} khóa học)</span>
+                Tất cả ({order?.orderItems?.length} khóa học)
               </span>
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontWeight: "700",
-                  fontSize: "18px",
-                }}
-              >
-                <span>Lịch học</span>
-                <span>Giá</span>
-                <DeleteOutlined
-                  style={{ cursor: "pointer", color: "red", fontSize: "22px" }}
-                  onClick={handleDeleteSelected}
-                />
-              </div>
-            </WrapperStyleHeader>
+              <span>Lịch học</span>
+              <span>Giá</span>
+              <DeleteIcon onClick={handleDeleteSelected} />
+            </HeaderRow>
 
-            <WrapperListOrder>
+            <ListOrder>
               {order?.orderItems?.map((item) => (
-                <WrapperItemOrder key={item?.product}>
-                  <div
-                    style={{
-                      width: "400px",
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 10,
-                    }}
-                  >
-                    <CustomCheckbox
-                      value={item?.product}
-                      checked={listChecked.includes(item?.product)}
-                      onChange={onChange}
+                <ItemOrder key={item.courseId}>
+                  <CourseInfo>
+                    <Checkbox
+                      value={item.courseId}
+                      checked={listChecked.includes(item.courseId)}
+                      onChange={handleCheck}
                     />
-                    <img
-                      src={item?.image}
-                      alt="course"
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "8px",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <div style={{ width: 260 }}>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {item?.name}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          color: "#555",
-                          marginTop: "4px",
-                          whiteSpace: "normal",
-                          lineHeight: "1.4",
-                        }}
-                      >
-                        🗓 {item?.schedule || "Chưa có thông tin lịch học"}
-                      </div>
+                    <CourseImage src={item.image} alt="course" />
+                    <div>
+                      <CourseName>{item.name}</CourseName>
                     </div>
-                  </div>
-                  <div
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: "#ff4040",
-                        fontWeight: "700",
-                        fontSize: "18px",
-                      }}
-                    >
-                      {convertPrice(item?.price)}
-                    </span>
-                    <DeleteOutlined
-                      style={{
-                        cursor: "pointer",
-                        color: "#ff4040",
-                        fontSize: "22px",
-                      }}
-                      onClick={() => handleDeleteOrder(item?.product)}
-                    />
-                  </div>
-                </WrapperItemOrder>
-              ))}
-            </WrapperListOrder>
-          </WrapperLeft>
+                  </CourseInfo>
 
-          <WrapperRight>
-            <WrapperInfo>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "18px",
-                  fontWeight: "700",
-                  color: "#333",
-                }}
-              >
-                <span>Tổng tiền</span>
-                <span style={{ color: "#ff4040", fontSize: "24px" }}>
-                  {convertPrice(totalPrice)}
-                </span>
-              </div>
-            </WrapperInfo>
-            <WrapperTotal>
-              <ButtonComponent
-                onClick={handleCheckout}
-                size={40}
-                styleButton={{
-                  background: "#ff4040",
-                  height: "50px",
-                  width: "100%",
-                  borderRadius: "8px",
-                  boxShadow: "0 3px 6px rgba(255, 64, 64, 0.3)",
-                }}
-                textbutton={"Thanh toán"}
-                styleTextButton={{
-                  color: "#fff",
-                  fontSize: "16px",
-                  fontWeight: "700",
-                }}
-              />
-            </WrapperTotal>
-          </WrapperRight>
-        </div>
-      </div>
-    </div>
+                  <CourseSchedule>
+                    {(item.schedule || "Chưa có thông tin lịch học")
+                      .replace(/Thứ/g, "|Thứ")
+                      .split("|")
+                      .map((line, index) => (
+                        <div key={index}>{line.trim()}</div>
+                      ))}
+                  </CourseSchedule>
+
+                  <CoursePrice>{convertPrice(item.price)}</CoursePrice>
+
+                  <DeleteIcon onClick={() => handleDelete(item.courseId)} />
+                </ItemOrder>
+              ))}
+            </ListOrder>
+          </LeftSection>
+
+          <RightSection>
+            <TotalWrapper>
+              <span>Tổng tiền</span>
+              <TotalPrice>{convertPrice(totalPrice)}</TotalPrice>
+            </TotalWrapper>
+            <CheckoutButton onClick={handleCheckout}>Thanh toán</CheckoutButton>
+          </RightSection>
+        </ContentWrapper>
+      </CardContainer>
+    </PageContainer>
   );
 };
 
