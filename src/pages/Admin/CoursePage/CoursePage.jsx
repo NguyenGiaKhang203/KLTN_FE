@@ -1,71 +1,86 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Image, Space, Tooltip, Input, Select } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { toast } from 'react-toastify';
 import { PageHeader, FilterContainer, HeaderActions } from './style';
 import CourseForm from '../../../components/Admin/AdminCourseForm/AdminCourseForm';
+import {
+  getAllCourse,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+} from '../../../services/CourseService';
 
 const { Option } = Select;
 
-const sampleCourses = [
-  {
-    key: '1',
-    name: "Cờ vua nâng cao",
-    type: "NÂNG CAO",
-    teacher: "LÊ THỰC ANH",
-    studentCount: 12,
-    price: 1000000,
-    discount: 10,
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1601233747798-4c4b7e1e4c3f?auto=format&fit=crop&w=80&q=80"
-  },
-  {
-    key: '2',
-    name: "Cờ vua nhập môn",
-    type: "NHẬP MÔN",
-    teacher: "LÊ VĂN MINH",
-    studentCount: 9,
-    price: 800000,
-    discount: 0,
-    rating: 4.0,
-    image: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&w=80&q=80"
-  }
-];
-
 const CoursePage = () => {
+  const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('');
-  const [filterTeacher, setFilterTeacher] = useState('');
   const [typeOptions, setTypeOptions] = useState([]);
-  const [teacherOptions, setTeacherOptions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setTypeOptions(['NHẬP MÔN', 'NÂNG CAO', 'TRUNG CẤP']);
-      setTeacherOptions(['LÊ THỰC ANH', 'LÊ VĂN MINH']);
-    }, 300);
+    fetchCourses();
   }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const res = await getAllCourse();
+      const data = res.data || [];
+      setCourses(data);
+
+      const uniqueTypes = [...new Set(data.map((c) => c.type))];
+      setTypeOptions(uniqueTypes);
+    } catch (err) {
+      toast.error('Lỗi khi tải danh sách khóa học');
+    }
+  };
 
   const handleAdd = () => {
     setSelectedCourse(null);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (values) => {
-    console.log('SUBMIT:', values);
-    setIsModalOpen(false);
+  const handleEdit = (record) => {
+    setSelectedCourse(record);
+    setIsModalOpen(true);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
+  const handleDelete = async (record) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      await deleteCourse(record._id, token);
+      toast.success('Xóa khóa học thành công');
+      fetchCourses();
+    } catch (error) {
+      toast.error('Xóa khóa học thất bại');
+    }
   };
 
-  const filteredCourses = sampleCourses.filter(course => {
+  const handleSubmit = async (values) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      console.log('TOKEN:', token);
+      if (selectedCourse) {
+        await updateCourse(selectedCourse._id, values, token);
+        toast.success('Cập nhật khóa học thành công!');
+      } else {
+        await createCourse(values, token);
+        toast.success('Tạo khóa học thành công!');
+      }
+      setIsModalOpen(false);
+      fetchCourses();
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi khi lưu khóa học');
+    }
+  };
+
+  const filteredCourses = courses.filter((course) => {
     return (
-      course.name.toLowerCase().includes(search.toLowerCase()) &&
-      (filterType ? course.type === filterType : true) &&
-      (filterTeacher ? course.teacher === filterTeacher : true)
+      course.name?.toLowerCase().includes(search.toLowerCase()) &&
+      (filterType ? course.type === filterType : true)
     );
   });
 
@@ -74,7 +89,15 @@ const CoursePage = () => {
       title: 'Ảnh',
       dataIndex: 'image',
       key: 'image',
-      render: (text) => <Image width={56} height={56} src={text} alt="course" style={{ objectFit: 'cover', borderRadius: 8 }} />,
+      render: (src) => (
+        <Image
+          width={56}
+          height={56}
+          src={src}
+          alt="course"
+          style={{ objectFit: 'cover', borderRadius: 8 }}
+        />
+      ),
     },
     {
       title: 'Tên khóa học',
@@ -87,32 +110,39 @@ const CoursePage = () => {
       key: 'type',
     },
     {
-      title: 'Giảng viên',
-      dataIndex: 'teacher',
-      key: 'teacher',
+      title: 'Mô tả',
+      dataIndex: 'description',
+      key: 'description',
+      render: (desc) => desc || 'Chưa có mô tả',
     },
     {
-      title: 'Số học viên',
-      dataIndex: 'studentCount',
-      key: 'studentCount',
+      title: 'Lớp',
+      dataIndex: 'classes',
+      key: 'classes',
+      render: (classes) =>
+        Array.isArray(classes) && classes.length > 0
+          ? classes.map((cls, idx) => (
+              <div key={idx}>{cls.name || `Lớp ${idx + 1}`}</div>
+            ))
+          : 'Chưa có lớp',
     },
     {
       title: 'Giá',
       dataIndex: 'price',
       key: 'price',
-      render: (text) => `${text.toLocaleString()}₫`
+      render: (price) => `${price?.toLocaleString()}₫`,
     },
     {
       title: 'Giảm giá',
       dataIndex: 'discount',
       key: 'discount',
-      render: (text) => `${text}%`
+      render: (discount) => `${discount}%`,
     },
     {
       title: 'Đánh giá',
       dataIndex: 'rating',
       key: 'rating',
-      render: (text) => `⭐ ${text}`
+      render: (rating) => `⭐ ${rating}`,
     },
     {
       title: 'Hành động',
@@ -120,10 +150,19 @@ const CoursePage = () => {
       render: (_, record) => (
         <Space size="middle">
           <Tooltip title="Sửa">
-            <Button icon={<EditOutlined />} type="link" onClick={() => console.log('Edit', record)} />
+            <Button
+              icon={<EditOutlined />}
+              type="link"
+              onClick={() => handleEdit(record)}
+            />
           </Tooltip>
           <Tooltip title="Xóa">
-            <Button icon={<DeleteOutlined />} danger type="link" onClick={() => console.log('Delete', record)} />
+            <Button
+              icon={<DeleteOutlined />}
+              danger
+              type="link"
+              onClick={() => handleDelete(record)}
+            />
           </Tooltip>
         </Space>
       ),
@@ -135,7 +174,9 @@ const CoursePage = () => {
       <PageHeader>
         <h2>Danh sách khóa học</h2>
         <HeaderActions>
-          <Button type="primary" onClick={handleAdd}>+ Thêm khóa học</Button>
+          <Button type="primary" onClick={handleAdd}>
+            + Thêm khóa học
+          </Button>
           <Button>Danh mục loại khóa</Button>
           <Button>Sắp xếp</Button>
         </HeaderActions>
@@ -156,18 +197,9 @@ const CoursePage = () => {
           onChange={(value) => setFilterType(value)}
         >
           {typeOptions.map((type) => (
-            <Option key={type} value={type}>{type}</Option>
-          ))}
-        </Select>
-        <Select
-          placeholder="Lọc theo giảng viên"
-          allowClear
-          style={{ width: 200 }}
-          value={filterTeacher}
-          onChange={(value) => setFilterTeacher(value)}
-        >
-          {teacherOptions.map((t) => (
-            <Option key={t} value={t}>{t}</Option>
+            <Option key={type} value={type}>
+              {type}
+            </Option>
           ))}
         </Select>
       </FilterContainer>
@@ -175,17 +207,16 @@ const CoursePage = () => {
       <Table
         columns={columns}
         dataSource={filteredCourses}
+        rowKey="_id"
         pagination={{ pageSize: 5 }}
         bordered
       />
 
       <CourseForm
         visible={isModalOpen}
-        onCancel={handleCancel}
+        onCancel={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
         initialValues={selectedCourse}
-        typeOptions={typeOptions}
-        teacherOptions={teacherOptions}
       />
     </div>
   );
