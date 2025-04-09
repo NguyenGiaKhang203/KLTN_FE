@@ -12,19 +12,12 @@ import { TableWrapper, Toolbar } from './style';
 import ClassForm from '../../../components/Admin/AdminClassForm/AdminClassForm';
 import * as ClassService from '../../../services/ClassService';
 
-const ClassPage = () => {
+const ClassPage = () => { 
   const [classes, setClasses] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // Giảng viên modals & state
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editedTeacherData, setEditedTeacherData] = useState({});
-  const [newTeacherData, setNewTeacherData] = useState({});
-  const [currentTeacher, setCurrentTeacher] = useState(null);
+  const [sortAsc, setSortAsc] = useState(true);
 
   const token = localStorage.getItem('access-token');
 
@@ -32,7 +25,7 @@ const ClassPage = () => {
     try {
       setLoading(true);
       const data = await ClassService.getAllClasses(token);
-      setClasses(data);
+      setClasses(data.data);
     } catch (error) {
       message.error('Lỗi khi tải dữ liệu lớp học');
     } finally {
@@ -47,7 +40,7 @@ const ClassPage = () => {
   const handleCreateOrUpdate = async (formData) => {
     try {
       if (editingClass) {
-        await ClassService.updateClass(editingClass.id, formData, token);
+        await ClassService.updateClass(editingClass._id, formData, token);
         message.success('Cập nhật lớp học thành công');
       } else {
         await ClassService.createClass(formData, token);
@@ -63,7 +56,7 @@ const ClassPage = () => {
 
   const handleEdit = async (record) => {
     try {
-      const data = await ClassService.getClassById(record.id, token);
+      const data = await ClassService.getClassById(record._id, token);
       setEditingClass(data);
       setIsFormOpen(true);
     } catch (error) {
@@ -98,30 +91,54 @@ const ClassPage = () => {
     },
     {
       title: 'Tên lớp',
-      dataIndex: 'title',
-      sorter: (a, b) => a.title.localeCompare(b.title),
+      dataIndex: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'Giảng viên',
       dataIndex: 'teacher',
+      render: (teacher) => teacher?.name || 'Chưa có',
     },
     {
-      title: 'Giờ học',
-      dataIndex: 'time',
-    },
-    {
-      title: 'Thứ học',
-      dataIndex: 'days',
-      render: (days) => days.join(', '),
+      title: 'Lịch học',
+      dataIndex: 'schedule',
+      width: 150,
+      render: (schedule) =>
+        Array.isArray(schedule)
+          ? (
+              <div style={{ lineHeight: '1.8' }}>
+                {schedule.map((s, index) => (
+                  <div key={index}>
+                    {s.day} ({s.startTime} - {s.endTime})
+                  </div>
+                ))}
+              </div>
+            )
+          : '',
     },
     {
       title: 'Số học viên',
-      dataIndex: 'students',
+      dataIndex: 'studentCount',
       align: 'center',
     },
     {
       title: 'Hệ đào tạo',
       dataIndex: 'program',
+      render: (program) => program || 'Chưa xác định',
+    },
+    {
+      title: 'Địa điểm học',
+      dataIndex: 'address',
+    },
+    {
+      title: 'Ngày bắt đầu',
+      dataIndex: 'startDate',
+      render: (date) => new Date(date).toLocaleDateString('vi-VN'),
+    },
+    {
+      title: 'Ngày kết thúc',
+      dataIndex: 'endDate',
+      render: (date) => new Date(date).toLocaleDateString('vi-VN'),
     },
     {
       title: '',
@@ -137,7 +154,7 @@ const ClassPage = () => {
           <Tooltip title="Xoá">
             <DeleteOutlined
               style={{ color: '#ff4d4f', cursor: 'pointer' }}
-              onClick={() => handleDelete(record.id)}
+              onClick={() => handleDelete(record._id)}
             />
           </Tooltip>
         </Space>
@@ -145,23 +162,6 @@ const ClassPage = () => {
       width: 80,
     },
   ];
-
-  // Xử lý giảng viên (demo - bạn có thể kết nối với API riêng)
-  const handleEditSubmit = () => {
-    message.success('Đã cập nhật giảng viên!');
-    setIsEditModalVisible(false);
-  };
-
-  const handleCreateTeacher = () => {
-    message.success('Đã thêm giảng viên!');
-    setIsModalVisible(false);
-    setNewTeacherData({});
-  };
-
-  const handleConfirmDelete = () => {
-    message.success('Đã xóa giảng viên!');
-    setIsDeleteModalVisible(false);
-  };
 
   return (
     <>
@@ -178,18 +178,24 @@ const ClassPage = () => {
             >
               Thêm lớp
             </Button>
-            <Button icon={<AppstoreAddOutlined />} onClick={() => setIsModalVisible(true)}>
-              Thêm nhanh
-            </Button>
             <Button icon={<UnorderedListOutlined />}>Danh mục hệ đào tạo</Button>
-            <Button icon={<SortAscendingOutlined />}>Sắp xếp thứ tự</Button>
+            <Button
+              icon={<SortAscendingOutlined />}
+              onClick={() => setSortAsc(!sortAsc)}
+            >
+              Sắp xếp {sortAsc ? 'A → Z' : 'Z → A'}
+            </Button>
           </Space>
         </Toolbar>
 
         <Table
           columns={columns}
-          dataSource={classes}
-          rowKey="id"
+          dataSource={[...classes].sort((a, b) =>
+            sortAsc
+              ? a.name.localeCompare(b.name)
+              : b.name.localeCompare(a.name)
+          )}
+          rowKey="_id"
           pagination={false}
           rowClassName="table-row"
           loading={loading}
@@ -206,113 +212,9 @@ const ClassPage = () => {
         }}
         onSubmit={handleCreateOrUpdate}
         initialValues={editingClass}
-        courses={[]} // Gợi ý: fetch từ API và truyền vào đây
-        teachers={[]} // Gợi ý: fetch từ API và truyền vào đây
+        courses={[]} // Có thể truyền API course ở đây
+        teachers={[]} // Có thể truyền API teacher ở đây
       />
-
-      {/* Modal chỉnh sửa giảng viên */}
-      <Modal
-        title="Chỉnh sửa giảng viên"
-        open={isEditModalVisible}
-        onOk={handleEditSubmit}
-        onCancel={() => setIsEditModalVisible(false)}
-        okText="Lưu"
-        cancelText="Hủy"
-      >
-        <Input
-          placeholder="Tên giảng viên"
-          value={editedTeacherData.name}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, name: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Email"
-          value={editedTeacherData.email}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, email: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Số điện thoại"
-          value={editedTeacherData.phone}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, phone: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Địa chỉ"
-          value={editedTeacherData.address}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, address: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Thành phố"
-          value={editedTeacherData.city}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, city: e.target.value })
-          }
-        />
-      </Modal>
-
-      {/* Modal xác nhận xóa */}
-      <Modal
-        title="Xác nhận xóa"
-        open={isDeleteModalVisible}
-        onOk={handleConfirmDelete}
-        onCancel={() => setIsDeleteModalVisible(false)}
-        okText="Xóa"
-        cancelText="Hủy"
-      >
-        <p>Bạn có chắc chắn muốn xóa giảng viên {currentTeacher?.name}?</p>
-      </Modal>
-
-      {/* Modal thêm giảng viên */}
-      <Modal
-        title="Thêm Giảng Viên"
-        open={isModalVisible}
-        onOk={handleCreateTeacher}
-        onCancel={() => setIsModalVisible(false)}
-        okText="Tạo mới"
-        cancelText="Hủy"
-      >
-        <Input
-          placeholder="Tên giảng viên"
-          value={newTeacherData.name}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, name: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Email"
-          value={newTeacherData.email}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, email: e.target.value })
-          }
-        />
-        <Input.Password
-          placeholder="Mật khẩu"
-          value={newTeacherData.password}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, password: e.target.value })
-          }
-        />
-        <Input.Password
-          placeholder="Xác nhận mật khẩu"
-          value={newTeacherData.confirmPassword}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, confirmPassword: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Số điện thoại"
-          value={newTeacherData.phone}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, phone: e.target.value })
-          }
-        />
-      </Modal>
     </>
   );
 };
