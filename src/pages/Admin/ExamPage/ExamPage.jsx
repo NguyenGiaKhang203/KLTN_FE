@@ -17,111 +17,128 @@ import {
   SortAscendingOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
+import dayjs from "dayjs";
 import {
   PageHeader,
   FilterContainer,
   HeaderActions,
   CenteredAction,
 } from "./style";
+import * as ExamService from "../../../services/ExamService";
+import { useSelector } from "react-redux";
 
 const { Option } = Select;
 
-const examData = [
-  {
-    key: "1",
-    title: "Bài kiểm đầu vào",
-    subject: "Chess-Lv1",
-    date: "2025-04-15",
-    className: "Level 1",
-    status: "Chưa thi",
-    link: "https://example.com/exam1",
-  },
-  {
-    key: "2",
-    title: "Bài kiểm đầu vào",
-    subject: "Chess-Lv2",
-    date: "2025-05-20",
-    className: "Level 2",
-    status: "Đã thi",
-    link: "https://example.com/exam2",
-  },
-  {
-    key: "3",
-    title: "Bài kiểm đầu vào",
-    subject: "Chess-Lv3",
-    date: "2025-05-20",
-    className: "Level 3",
-    status: "Chưa thi",
-    link: "https://example.com/exam3",
-  },
-  {
-    key: "4",
-    title: "Bài kiểm đầu vào",
-    subject: "Chess-Lv4",
-    date: "2025-05-20",
-    className: "Level 4",
-    status: "Đang chấm điểm",
-    link: "https://example.com/exam4",
-  },
-  {
-    key: "5",
-    title: "Bài kiểm đầu vào",
-    subject: "Chess-Lv5",
-    date: "2025-05-20",
-    className: "Level 5",
-    status: "Đã thi",
-    link: "https://example.com/exam5",
-  },
-];
-
 export default function ExamPage() {
+  const [form] = Form.useForm();
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState("");
-  const [filteredData, setFilteredData] = useState(examData);
-  const [exams, setExams] = useState(examData);
+  const [exams, setExams] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingExam, setEditingExam] = useState(null);
+
+  const user = useSelector((state) => state.user);
+  console.log("userid", user?.user?._id);
+  console.log("access-token", user?.access_token);
+  console.log()
+
+
+  const fetchExams = async () => {
+    try {
+      const id = user?.user?._id;
+      const token = user?.access_token;
+      const res = await ExamService.getExamById(id, token);
+      const mapped = res.data.map((exam) => ({
+        ...exam,
+        title: exam.examName,
+        subject: exam.subject || "",
+        date: dayjs(exam.examDeadline).format("YYYY-MM-DD"),
+        className: exam.className || "Level 1",
+        link: exam.link || "#",
+        status: exam.status || "Chưa thi",
+      }));
+      setExams(mapped);
+    } catch (err) {
+      message.error("Lỗi khi tải danh sách bài thi.");
+    }
+  };
 
   useEffect(() => {
-    let results = exams.filter(
-      (exam) =>
-        exam.title.toLowerCase().includes(search.toLowerCase()) ||
-        exam.subject.toLowerCase().includes(search.toLowerCase())
-    );
+    if (user && user.user && user.access_token) {
+      fetchExams();
+    }
+  }, [user]);
+
+
+  useEffect(() => {
+    let results = exams.filter((exam) => {
+      const title = exam.title || "";
+      const subject = exam.subject || "";
+      return (
+        title.toLowerCase().includes(search.toLowerCase()) ||
+        subject.toLowerCase().includes(search.toLowerCase())
+      );
+    });
 
     if (sortOrder === "asc") {
-      results = results.sort((a, b) => a.title.localeCompare(b.title));
+      results.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
     } else if (sortOrder === "desc") {
-      results = results.sort((a, b) => b.title.localeCompare(a.title));
+      results.sort((a, b) => (b.title || "").localeCompare(a.title || ""));
     }
 
     setFilteredData(results);
   }, [search, sortOrder, exams]);
 
+  const handleDelete = async (record) => {
+    try {
+      await ExamService.deleteExam(record._id, user?.access_token);
+      message.success("Đã xóa bài thi");
+      fetchExams();
+    } catch {
+      message.error("Xóa thất bại!");
+    }
+  };
+
   const handleEdit = (record) => {
-    message.info(`Chỉnh sửa bài thi: ${record.title}`);
+    setIsEditMode(true);
+    setEditingExam(record);
+    setIsModalOpen(true);
+    form.setFieldsValue({
+      ...record,
+      date: dayjs(record.date),
+    });
   };
 
-  const handleDelete = (record) => {
-    const newData = exams.filter((item) => item.key !== record.key);
-    setExams(newData);
-    message.success(`Đã xóa bài thi: ${record.title}`);
-  };
+  const handleAddOrUpdate = async (values) => {
+    try {
+      const payload = {
+        examName: values.title,
+        subject: values.subject,
+        examDeadline: values.date.format("YYYY-MM-DD"),
+        className: values.className,
+        link: values.link,
+        status: values.status,
+        userId: user?.id,
+      };
 
-  const handleAddExam = (values) => {
-    const newExam = {
-      key: Date.now().toString(),
-      title: values.title,
-      subject: values.subject,
-      date: values.date.format("YYYY-MM-DD"),
-      className: values.className,
-      status: values.status,
-      link: values.link,
-    };
-    setExams([newExam, ...exams]);
-    setIsModalOpen(false);
-    form.resetFields();
-    message.success("Đã thêm bài thi mới!");
+      if (isEditMode) {
+        await ExamService.updateExam(editingExam._id, payload, user?.access_token);
+        message.success("Đã cập nhật bài thi!");
+      } else {
+        await ExamService.createExam(payload, user?.access_token);
+        message.success("Đã thêm bài thi mới!");
+      }
+
+      form.resetFields();
+      setIsModalOpen(false);
+      setIsEditMode(false);
+      setEditingExam(null);
+      fetchExams();
+    } catch {
+      message.error("Thao tác thất bại!");
+    }
   };
 
   const columns = [
@@ -210,7 +227,11 @@ export default function ExamPage() {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setIsModalOpen(true);
+              setIsEditMode(false);
+              form.resetFields();
+            }}
           >
             Thêm bài thi
           </Button>
@@ -237,18 +258,23 @@ export default function ExamPage() {
         columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 5 }}
+        rowKey="_id"
         bordered
       />
 
       <Modal
-        title="Thêm bài thi"
+        title={isEditMode ? "Cập nhật bài thi" : "Thêm bài thi"}
         open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => {
+          setIsModalOpen(false);
+          setIsEditMode(false);
+          form.resetFields();
+        }}
         onOk={() => form.submit()}
-        okText="Thêm"
+        okText={isEditMode ? "Cập nhật" : "Thêm"}
         cancelText="Hủy"
       >
-        <Form layout="vertical" form={form} onFinish={handleAddExam}>
+        <Form layout="vertical" form={form} onFinish={handleAddOrUpdate}>
           <Form.Item
             label="Tên bài thi"
             name="title"
@@ -263,7 +289,11 @@ export default function ExamPage() {
           >
             <Input />
           </Form.Item>
-          <Form.Item label="Ngày thi" name="date" rules={[{ required: true }]}>
+          <Form.Item
+            label="Ngày thi"
+            name="date"
+            rules={[{ required: true }]}
+          >
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
@@ -273,7 +303,9 @@ export default function ExamPage() {
           >
             <Select placeholder="Chọn lớp áp dụng">
               {[1, 2, 3, 4, 5].map((lv) => (
-                <Option key={lv} value={`Level ${lv}`}>{`Level ${lv}`}</Option>
+                <Option key={lv} value={`Level ${lv}`}>
+                  {`Level ${lv}`}
+                </Option>
               ))}
             </Select>
           </Form.Item>
