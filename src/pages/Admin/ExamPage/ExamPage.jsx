@@ -42,7 +42,6 @@ export default function ExamPage() {
   const user = useSelector((state) => state.user);
   console.log("userid", user?.user?._id);
   console.log("access-token", user?.access_token);
-  console.log()
 
 
   const fetchExams = async () => {

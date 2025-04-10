@@ -21,6 +21,7 @@ const CoursePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
+
   useEffect(() => {
     fetchCourses();
   }, []);
