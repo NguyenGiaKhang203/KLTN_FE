@@ -1,7 +1,6 @@
-// SchedulePage.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { Select } from 'antd';
-import axios from 'axios';
+import * as ScheduleService from '../../../services/SecheduleService';
 import {
   ScheduleContainer,
   FilterSection,
@@ -10,23 +9,22 @@ import {
   ClassCell,
   ClassCard,
 } from './style';
+import { useSelector } from 'react-redux';
 
 const { Option } = Select;
 
 const getWeekDays = (startDate = new Date()) => {
   const result = [];
-  const start = new Date(startDate);
-  const day = start.getDay();
+  const day = startDate.getDay();
   const mondayOffset = day === 0 ? -6 : 1 - day;
+  const start = new Date(startDate);
   start.setDate(start.getDate() + mondayOffset);
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
-
     const label = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][i];
     const date = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-
     result.push({ label, date, fullDate: d });
   }
 
@@ -34,56 +32,96 @@ const getWeekDays = (startDate = new Date()) => {
 };
 
 const timeSlots = [
-  { id: 'ca1', label: '07H00 - 09H00', time: '07:00 - 09:00' },
-  { id: 'ca2', label: '09H00 - 11H00', time: '09:00 - 11:00' },
-  { id: 'ca3', label: '15H00 - 17H00', time: '15:00 - 17:00' },
-  { id: 'ca4', label: '19H00 - 21H00', time: '19:00 - 21:00' },
+  { id: 'ca1', label: '07H00 - 09H00', time: '07:00' },
+  { id: 'ca2', label: '09H00 - 11H00', time: '09:00' },
+  { id: 'ca3', label: '15H00 - 17H00', time: '15:00' },
+  { id: 'ca4', label: '19H00 - 21H00', time: '19:00' },
 ];
 
 const SchedulePage = () => {
   const [teachers, setTeachers] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({ slot: 'all', program: 'all' });
   const [scheduleData, setScheduleData] = useState({});
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate] = useState(new Date());
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
+  const user = useSelector((state) => state.user);
+  const id = user?.user?._id;
+  const token = user?.access_token;
 
-  useEffect(() => {
-    fetchFilters();
-    mockSchedule();
-  }, []);
-
-  const fetchFilters = async () => {
+  const fetchSchedule = async () => {
     try {
-      const [teacherRes, roomRes] = await Promise.all([
-        axios.get('/api/teachers'),
-        axios.get('/api/rooms'),
-      ]);
-      setTeachers(teacherRes.data);
-      setRooms(roomRes.data);
+      const response = await ScheduleService.getTeacherSchedule(id, token);
+      const formattedData = formatSchedule(response?.data || [], days);
+      setScheduleData(formattedData);
     } catch (err) {
-      console.error('Failed to fetch filter data:', err);
+      console.error('Failed to fetch schedule:', err);
     }
   };
+  
 
-  const mockSchedule = () => {
-    const mock = {};
-    const randomDate = days[1].date; // T3
-    mock[randomDate] = {
-      ca3: {
-        name: 'NHL 78 - CB - HLV. THỰC ANH',
-        level: 'CƠ BẢN',
-        teacher: 'THỰC ANH',
-        room: 'Phòng 1',
-      },
-    };
-    setScheduleData(mock);
+
+  useEffect(() => {
+    if (id && token) {
+      fetchSchedule();
+    }
+  }, [id, token]);
+
+  const formatSchedule = (data) => {
+    const result = {};
+  
+    data.forEach((classItem) => {
+      classItem.schedule.forEach((sch) => {
+        // Chuyển 'Thứ 2' thành date tương ứng trong tuần hiện tại
+        const matchedDay = days.find((d) => {
+          return d.label === sch.day.replace('Thứ ', 'T'); // "Thứ 2" → "T2"
+        });
+  
+        if (matchedDay) {
+          const dateKey = matchedDay.date;
+  
+          if (!result[dateKey]) result[dateKey] = {};
+  
+          // Xác định ca học dựa vào startTime (ví dụ 18:00 thì là ca4)
+          let slotId = '';
+          if (sch.startTime === '07:00') slotId = 'ca1';
+          else if (sch.startTime === '09:00') slotId = 'ca2';
+          else if (sch.startTime === '15:00') slotId = 'ca3';
+          else if (sch.startTime === '18:00' || sch.startTime === '19:00') slotId = 'ca4';
+  
+          if (slotId) {
+            result[dateKey][slotId] = {
+              name: classItem.name,
+              level: classItem.course?.name,
+              teacher: "Bạn", // hoặc tên giáo viên nếu có
+              room: classItem.address,
+            };
+          }
+        }
+      });
+    });
+  
+    return result;
   };
+  
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    // Gọi API fetchSchedule nếu cần
+  };
+
+  const isSlotVisible = (slotId) => {
+    if (filters.slot === 'morning') return slotId === 'ca1' || slotId === 'ca2';
+    if (filters.slot === 'afternoon') return slotId === 'ca3' || slotId === 'ca4';
+    return true;
+  };
+
+  const shouldShowCell = (cell) => {
+    if (!cell) return false;
+    if (filters.teacher && filters.teacher !== cell.teacher) return false;
+    if (filters.room && filters.room !== cell.room) return false;
+    if (filters.program && filters.program !== 'all' && filters.program !== cell.program) return false;
+    return true;
   };
 
   return (
@@ -96,7 +134,9 @@ const SchedulePage = () => {
           allowClear
         >
           {teachers.map((t) => (
-            <Option key={t.id} value={t.id}>{t.name}</Option>
+            <Option key={t.id} value={t.name}>
+              {t.name}
+            </Option>
           ))}
         </Select>
 
@@ -107,7 +147,9 @@ const SchedulePage = () => {
           allowClear
         >
           {rooms.map((r) => (
-            <Option key={r.id} value={r.id}>{r.name}</Option>
+            <Option key={r.id} value={r.name}>
+              {r.name}
+            </Option>
           ))}
         </Select>
 
@@ -138,36 +180,40 @@ const SchedulePage = () => {
             <th>Ca học</th>
             {days.map((day) => (
               <th key={day.date}>
-                {day.label}<br />
+                {day.label}
+                <br />
                 <small>{day.date}</small>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {timeSlots.map((slot) => (
-            <tr key={slot.id}>
-              <TimeCell>
-                {slot.label}<br />
-                <small>{slot.time}</small>
-              </TimeCell>
-              {days.map((day) => {
-                const cell = scheduleData?.[day.date]?.[slot.id];
-                return (
-                  <ClassCell key={`${day.date}-${slot.id}`}>
-                    {cell && (
-                      <ClassCard>
-                        <div className="class-name">{cell.name}</div>
-                        <div className="level">{cell.level}</div>
-                        <div className="teacher">👤 {cell.teacher}</div>
-                        <div className="room">🏫 {cell.room}</div>
-                      </ClassCard>
-                    )}
-                  </ClassCell>
-                );
-              })}
-            </tr>
-          ))}
+          {timeSlots
+            .filter((slot) => isSlotVisible(slot.id))
+            .map((slot) => (
+              <tr key={slot.id}>
+                <TimeCell>
+                  {slot.label}
+                  <br />
+                  <small>{slot.time}</small>
+                </TimeCell>
+                {days.map((day) => {
+                  const cell = scheduleData?.[day.date]?.[slot.id];
+                  return (
+                    <ClassCell key={`${day.date}-${slot.id}`}>
+                      {shouldShowCell(cell) && (
+                        <ClassCard>
+                          <div className="class-name">{cell.name}</div>
+                          <div className="level">{cell.level}</div>
+                          <div className="teacher">👤 {cell.teacher}</div>
+                          <div className="room">🏫 {cell.room}</div>
+                        </ClassCard>
+                      )}
+                    </ClassCell>
+                  );
+                })}
+              </tr>
+            ))}
         </tbody>
       </ScheduleTable>
     </ScheduleContainer>
