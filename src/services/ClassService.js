@@ -57,3 +57,17 @@ export const getTotalClasses = async () => {
   );
   return res.data;
 };
+
+export const getClassbyTeacher = async (id) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-all-by-teacherid/${id}`,
+  );
+  return res.data;
+};
+
+export const getStudentsInClass  = async (id) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-student-in-classes/${id}`,
+  );
+  return res.data;
+};
