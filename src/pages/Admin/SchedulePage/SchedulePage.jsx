@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Select } from 'antd';
-import * as ScheduleService from '../../../services/SecheduleService';
+import React, { useEffect, useMemo, useState } from "react";
+import { Select } from "antd";
+import * as ScheduleService from "../../../services/ScheduleService";
 import {
   ScheduleContainer,
   FilterSection,
@@ -8,8 +8,8 @@ import {
   TimeCell,
   ClassCell,
   ClassCard,
-} from './style';
-import { useSelector } from 'react-redux';
+} from "./style";
+import { useSelector } from "react-redux";
 
 const { Option } = Select;
 
@@ -23,8 +23,11 @@ const getWeekDays = (startDate = new Date()) => {
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
-    const label = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'][i];
-    const date = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    const label = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"][i];
+    const date = d.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+    });
     result.push({ label, date, fullDate: d });
   }
 
@@ -32,16 +35,16 @@ const getWeekDays = (startDate = new Date()) => {
 };
 
 const timeSlots = [
-  { id: 'ca1', label: '07H00 - 09H00', time: '07:00' },
-  { id: 'ca2', label: '09H00 - 11H00', time: '09:00' },
-  { id: 'ca3', label: '15H00 - 17H00', time: '15:00' },
-  { id: 'ca4', label: '19H00 - 21H00', time: '19:00' },
+  { id: "ca1", label: "07H00 - 09H00", time: "07:00" },
+  { id: "ca2", label: "09H00 - 11H00", time: "09:00" },
+  { id: "ca3", label: "15H00 - 17H00", time: "15:00" },
+  { id: "ca4", label: "19H00 - 21H00", time: "19:00" },
 ];
 
 const SchedulePage = () => {
   const [teachers, setTeachers] = useState([]);
   const [rooms, setRooms] = useState([]);
-  const [filters, setFilters] = useState({ slot: 'all', program: 'all' });
+  const [filters, setFilters] = useState({ slot: "all", program: "all" });
   const [scheduleData, setScheduleData] = useState({});
   const [currentDate] = useState(new Date());
 
@@ -56,11 +59,9 @@ const SchedulePage = () => {
       const formattedData = formatSchedule(response?.data || [], days);
       setScheduleData(formattedData);
     } catch (err) {
-      console.error('Failed to fetch schedule:', err);
+      console.error("Failed to fetch schedule:", err);
     }
   };
-  
-
 
   useEffect(() => {
     if (id && token) {
@@ -70,26 +71,27 @@ const SchedulePage = () => {
 
   const formatSchedule = (data) => {
     const result = {};
-  
+
     data.forEach((classItem) => {
       classItem.schedule.forEach((sch) => {
         // Chuyển 'Thứ 2' thành date tương ứng trong tuần hiện tại
         const matchedDay = days.find((d) => {
-          return d.label === sch.day.replace('Thứ ', 'T'); // "Thứ 2" → "T2"
+          return d.label === sch.day.replace("Thứ ", "T"); // "Thứ 2" → "T2"
         });
-  
+
         if (matchedDay) {
           const dateKey = matchedDay.date;
-  
+
           if (!result[dateKey]) result[dateKey] = {};
-  
+
           // Xác định ca học dựa vào startTime (ví dụ 18:00 thì là ca4)
-          let slotId = '';
-          if (sch.startTime === '07:00') slotId = 'ca1';
-          else if (sch.startTime === '09:00') slotId = 'ca2';
-          else if (sch.startTime === '15:00') slotId = 'ca3';
-          else if (sch.startTime === '18:00' || sch.startTime === '19:00') slotId = 'ca4';
-  
+          let slotId = "";
+          if (sch.startTime === "07:00") slotId = "ca1";
+          else if (sch.startTime === "09:00") slotId = "ca2";
+          else if (sch.startTime === "15:00") slotId = "ca3";
+          else if (sch.startTime === "18:00" || sch.startTime === "19:00")
+            slotId = "ca4";
+
           if (slotId) {
             result[dateKey][slotId] = {
               name: classItem.name,
@@ -101,18 +103,18 @@ const SchedulePage = () => {
         }
       });
     });
-  
+
     return result;
   };
-  
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const isSlotVisible = (slotId) => {
-    if (filters.slot === 'morning') return slotId === 'ca1' || slotId === 'ca2';
-    if (filters.slot === 'afternoon') return slotId === 'ca3' || slotId === 'ca4';
+    if (filters.slot === "morning") return slotId === "ca1" || slotId === "ca2";
+    if (filters.slot === "afternoon")
+      return slotId === "ca3" || slotId === "ca4";
     return true;
   };
 
@@ -120,7 +122,12 @@ const SchedulePage = () => {
     if (!cell) return false;
     if (filters.teacher && filters.teacher !== cell.teacher) return false;
     if (filters.room && filters.room !== cell.room) return false;
-    if (filters.program && filters.program !== 'all' && filters.program !== cell.program) return false;
+    if (
+      filters.program &&
+      filters.program !== "all" &&
+      filters.program !== cell.program
+    )
+      return false;
     return true;
   };
 
@@ -130,7 +137,7 @@ const SchedulePage = () => {
         <Select
           placeholder="Giáo viên"
           style={{ width: 160 }}
-          onChange={(val) => handleFilterChange('teacher', val)}
+          onChange={(val) => handleFilterChange("teacher", val)}
           allowClear
         >
           {teachers.map((t) => (
@@ -143,7 +150,7 @@ const SchedulePage = () => {
         <Select
           placeholder="Phòng học"
           style={{ width: 160 }}
-          onChange={(val) => handleFilterChange('room', val)}
+          onChange={(val) => handleFilterChange("room", val)}
           allowClear
         >
           {rooms.map((r) => (
@@ -156,7 +163,7 @@ const SchedulePage = () => {
         <Select
           defaultValue="all"
           style={{ width: 140 }}
-          onChange={(val) => handleFilterChange('slot', val)}
+          onChange={(val) => handleFilterChange("slot", val)}
         >
           <Option value="all">Tất cả ca</Option>
           <Option value="morning">Buổi sáng</Option>
@@ -166,7 +173,7 @@ const SchedulePage = () => {
         <Select
           defaultValue="all"
           style={{ width: 160 }}
-          onChange={(val) => handleFilterChange('program', val)}
+          onChange={(val) => handleFilterChange("program", val)}
         >
           <Option value="all">Tất cả chương trình</Option>
           <Option value="basic">Cơ bản</Option>
