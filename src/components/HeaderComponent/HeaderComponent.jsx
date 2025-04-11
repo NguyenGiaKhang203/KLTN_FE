@@ -63,11 +63,20 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
 
   const content = (
     <div>
-      <WrapperContentPopup onClick={() => navigate("/profile-user")}>Thông tin người dùng</WrapperContentPopup>
+      <WrapperContentPopup onClick={() => navigate("/profile-user")}>
+        Thông tin người dùng
+      </WrapperContentPopup>
       {user?.isAdmin && (
-        <WrapperContentPopup onClick={() => navigate("/system/admin")}>Quản lý hệ thống</WrapperContentPopup>
+        <WrapperContentPopup onClick={() => navigate("/system/admin")}>
+          Quản lý hệ thống
+        </WrapperContentPopup>
       )}
-      <WrapperContentPopup onClick={() => navigate("/my-order")}>Đơn hàng của tôi</WrapperContentPopup>
+      <WrapperContentPopup onClick={() => navigate("/schedule")}>
+        Lịch học
+      </WrapperContentPopup>
+      <WrapperContentPopup onClick={() => navigate("/my-order")}>
+        Đơn hàng của tôi
+      </WrapperContentPopup>
       <WrapperContentPopup
         onClick={() => {
           setIsOpenPopup(false);
