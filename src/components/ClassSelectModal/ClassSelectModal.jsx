@@ -10,13 +10,15 @@ import {
   ClassInfoContainer,
   ClassDetail
 } from "./style";
+
 import * as ClassService from "../../services/ClassService";
+
 
 const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString("vi-VN");
 };
-
 const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
+
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [allClasses, setAllClasses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -72,7 +74,6 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
       <ModalContent>
         <CloseButton onClick={onClose}>×</CloseButton>
         <Title>Chọn lớp cho khóa học: {course?.name}</Title>
-
         {loading ? (
           <p>Đang tải lớp học...</p>
         ) : error ? (
@@ -125,7 +126,6 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
             ))}
           </ClassList>
         )}
-
         <ConfirmButton
           onClick={handleConfirm}
           disabled={!selectedClassId}

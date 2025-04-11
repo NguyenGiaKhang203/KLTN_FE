@@ -16,6 +16,7 @@ import ReportPage from "../ReportPage/ReportPage";
 import AssessPage from "../AssessPage/AssessPage";
 import AttendancePage from "../AttendancePage/AttendancePage";
 
+
 const AdminLayout = ({ children }) => {
   const location = useLocation();
 
@@ -49,6 +50,12 @@ const AdminLayout = ({ children }) => {
     }
     if (location.pathname === "/system/admin/attendance") {
       return <AttendancePage />;
+    }
+    if (location.pathname === "/system/admin/payment") {
+      return <PaymentManagement/>
+    }
+    if (location.pathname === "/system/admin/report") {
+      return <ReportPage/>
     }
     return <AdminDashboard />;
   };

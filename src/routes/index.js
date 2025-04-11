@@ -14,12 +14,6 @@ import AdminDashboard from "../pages/Admin/AdminDashboard/AdminDashboard";
 import SchedulePage from "../pages/Admin/SchedulePage/SchedulePage";
 import StudentPage from "../pages/Admin/StudentPage/StudentPage";
 import ContactPage from "../pages/ContactPages/ContactPage";
-import TeacherPage from "../pages/Admin/TeacherPage/TeacherPage";
-import ExamPage from "../pages/Admin/TeacherPage/TeacherPage";
-import PaymentManagement from "../pages/Admin/PaymentManagementPage/PaymentManagement";
-import ReportPage from "../pages/Admin/ReportPage/ReportPage";
-import AssessPage from "../pages/Admin/AssessPage/AssessPage";
-import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 
 export const routes = [
   {
@@ -114,31 +108,6 @@ export const routes = [
         path: "students",
         page: StudentPage,
       },
-      {
-        path: "teachers",
-        page: TeacherPage,
-      },
-      {
-        path: "exams",
-        page: ExamPage,
-      },
-      {
-        path: "payment",
-        page: PaymentManagement,
-      },
-      {
-        path: "assess",
-        page: AssessPage,
-      },
-      {
-        path: "report",
-        page: ReportPage,
-      },
-      {
-        path: "attendance",
-        page: AttendancePage,
-      },
-
     ],
   },
 ];
