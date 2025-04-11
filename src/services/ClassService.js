@@ -50,3 +50,10 @@ export const deleteClass = async (id, token) => {
   });
   return res.data;
 };
+
+export const getTotalClasses = async () => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-total-classes`,
+  );
+  return res.data;
+};
