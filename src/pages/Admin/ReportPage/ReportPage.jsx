@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Statistic, Card, Row, Col, Select, DatePicker, Space } from "antd";
 import {
   BarChart,
@@ -22,6 +22,7 @@ import {
   FilterLabel,
 } from "./style";
 import dayjs from "dayjs";
+import * as ClassService from "../../../services/ClassService";
 
 const { Option } = Select;
 
@@ -35,6 +36,25 @@ export default function ReportPage() {
   const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
   const [selectedQuarter, setSelectedQuarter] = useState(1);
   const [selectedYear, setSelectedYear] = useState(defaultYear);
+  const [total, setTotal] = useState(0);
+
+  const token = localStorage.getItem("access-token");
+
+  const fetchClasses = async () => {
+    try {
+      const res = await ClassService.getAllClasses(token);
+      const classes = res.data;
+      // Tính tổng số học viên đã đăng ký ở tất cả các lớp
+      const totalStudents = classes.reduce((acc, item) => acc + item.students.length, 0);
+      setTotal(totalStudents);
+    } catch (error) {
+      console.error("Lỗi lấy danh sách lớp học:", error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchClasses();
+  }, [token]);
 
   const revenueData = [
     { month: "T1", revenue: 30 },
@@ -70,7 +90,7 @@ export default function ReportPage() {
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
           <Card className="card-info total-students">
-            <Statistic title="Tổng học viên" value={350} />
+            <Statistic title="Tổng học viên" value={total} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
