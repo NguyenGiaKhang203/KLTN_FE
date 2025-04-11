@@ -1,94 +1,177 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Tooltip, message, Modal, Input } from 'antd';
+import {
+  Table,
+  Button,
+  Space,
+  Tooltip,
+  Modal,
+  Input,
+} from 'antd';
 import {
   EditOutlined,
   DeleteOutlined,
   PlusOutlined,
-  AppstoreAddOutlined,
   UnorderedListOutlined,
   SortAscendingOutlined,
 } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCourses } from '../../../redux/slices/courseSlice';
 import { TableWrapper, Toolbar } from './style';
 import ClassForm from '../../../components/Admin/AdminClassForm/AdminClassForm';
 import * as ClassService from '../../../services/ClassService';
+import * as UserService from '../../../services/UserService';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const ClassPage = () => { 
+const ClassPage = () => {
+  const dispatch = useDispatch();
+  const courseList = useSelector((state) => state.course.courseList);
+  const user = useSelector((state) => state.user);
+  const token = user?.access_token;
+
   const [classes, setClasses] = useState([]);
+  const [teacherList, setTeacherList] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sortAsc, setSortAsc] = useState(true);
+  const [search, setSearch] = useState('');
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
-  const token = localStorage.getItem('access-token');
+  const fetchTeachers = async () => {
+    if (!token) return;
+    try {
+      const res = await UserService.getAllUser(token);
+      const teachers = res.data
+        .filter((u) => u.isTeacher)
+        .map((t) => ({
+          _id: t._id,
+          name: t.name,
+        }));
+      setTeacherList(teachers);
+    } catch (error) {
+      toast.error('Lỗi khi tải danh sách giảng viên');
+    }
+  };
 
   const fetchClasses = async () => {
+    if (!token) return;
     try {
       setLoading(true);
-      const data = await ClassService.getAllClasses(token);
-      setClasses(data.data);
+      const res = await ClassService.getAllClasses(token);
+      const rawClasses = res.data;
+  
+      const mappedClasses = rawClasses.map((cls) => {
+        let teacherName = 'Chưa có';
+  
+        // Nếu teacher là object và có name
+        if (cls.teacher && typeof cls.teacher === 'object' && cls.teacher.name) {
+          teacherName = cls.teacher.name;
+        }
+  
+        // Nếu teacher là ID, tìm từ danh sách
+        if (typeof cls.teacher === 'string') {
+          const found = teacherList.find((t) => t._id === cls.teacher);
+          if (found) teacherName = found.name;
+        }
+  
+        return {
+          ...cls,
+          teacherName, // 👈 gán tên riêng để hiển thị
+        };
+      });
+  
+      setClasses(mappedClasses);
     } catch (error) {
-      message.error('Lỗi khi tải dữ liệu lớp học');
+      toast.error('Lỗi khi tải dữ liệu lớp học');
     } finally {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
-    fetchClasses();
-  }, []);
+    if (token) {
+      dispatch(fetchCourses());
+      fetchTeachers();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (teacherList.length > 0) {
+      fetchClasses();
+    }
+  }, [teacherList]);
 
   const handleCreateOrUpdate = async (formData) => {
+    if (!token) return;
     try {
       if (editingClass) {
         await ClassService.updateClass(editingClass._id, formData, token);
-        message.success('Cập nhật lớp học thành công');
+        toast.success('Cập nhật lớp học thành công');
       } else {
         await ClassService.createClass(formData, token);
-        message.success('Tạo lớp học mới thành công');
+        toast.success('Tạo lớp học mới thành công');
       }
       setIsFormOpen(false);
       setEditingClass(null);
       fetchClasses();
     } catch (error) {
-      message.error('Lỗi khi lưu lớp học');
+      toast.error('Lỗi khi lưu lớp học');
     }
   };
 
   const handleEdit = async (record) => {
+    if (!token) return;
     try {
-      const data = await ClassService.getClassById(record._id, token);
-      setEditingClass(data);
+      const res = await ClassService.getClassById(record._id, token);
+      const data = res.data;
+
+      const firstSlot = data.schedule?.[0] || {};
+
+      setEditingClass({
+        ...data,
+        teacher: data.teacher?._id,
+        course: data.course?._id,
+        schedule: data.schedule,
+        startTime: firstSlot.startTime,
+        endTime: firstSlot.endTime,
+        students: data.studentCount || 0,
+      });
+
       setIsFormOpen(true);
     } catch (error) {
-      message.error('Không thể lấy thông tin lớp học');
+      toast.error('Không thể lấy thông tin lớp học');
     }
   };
 
   const handleDelete = (id) => {
-    Modal.confirm({
-      title: 'Bạn có chắc chắn muốn xoá lớp học này?',
-      okText: 'Xoá',
-      cancelText: 'Huỷ',
-      okType: 'danger',
-      onOk: async () => {
-        try {
-          await ClassService.deleteClass(id, token);
-          message.success('Xoá lớp học thành công');
-          fetchClasses();
-        } catch (error) {
-          message.error('Lỗi khi xoá lớp học');
-        }
-      },
-    });
+    setDeleteId(id);
+    setIsDeleteModalVisible(true);
   };
 
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await ClassService.deleteClass(deleteId, token);
+      toast.success('Xoá lớp học thành công');
+      fetchClasses();
+    } catch (error) {
+      toast.error('Lỗi khi xoá lớp học');
+    } finally {
+      setIsDeleteModalVisible(false);
+      setDeleteId(null);
+    }
+  };
+
+  const filteredClasses = classes
+    .filter((cls) => cls.name?.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) =>
+      sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+    );
+
   const columns = [
-    {
-      title: '',
-      dataIndex: 'checkbox',
-      render: () => <input type="checkbox" />,
-      width: 40,
-    },
     {
       title: 'Tên lớp',
       dataIndex: 'name',
@@ -96,25 +179,23 @@ const ClassPage = () => {
     },
     {
       title: 'Giảng viên',
-      dataIndex: 'teacher',
-      render: (teacher) => teacher?.name || 'Chưa có',
+      dataIndex: 'teacherName',
+      render: (name) => name || 'Chưa có',
     },
     {
       title: 'Lịch học',
       dataIndex: 'schedule',
       width: 150,
       render: (schedule) =>
-        Array.isArray(schedule)
-          ? (
-              <div style={{ lineHeight: '1.8' }}>
-                {schedule.map((s, index) => (
-                  <div key={index}>
-                    {s.day} ({s.startTime} - {s.endTime})
-                  </div>
-                ))}
+        Array.isArray(schedule) ? (
+          <div style={{ lineHeight: '1.8' }}>
+            {schedule.map((s, i) => (
+              <div key={i}>
+                {s.day} ({s.startTime} - {s.endTime})
               </div>
-            )
-          : '',
+            ))}
+          </div>
+        ) : '',
     },
     {
       title: 'Số học viên',
@@ -122,9 +203,9 @@ const ClassPage = () => {
       align: 'center',
     },
     {
-      title: 'Hệ đào tạo',
-      dataIndex: 'program',
-      render: (program) => program || 'Chưa xác định',
+      title: 'Chương trình học',
+      dataIndex: 'course',
+      render: (course) => course?.name || 'Chưa xác định',
     },
     {
       title: 'Địa điểm học',
@@ -167,41 +248,53 @@ const ClassPage = () => {
     <>
       <TableWrapper>
         <Toolbar>
-          <Space>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                setEditingClass(null);
-                setIsFormOpen(true);
-              }}
-            >
-              Thêm lớp
-            </Button>
-            <Button icon={<UnorderedListOutlined />}>Danh mục hệ đào tạo</Button>
-            <Button
-              icon={<SortAscendingOutlined />}
-              onClick={() => setSortAsc(!sortAsc)}
-            >
-              Sắp xếp {sortAsc ? 'A → Z' : 'Z → A'}
-            </Button>
-          </Space>
+          <h2>Danh sách lớp học</h2>
+          <div>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <Input
+                placeholder="Tìm kiếm theo tên lớp học"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: 250 }}
+              />
+              <Button
+                icon={<SortAscendingOutlined />}
+                onClick={() => setSortAsc(!sortAsc)}
+              >
+                Sắp xếp {sortAsc ? '↑ A–Z' : '↓ Z–A'}
+              </Button>
+            </div>
+            <Space>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setEditingClass(null);
+                  setIsFormOpen(true);
+                }}
+              >
+                Thêm lớp
+              </Button>
+              <Button icon={<UnorderedListOutlined />}>
+                Danh mục hệ đào tạo
+              </Button>
+            </Space>
+          </div>
         </Toolbar>
 
         <Table
           columns={columns}
-          dataSource={[...classes].sort((a, b) =>
-            sortAsc
-              ? a.name.localeCompare(b.name)
-              : b.name.localeCompare(a.name)
-          )}
+          dataSource={filteredClasses}
           rowKey="_id"
           pagination={false}
           rowClassName="table-row"
           loading={loading}
           size="middle"
         />
-        <div className="table-footer">Tổng số: {classes.length} kết quả</div>
+
+        <div className="table-footer">
+          Tổng số: {filteredClasses.length} kết quả
+        </div>
       </TableWrapper>
 
       <ClassForm
@@ -212,9 +305,24 @@ const ClassPage = () => {
         }}
         onSubmit={handleCreateOrUpdate}
         initialValues={editingClass}
-        courses={[]} // Có thể truyền API course ở đây
-        teachers={[]} // Có thể truyền API teacher ở đây
+        courses={courseList}
+        teachers={teacherList}
+        rooms={[]}
       />
+
+      <Modal
+        title="Xác nhận xoá lớp học"
+        open={isDeleteModalVisible}
+        onOk={confirmDelete}
+        onCancel={() => setIsDeleteModalVisible(false)}
+        okText="Xoá"
+        cancelText="Huỷ"
+        okType="danger"
+      >
+        <p>Bạn có chắc chắn muốn xoá lớp học này không?</p>
+      </Modal>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </>
   );
 };

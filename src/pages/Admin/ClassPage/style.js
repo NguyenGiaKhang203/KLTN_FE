@@ -4,7 +4,7 @@ export const TableWrapper = styled.div`
   background: #fff;
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 
   .table-footer {
     margin-top: 16px;
@@ -32,11 +32,20 @@ export const TableWrapper = styled.div`
 `;
 
 export const Toolbar = styled.div`
-  display: flex;
-  justify-content: space-between;
   margin-bottom: 16px;
 
-  .ant-btn {
-    font-weight: 500;
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #2a2a2a;
+  }
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 `;

@@ -4,7 +4,7 @@ const API_URL = "/api/class"; // Đổi URL nếu khác
 
 // Tạo lớp học mới
 export const createClass = async (data, token) => {
-  const res = await axios.post(`${API_URL}/create`, data, {
+  const res = await axios.post(`${process.env.REACT_APP_API_URL}/class/create`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -23,7 +23,7 @@ export const getAllClasses = async () => {
 
 // Lấy lớp học theo ID
 export const getClassById = async (id, token) => {
-  const res = await axios.get(`${API_URL}/get-class-by-id/${id}`, {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}/class/get-class-by-id/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -33,7 +33,7 @@ export const getClassById = async (id, token) => {
 
 // Cập nhật lớp học
 export const updateClass = async (id, data, token) => {
-  const res = await axios.put(`${API_URL}/update/${id}`, data, {
+  const res = await axios.put(`${process.env.REACT_APP_API_URL}/class/update/${id}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -43,7 +43,7 @@ export const updateClass = async (id, data, token) => {
 
 // Xóa lớp học
 export const deleteClass = async (id, token) => {
-  const res = await axios.delete(`${API_URL}/delete/${id}`, {
+  const res = await axios.delete(`${process.env.REACT_APP_API_URL}/class/delete/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

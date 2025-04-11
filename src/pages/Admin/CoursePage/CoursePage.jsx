@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Image, Space, Tooltip, Input, Select } from 'antd';
+import { Table, Button, Image, Space, Tooltip, Input, Select, Modal } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { toast } from 'react-toastify';
-import { PageHeader, FilterContainer, HeaderActions } from './style';
+import { toast, ToastContainer } from 'react-toastify';
+import { useSelector } from 'react-redux';
+
+import { PageHeader, FilterContainer, HeaderActions, FilterLeft } from './style';
 import CourseForm from '../../../components/Admin/AdminCourseForm/AdminCourseForm';
 import {
   getAllCourse,
@@ -20,7 +22,12 @@ const CoursePage = () => {
   const [typeOptions, setTypeOptions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [sortOrder, setSortOrder] = useState('');
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
 
+  const user = useSelector((state) => state.user);
+  const token = user?.access_token;
 
   useEffect(() => {
     fetchCourses();
@@ -49,21 +56,32 @@ const CoursePage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (record) => {
+  const handleDelete = (record) => {
+    setCourseToDelete(record);
+    setIsDeleteModalVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!token || !courseToDelete) return;
     try {
-      const token = localStorage.getItem('access_token');
-      await deleteCourse(record._id, token);
+      await deleteCourse(courseToDelete._id, token);
       toast.success('Xóa khóa học thành công');
       fetchCourses();
     } catch (error) {
       toast.error('Xóa khóa học thất bại');
+    } finally {
+      setIsDeleteModalVisible(false);
+      setCourseToDelete(null);
     }
   };
 
   const handleSubmit = async (values) => {
     try {
-      const token = localStorage.getItem('access_token');
-      console.log('TOKEN:', token);
+      if (!token) {
+        toast.error('Không tìm thấy token người dùng. Vui lòng đăng nhập lại.');
+        return;
+      }
+
       if (selectedCourse) {
         await updateCourse(selectedCourse._id, values, token);
         toast.success('Cập nhật khóa học thành công!');
@@ -71,6 +89,7 @@ const CoursePage = () => {
         await createCourse(values, token);
         toast.success('Tạo khóa học thành công!');
       }
+
       setIsModalOpen(false);
       fetchCourses();
     } catch (error) {
@@ -78,12 +97,21 @@ const CoursePage = () => {
     }
   };
 
-  const filteredCourses = courses.filter((course) => {
-    return (
-      course.name?.toLowerCase().includes(search.toLowerCase()) &&
-      (filterType ? course.type === filterType : true)
-    );
-  });
+  const filteredCourses = courses
+    .filter((course) => {
+      return (
+        course.name?.toLowerCase().includes(search.toLowerCase()) &&
+        (filterType ? course.type === filterType : true)
+      );
+    })
+    .sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.name.localeCompare(b.name);
+      } else if (sortOrder === 'desc') {
+        return b.name.localeCompare(a.name);
+      }
+      return 0;
+    });
 
   const columns = [
     {
@@ -174,35 +202,42 @@ const CoursePage = () => {
     <div style={{ padding: 24 }}>
       <PageHeader>
         <h2>Danh sách khóa học</h2>
+      </PageHeader>
+
+      <FilterContainer>
+        <FilterLeft>
+          <Input
+            placeholder="Tìm kiếm theo tên khóa học"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: 250 }}
+          />
+          <Select
+            placeholder="Lọc theo loại"
+            allowClear
+            style={{ width: 200 }}
+            value={filterType}
+            onChange={(value) => setFilterType(value)}
+          >
+            {typeOptions.map((type) => (
+              <Option key={type} value={type}>
+                {type}
+              </Option>
+            ))}
+          </Select>
+          <Button
+            ghost
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+          >
+            Sắp xếp {sortOrder === 'asc' ? '↓ Z-A' : '↑ A-Z'}
+          </Button>
+        </FilterLeft>
+
         <HeaderActions>
           <Button type="primary" onClick={handleAdd}>
             + Thêm khóa học
           </Button>
-          <Button>Danh mục loại khóa</Button>
-          <Button>Sắp xếp</Button>
         </HeaderActions>
-      </PageHeader>
-
-      <FilterContainer>
-        <Input
-          placeholder="Tìm kiếm theo tên khóa học"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 250 }}
-        />
-        <Select
-          placeholder="Lọc theo loại"
-          allowClear
-          style={{ width: 200 }}
-          value={filterType}
-          onChange={(value) => setFilterType(value)}
-        >
-          {typeOptions.map((type) => (
-            <Option key={type} value={type}>
-              {type}
-            </Option>
-          ))}
-        </Select>
       </FilterContainer>
 
       <Table
@@ -219,6 +254,20 @@ const CoursePage = () => {
         onSubmit={handleSubmit}
         initialValues={selectedCourse}
       />
+
+      <Modal
+        title="Xác nhận xoá khóa học"
+        open={isDeleteModalVisible}
+        onOk={confirmDelete}
+        onCancel={() => setIsDeleteModalVisible(false)}
+        okText="Xoá"
+        cancelText="Huỷ"
+        okType="danger"
+      >
+        <p>Bạn có chắc chắn muốn xoá khóa học "{courseToDelete?.name}" không?</p>
+      </Modal>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -12,13 +12,23 @@ export const PageHeader = styled.div`
   }
 `;
 
+// Gộp tất cả filter + action vào đây
+export const FilterContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+`;
+
+export const FilterLeft = styled.div`
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
 export const HeaderActions = styled.div`
   display: flex;
   gap: 12px;
-`;
-
-export const FilterContainer = styled.div`
-  display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
 `;
