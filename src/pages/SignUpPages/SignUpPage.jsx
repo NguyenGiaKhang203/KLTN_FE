@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
-import * as Message from "../../components/Message/Message";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHooks";
 import InputForm from "../../components/InputForm/InputForm";
@@ -15,6 +14,8 @@ import {
   StyledLinkText,
   LinkNavigate,
 } from "./style";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -33,19 +34,27 @@ const SignUpPage = () => {
   const { data, isLoading, isSuccess, isError, error } = mutation;
 
   useEffect(() => {
-    console.log("👉 Mutation data:", data);
     if (isSuccess) {
-      Message.success("Bạn đã đăng ký thành công! Vui lòng đăng nhập.");
+      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
       navigate("/sign-in");
     } else if (isError) {
-      console.log(" Mutation error:", error);
-      const errorMessage =
-        error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
-      Message.error(errorMessage);
+      const errorMessage = error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
+      toast.error(errorMessage);
     }
   }, [isSuccess, isError, error]);
 
   const handleClickSendOtp = () => {
+    if (!email) {
+      toast.warning("Vui lòng nhập email trước khi gửi OTP.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.warning("Email không đúng định dạng.");
+      return;
+    }
+
     if (!isResend) {
       handleSendOtp();
       setButtonText("Resend OTP");
@@ -69,27 +78,48 @@ const SignUpPage = () => {
 
   const handleSendOtp = async () => {
     try {
-      console.log("Gửi OTP:", email);
       const res = await UserService.sendOtp({ email });
       res?.status === "OK"
-        ? Message.success(res.message)
-        : Message.error(res.message);
-    } catch (err){
-      console.log("Lỗi gọi OTP:", err);
-      Message.error("Lỗi khi gửi OTP.");
+        ? toast.success(res.message)
+        : toast.error(res.message);
+    } catch (err) {
+      toast.error("Lỗi khi gửi OTP.");
     }
   };
 
   const handleReSendOtp = async () => {
     try {
       await UserService.resendOtp({ email });
-      Message.success("Mã OTP đã được gửi lại!");
+      toast.success("Mã OTP đã được gửi lại!");
     } catch {
-      Message.error("Không thể gửi lại mã OTP.");
+      toast.error("Không thể gửi lại mã OTP.");
     }
   };
 
   const handleSignUp = () => {
+    // validate
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !password || !confirmPassword || !otp) {
+      toast.warning("Vui lòng điền đầy đủ thông tin.");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.warning("Email không đúng định dạng.");
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/;
+    if (!passwordRegex.test(password)) {
+      toast.warning("Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ và số.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.warning("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
     mutation.mutate({ email, password, confirmPassword, otp });
   };
 
@@ -181,6 +211,8 @@ const SignUpPage = () => {
           </StyledLinkText>
         </SignupContent>
       </SignupForm>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </SignupContainer>
   );
 };

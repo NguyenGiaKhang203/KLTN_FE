@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHooks";
-import * as message from "../../components/Message/Message";
 import { updateUser } from "../../redux/slices/userSlice";
 import InputForm from "../../components/InputForm/InputForm";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
@@ -19,12 +18,13 @@ import {
   SignupLink,
   BoldText,
 } from "./style";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SignInPages = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -34,11 +34,10 @@ const SignInPages = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      localStorage.setItem('access_token', JSON.stringify(data?.access_token));
-      localStorage.setItem('refresh_token', JSON.stringify(data?.refresh_token));
+      localStorage.setItem("access_token", JSON.stringify(data?.access_token));
+      localStorage.setItem("refresh_token", JSON.stringify(data?.refresh_token));
       const decoded = jwtDecode(data?.access_token);
-      console.log('decoded?.id',decoded?.id);
-      
+
       if (decoded?.id) {
         handleGetDetailsUser(decoded?.id, data?.access_token);
       }
@@ -49,11 +48,19 @@ const SignInPages = () => {
         const redirectPath = location?.state || "/";
         navigate(redirectPath);
       }
+
+      toast.success("Đăng nhập thành công!");
     }
 
     if (isError) {
       const errorMessage = error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
-      message.error(errorMessage);
+      if (errorMessage.includes("email")) {
+        toast.error("Email không tồn tại.");
+      } else if (errorMessage.includes("password")) {
+        toast.error("Sai mật khẩu hoặc định dạng mật khẩu không hợp lệ.");
+      } else {
+        toast.error(errorMessage);
+      }
     }
   }, [isSuccess, isError, error]);
 
@@ -61,22 +68,33 @@ const SignInPages = () => {
     const refreshToken = JSON.parse(localStorage.getItem("refresh_token"));
     try {
       const res = await UserService.getDetailsUser(id, token);
-      console.log("Dữ liệu người dùng trả về:", res?.data);  // Kiểm tra dữ liệu trả về
       dispatch(updateUser({ ...res?.data, access_token: token, refreshToken }));
-    } catch (error) {
-      console.error("Lỗi khi lấy thông tin người dùng:", error);
+    } catch (err) {
+      toast.error("Không thể lấy thông tin người dùng.");
     }
   };
 
   const handleSignIn = () => {
-    setErrorMessage("");  // Xóa thông báo lỗi trước khi đăng nhập
     if (!email || !password) {
-      setErrorMessage("Vui lòng điền đầy đủ thông tin.");
+      toast.warning("Vui lòng điền đầy đủ thông tin.");
       return;
     }
+  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.warning("Email không đúng định dạng.");
+      return;
+    }
+  
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/;
+    if (!passwordRegex.test(password)) {
+      toast.warning("Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ và số.");
+      return;
+    }
+  
     mutation.mutate({ email, password });
   };
-
+  
   return (
     <SigninContainer>
       <SigninForm>
@@ -104,8 +122,6 @@ const SignInPages = () => {
             />
           </StyledInputWrapper>
 
-          {errorMessage && <span style={{ color: "red" }}>{errorMessage}</span>}
-
           <ButtonComponent
             disabled={!email || !password}
             onClick={handleSignIn}
@@ -132,14 +148,14 @@ const SignInPages = () => {
 
           <SignupLink>
             Chưa có tài khoản?{" "}
-            <BoldText onClick={() => navigate("/sign-up")}>
-              Tạo tài khoản
-            </BoldText>
+            <BoldText onClick={() => navigate("/sign-up")}>Tạo tài khoản</BoldText>
           </SignupLink>
         </SigninContent>
       </SigninForm>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </SigninContainer>
   );
 };
 
-export default SignInPages; 
+export default SignInPages;

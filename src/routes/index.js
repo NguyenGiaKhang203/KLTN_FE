@@ -20,7 +20,7 @@ import PaymentManagement from "../pages/Admin/PaymentManagementPage/PaymentManag
 import ReportPage from "../pages/Admin/ReportPage/ReportPage";
 import AssessPage from "../pages/Admin/AssessPage/AssessPage";
 import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
-import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage";
+import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage"
 
 export const routes = [
   {

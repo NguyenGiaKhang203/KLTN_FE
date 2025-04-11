@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DeleteOutlined } from "@ant-design/icons";
+import { Modal } from "antd";
 import { convertPrice } from "../../utils";
 import {
   PageContainer,
@@ -37,7 +38,10 @@ const OrderPage = () => {
   const navigate = useNavigate();
   const [listChecked, setListChecked] = useState([]);
 
-  // ✅ Mặc định tick tất cả khi có orderItems
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [isBulkDelete, setIsBulkDelete] = useState(false);
+
   useEffect(() => {
     const allIds = order?.orderItems?.map((item) => item.courseId);
     setListChecked(allIds);
@@ -57,16 +61,30 @@ const OrderPage = () => {
   };
 
   const handleDelete = (id) => {
-    dispatch(removeOrderProduct({ idProduct: id }));
-    setListChecked((prev) => prev.filter((cid) => cid !== id));
-    toast.success("Đã xóa khóa học!");
+    setDeleteId(id);
+    setIsBulkDelete(false);
+    setIsConfirmDeleteOpen(true);
   };
 
   const handleDeleteSelected = () => {
     if (listChecked.length === 0) return;
-    dispatch(removeAllOrderProduct({ listChecked }));
-    setListChecked([]);
-    toast.success("Đã xóa các khóa học đã chọn!");
+    setIsBulkDelete(true);
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (isBulkDelete) {
+      dispatch(removeAllOrderProduct({ listChecked }));
+      setListChecked([]);
+      toast.success("Đã xóa các khóa học đã chọn!");
+    } else {
+      dispatch(removeOrderProduct({ idProduct: deleteId }));
+      setListChecked((prev) => prev.filter((cid) => cid !== deleteId));
+      toast.success("Đã xóa khóa học!");
+    }
+
+    setIsConfirmDeleteOpen(false);
+    setDeleteId(null);
   };
 
   const selectedItems = useMemo(() => {
@@ -86,7 +104,7 @@ const OrderPage = () => {
     }
     toast.success("Chuyển đến thanh toán...");
   };
-  console.log("USER", user);
+
   return (
     <PageContainer>
       <CardContainer>
@@ -150,6 +168,25 @@ const OrderPage = () => {
           </RightSection>
         </ContentWrapper>
       </CardContainer>
+
+      <Modal
+        title="Xác nhận xóa"
+        open={isConfirmDeleteOpen}
+        onOk={confirmDelete}
+        onCancel={() => {
+          setIsConfirmDeleteOpen(false);
+          setDeleteId(null);
+        }}
+        okText="Xóa"
+        cancelText="Hủy"
+        okType="danger"
+      >
+        <p>
+          {isBulkDelete
+            ? `Bạn có chắc chắn muốn xoá ${listChecked.length} khóa học đã chọn khỏi giỏ hàng không?`
+            : `Bạn có chắc chắn muốn xoá khóa học này khỏi giỏ hàng?`}
+        </p>
+      </Modal>
     </PageContainer>
   );
 };

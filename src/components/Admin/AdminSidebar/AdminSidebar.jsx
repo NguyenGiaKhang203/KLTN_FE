@@ -52,8 +52,8 @@ const Sidebar = () => {
             <span className="status">● Online</span>
           </LogoSection>
         </Link>
-
         <Menu mode="inline" theme="dark" selectedKeys={[location.pathname]}>
+
           <Menu.Item key="/system/admin/classes" icon={<AppstoreOutlined />}>
             <Link to="/system/admin/classes">Danh sách lớp</Link>
           </Menu.Item>
@@ -77,6 +77,7 @@ const Sidebar = () => {
           </Menu.Item>
           <Menu.Item key="/system/admin/payment" icon={<DollarOutlined />}>
             <Link to="/system/admin/payment">Quản lý thanh toán</Link>
+
           </Menu.Item>
           <Menu.Item key="/system/admin/assess" icon={<CommentOutlined />}>
             <Link to="/system/admin/assess">Quản lý đánh giá</Link>
