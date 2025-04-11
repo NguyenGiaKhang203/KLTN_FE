@@ -21,6 +21,7 @@ import ReportPage from "../pages/Admin/ReportPage/ReportPage";
 import AssessPage from "../pages/Admin/AssessPage/AssessPage";
 import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage"
+
 export const routes = [
   {
     path: "/",
@@ -145,7 +146,6 @@ export const routes = [
         path: "attendance",
         page: AttendancePage,
       },
-
     ],
   },
 ];
