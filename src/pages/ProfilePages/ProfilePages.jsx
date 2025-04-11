@@ -7,8 +7,9 @@ import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import * as UserService from "../../services/UserService";
 import { updateUser } from "../../redux/slices/userSlice";
 import { useMutationHooks } from "../../hooks/useMutationHooks";
-import * as message from "../../components/Message/Message";
 import { getBase64 } from "../../utils";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import {
   WrapperHeader,
@@ -134,10 +135,10 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      message.success("Cập nhật thông tin thành công!");
+      toast.success("Cập nhật thông tin thành công!");
       handleGetDetailsUser(user?._id, user?.access_token);
     } else if (isError) {
-      message.error("Cập nhật thất bại!");
+      toast.error("Cập nhật thất bại!");
     }
   }, [isSuccess, isError]);
 
@@ -291,6 +292,8 @@ const ProfilePage = () => {
           </WrapperButton>
         </WrapperInfoSection>
       </WrapperProfileContainer>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

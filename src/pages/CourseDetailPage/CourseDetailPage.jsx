@@ -23,10 +23,10 @@ import ClassSelectModal from "../../components/ClassSelectModal/ClassSelectModal
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import * as CourseService from "../../services/CourseService";
-import * as UserService from "../../services/UserService";
-import { updateUser } from "../../redux/slices/userSlice";
 import { addOrderProduct } from "../../redux/slices/orderSlice";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const CourseDetailPage = () => {
   const { id } = useParams();
   const { user } = useSelector((state) => state.user);
@@ -35,28 +35,34 @@ const CourseDetailPage = () => {
   const [course, setCourse] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("intro");
-  const [selectedClass, setSelectedClass] = useState(null); // Lưu class đã chọn
 
   const handleAddToCart = (selectedClass) => {
-    if (!selectedClass || !course) return;
-  
-    const { courseId, classId, name, image, price, schedule } = selectedClass;
-  
-    dispatch(
-      addOrderProduct({
-        courseId,
-        classId,
-        name,
-        image,
-        price,
-        schedule,
-      })
-    );
-  
-    toast.success("Đã thêm vào giỏ hàng!");
-    setIsModalOpen(false);
+    if (!selectedClass || !course) {
+      toast.error("Vui lòng chọn lớp học trước khi thêm vào giỏ hàng.");
+      return;
+    }
+
+    try {
+      const { courseId, classId, name, image, price, schedule } = selectedClass;
+
+      dispatch(
+        addOrderProduct({
+          courseId,
+          classId,
+          name,
+          image,
+          price,
+          schedule,
+        })
+      );
+
+      toast.success("Đã thêm vào giỏ hàng!");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ:", error);
+      toast.error("Thêm vào giỏ hàng thất bại. Vui lòng thử lại.");
+    }
   };
-  
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
@@ -76,7 +82,6 @@ const CourseDetailPage = () => {
   }, [id]);
 
   if (!course) return <p>Đang tải chi tiết khóa học...</p>;
-
 
   return (
     <CourseContainer>
@@ -110,7 +115,7 @@ const CourseDetailPage = () => {
               <SectionTitle>Giới thiệu về khóa học</SectionTitle>
               <p>{course.description}</p>
 
-              {course.highlights && course.highlights.length > 0 && (
+              {course.highlights?.length > 0 && (
                 <>
                   <SectionTitle>Điểm nổi bật</SectionTitle>
                   <BulletList>
@@ -121,7 +126,7 @@ const CourseDetailPage = () => {
                 </>
               )}
 
-              {course.learnings && course.learnings.length > 0 && (
+              {course.learnings?.length > 0 && (
                 <>
                   <SectionTitle>Bạn sẽ học được gì?</SectionTitle>
                   <BulletList>
@@ -132,7 +137,7 @@ const CourseDetailPage = () => {
                 </>
               )}
 
-              {course.lessons && course.lessons.length > 0 && (
+              {course.lessons?.length > 0 && (
                 <>
                   <SectionTitle>Nội dung khóa học</SectionTitle>
                   {course.lessons.map((item, index) => (
@@ -198,8 +203,10 @@ const CourseDetailPage = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         course={course}
-        onConfirm={handleAddToCart}  // Thêm khóa học vào giỏ khi xác nhận
+        onConfirm={handleAddToCart}
       />
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </CourseContainer>
   );
 };
