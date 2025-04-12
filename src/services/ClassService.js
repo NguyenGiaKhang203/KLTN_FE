@@ -50,3 +50,24 @@ export const deleteClass = async (id, token) => {
   });
   return res.data;
 };
+
+export const getTotalClasses = async () => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-total-classes`,
+  );
+  return res.data;
+};
+
+export const getClassbyTeacher = async (id) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-all-by-teacherid/${id}`,
+  );
+  return res.data;
+};
+
+export const getStudentsInClass  = async (id) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-student-in-classes/${id}`,
+  );
+  return res.data;
+};

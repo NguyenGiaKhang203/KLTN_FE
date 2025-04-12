@@ -148,3 +148,8 @@ export const createTeacher = async (data) => {
     };
   }
 };
+
+export const getTotalTeachers = async () => {
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}/user/get-total-teacher`);
+  return res.data;
+};

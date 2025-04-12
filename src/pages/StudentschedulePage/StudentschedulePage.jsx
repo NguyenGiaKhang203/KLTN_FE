@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import { DatePicker, Button } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
@@ -13,6 +12,7 @@ import {
   ClassCell,
   ClassCard,
 } from "./style";
+import dayjs from 'dayjs';
 
 const getWeekDays = (startDate = new Date()) => {
   const result = [];
@@ -69,47 +69,66 @@ const StudentSchedulePage = () => {
     setCurrentDate(newDate);
   };
 
-  const formatSchedule = (data) => {
+  const formatSchedule = (data, days) => {
     const result = {};
+  
     data.forEach((classItem) => {
-      classItem.schedule.forEach((sch) => {
-        const matchedDay = days.find(
-          (d) => d.label === sch.day.replace("Thứ ", "T")
-        );
-        if (matchedDay) {
-          const dateKey = matchedDay.date;
+      // Parse ngày bắt đầu và kết thúc với định dạng rõ ràng
+      const classStartDate = dayjs(classItem.startDate);
+      const classEndDate = dayjs(classItem.endDate);
+      if (!classStartDate.isValid() || !classEndDate.isValid()) {
+        console.warn(`⚠️ Lớp "${classItem.name}" có ngày bắt đầu/kết thúc không hợp lệ. Bỏ qua.`);
+        return;
+      }
+  
+      days.forEach((day) => {
+        const currentDay = dayjs(day.fullDate);
+  
+        if (currentDay.isBefore(classStartDate, 'day') || currentDay.isAfter(classEndDate, 'day')) return;
+        classItem.schedule.forEach((sch) => {
+          const matchedDay = sch.day.replace("Thứ ", "T"); // "Thứ 2" => "T2"
+          if (day.label !== matchedDay) return;
+  
+          const dateKey = day.date;
           if (!result[dateKey]) result[dateKey] = {};
-
+  
           let slotId = "";
-          if (sch.startTime === "07:00") slotId = "ca1";
-          else if (sch.startTime === "09:00") slotId = "ca2";
-          else if (sch.startTime === "15:00") slotId = "ca3";
-          else if (sch.startTime === "18:00" || sch.startTime === "19:00")
-            slotId = "ca4";
-
+          switch (sch.startTime) {
+            case "07:00": slotId = "ca1"; break;
+            case "09:00": slotId = "ca2"; break;
+            case "15:00": slotId = "ca3"; break;
+            case "18:00":
+            case "19:00": slotId = "ca4"; break;
+          }
+  
           if (slotId) {
             result[dateKey][slotId] = {
               name: classItem.name,
-              level: classItem.course?.name,
-              teacher: classItem.teacher?.name || "Giáo viên",
+              level: classItem.course?.name || "Không rõ",
+              teacher: "Bạn",
               room: classItem.address,
+              program: classItem.program || null,
             };
           }
-        }
+        });
       });
     });
+  
     return result;
   };
+  
 
   const fetchSchedule = async () => {
     try {
       const res = await ScheduleService.getStudentSchedule(studentId, token);
-      const formatted = formatSchedule(res?.data || []);
+      const formatted = formatSchedule(res?.data || [], days); // truyền days vào
       setScheduleData(formatted);
     } catch (error) {
-      console.error("Lỗi lấy lịch học học viên:", error);
+      console.error("❌ Lỗi lấy lịch học học viên:", error);
     }
   };
+  
+
 
   useEffect(() => {
     if (studentId && token) fetchSchedule();

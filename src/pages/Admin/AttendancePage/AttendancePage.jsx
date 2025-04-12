@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   Table,
   Button,
@@ -6,11 +7,10 @@ import {
   Tag,
   Select,
   Tooltip,
-  DatePicker,
   message,
 } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
+import * as ClassService from "../../../services/ClassService";
 import {
   PageHeader,
   FilterContainer,
@@ -20,73 +20,90 @@ import {
 
 const { Option } = Select;
 
-const sampleData = [
-  {
-    key: "1",
-    className: "Cờ vua cơ bản - Lớp 1",
-    teacher: "Nguyễn Văn Phú",
-    date: "2025-04-06",
-    timeSlot: "Ca 1 - 07:00 - 09:00",
-    students: [
-      { name: "Học viên A", status: "Có mặt" },
-      { name: "Học viên B", status: "Vắng" },
-    ],
-    teacherStatus: null,
-  },
-  {
-    key: "2",
-    className: "Cờ vua nâng cao - Lớp 2",
-    teacher: "Nguyễn Văn Phú",
-    date: "2025-04-06",
-    timeSlot: "Ca 2 - 09:00 - 11:00",
-    students: [
-      { name: "Học viên C", status: "Có mặt" },
-      { name: "Học viên D", status: "Có mặt" },
-    ],
-    teacherStatus: "Có dạy",
-  },
-  {
-    key: "3",
-    className: "Chiến thuật trung cuộc - Lớp 3",
-    teacher: "Lê Văn C",
-    date: "2025-04-06",
-    timeSlot: "Ca 4 - 15:00 - 17:00",
-    students: [
-      { name: "Học viên E", status: "Vắng" },
-      { name: "Học viên F", status: "Có mặt" },
-    ],
-    teacherStatus: "Có dạy",
-  },
-  {
-    key: "4",
-    className: "Cờ vua nâng cao - Lớp 4",
-    teacher: "Bùi Gia Luân",
-    date: "2025-04-06",
-    timeSlot: "Ca 5 - 19:00 - 21:00",
-    students: [
-      { name: "Học viên G", status: "Có mặt" },
-      { name: "Học viên H", status: "Có mặt" },
-    ],
-    teacherStatus: "Có dạy",
-  },
-];
-
 export default function AdminAttendancePage() {
-  const [data, setData] = useState(sampleData);
+  const [data, setData] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [selectedClass, setSelectedClass] = useState();
+  const [loading, setLoading] = useState(true);
+  const [studentList, setStudentList] = useState([]);
 
-  const handleOpenModal = (record) => {
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        setLoading(true);
+        const response = await ClassService.getClassbyTeacher(user.user._id);
+        const transformed = response.data.map((item, index) => ({
+          key: item._id || index.toString(),
+          className: item.name,
+          teacher: item.teacher?.name || "Không rõ",
+          date: item.schedule?.[0]?.day || "Chưa có lịch",
+          timeSlot:
+            item.schedule?.length > 0
+              ? `${item.schedule[0].startTime} - ${item.schedule[0].endTime}`
+              : "Chưa có giờ",
+          teacherStatus: item.teacherStatus || null,
+        }));
+        setData(transformed);
+      } catch (error) {
+        message.error("Lỗi khi lấy dữ liệu lớp học.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?.user?._id) {
+      fetchClasses();
+    }
+  }, [user]);
+
+  const handleClassSelect = async (value) => {
+    setSelectedClass(value);
+    const selected = data.find((item) => item.className === value);
+    if (selected) {
+      try {
+        const res = await ClassService.getStudentsInClass(selected.key);
+        console.log('data', res);
+
+        if (res.status === 'OK' && Array.isArray(res.students)) {
+          setStudentList(res.students);
+        } else {
+          setStudentList([]);
+          message.warning("Không thể lấy danh sách sinh viên.");
+        }
+      } catch (err) {
+        setStudentList([]);
+        message.error("Lỗi khi lấy danh sách sinh viên.");
+      }
+    }
+  };
+
+  const handleOpenModal = async (record) => {
     setSelectedRecord(record);
     setModalOpen(true);
+    try {
+      const res = await ClassService.getStudentsInClass(record.key);
+
+      if (res.status === 'OK' && Array.isArray(res.students)) {
+        setStudentList(res.students);
+      } else {
+        setStudentList([]);
+        message.warning("Không thể lấy danh sách sinh viên.");
+      }
+    } catch (err) {
+      setStudentList([]);
+      message.error("Lỗi khi lấy danh sách sinh viên.");
+    }
   };
 
   const handleTeacherStatusChange = (value) => {
-    const updated = data.map((item) =>
+    const updatedData = data.map((item) =>
       item.key === selectedRecord.key ? { ...item, teacherStatus: value } : item
     );
-    setData(updated);
+    setData(updatedData);
+    setSelectedRecord((prev) => ({ ...prev, teacherStatus: value }));
     setModalOpen(false);
     message.success("Đã cập nhật điểm danh giảng viên.");
   };
@@ -139,9 +156,9 @@ export default function AdminAttendancePage() {
     },
   ];
 
-  const filteredData = data.filter((item) =>
-    dayjs(item.date).isSame(selectedDate, "day")
-  );
+  const filteredData = selectedClass
+    ? data.filter((item) => item.className === selectedClass)
+    : data;
 
   return (
     <div style={{ padding: 24 }}>
@@ -151,59 +168,88 @@ export default function AdminAttendancePage() {
 
       <FilterContainer>
         <span>
-          <strong>Chọn ngày:</strong>
+          <strong>Chọn lớp học:</strong>
         </span>
-        <DatePicker
-          value={selectedDate}
-          onChange={(date) => setSelectedDate(date)}
-          format="YYYY-MM-DD"
-          allowClear={false}
-        />
+        <Select
+          style={{ width: 200 }}
+          placeholder="Chọn lớp học"
+          value={selectedClass}
+          onChange={handleClassSelect}
+          allowClear
+        >
+          {[...new Set(data.map((item) => item.className))].map((className) => (
+            <Option key={className} value={className}>
+              {className}
+            </Option>
+          ))}
+        </Select>
       </FilterContainer>
 
-      <Table columns={columns} dataSource={filteredData} bordered />
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        loading={loading}
+        bordered
+        pagination={{ pageSize: 5 }}
+      />
+
+      {selectedClass && (
+        <div style={{ marginTop: 24 }}>
+          <h3>Danh sách học viên lớp {selectedClass}:</h3>
+          <ul style={{ paddingLeft: 16 }}>
+            {studentList.length > 0 ? (
+              studentList.map((student, index) => (
+                <li key={student._id || index}>
+                  {student.name || "Không tên"}{" "}
+                  <StatusTag status={student.status || "Chưa rõ"}>
+                    {student.status || "Chưa rõ"}
+                  </StatusTag>
+                </li>
+              ))
+            ) : (
+              <li>Không có học viên</li>
+            )}
+          </ul>
+        </div>
+      )}
 
       <Modal
-        title={`Điểm danh lớp: ${selectedRecord?.className}`}
+        title={`Điểm danh lớp: ${selectedRecord?.className || ""}`}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         footer={null}
         width={600}
+        destroyOnClose
       >
-        <p>
-          <strong>Ngày:</strong> {selectedRecord?.date}
-        </p>
-        <p>
-          <strong>Khung giờ:</strong> {selectedRecord?.timeSlot}
-        </p>
-        <p>
-          <strong>Giảng viên:</strong> {selectedRecord?.teacher}
-        </p>
+        {selectedRecord && (
+          <>
+            <p>
+              <strong>Ngày:</strong> {selectedRecord.date}
+            </p>
+            <p>
+              <strong>Khung giờ:</strong> {selectedRecord.timeSlot}
+            </p>
+            <p>
+              <strong>Giảng viên:</strong> {selectedRecord.teacher}
+            </p>
 
-        <h4 style={{ marginTop: 12 }}>Danh sách học viên:</h4>
-        <ul style={{ paddingLeft: 16 }}>
-          {selectedRecord?.students.map((student, index) => (
-            <li key={index}>
-              {student.name}{" "}
-              <StatusTag status={student.status}>{student.status}</StatusTag>
-            </li>
-          ))}
-        </ul>
-
-        <div style={{ marginTop: 16 }}>
-          <p>
-            <strong>Xác nhận giảng viên có đi dạy:</strong>
-          </p>
-          <Select
-            style={{ width: 200 }}
-            placeholder="Chọn trạng thái"
-            onChange={handleTeacherStatusChange}
-            defaultValue={selectedRecord?.teacherStatus || undefined}
-          >
-            <Option value="Có dạy">Có dạy</Option>
-            <Option value="Vắng">Vắng</Option>
-          </Select>
-        </div>
+            <h4 style={{ marginTop: 12 }}>Danh sách học viên:</h4>
+            <ul style={{ paddingLeft: 16 }}>
+              {studentList.length > 0 ? (
+                studentList.map((student, index) => (
+                  <li key={student._id || index}>
+                    {student.name || "Không tên"}{" "}
+                    <StatusTag status={student.status || "Chưa rõ"}>
+                      {student.status || "Chưa rõ"}
+                    </StatusTag>
+                  </li>
+                ))
+              ) : (
+                <li>Chưa có học viên</li>
+              )}
+            </ul>
+          </>
+        )}
       </Modal>
     </div>
   );

@@ -12,7 +12,7 @@ const AdminDashboard = () => {
     <div>
       <DashboardStats />
       <h2>Hôm nay: {formattedDate}</h2>
-
+  
       <Row gutter={[16, 16]}>
         {mockClassData.map((cls) => (
           <Col key={cls.id} xs={24} sm={24} md={12} lg={12} xl={12}>

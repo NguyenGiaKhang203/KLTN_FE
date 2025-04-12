@@ -199,8 +199,9 @@ const ClassPage = () => {
     },
     {
       title: 'Số học viên',
-      dataIndex: 'studentCount',
+      dataIndex: 'students',
       align: 'center',
+      render: (students) => students?.length || 0,
     },
     {
       title: 'Chương trình học',
