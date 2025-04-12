@@ -1,56 +1,47 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import {
-  Table,
-  Button,
-  Modal,
-  Tag,
-  Select,
-  Tooltip,
-  message,
-} from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { Table, Button, Select, message, DatePicker } from "antd";
+import dayjs from "dayjs";
 import * as ClassService from "../../../services/ClassService";
+import * as AttendanceService from "../../../services/AttendanceService";
 import {
   PageHeader,
   FilterContainer,
   CenteredAction,
   StatusTag,
+  StudentListWrapper,
+  SubSectionTitle,
 } from "./style";
 
 const { Option } = Select;
 
 export default function AdminAttendancePage() {
   const [data, setData] = useState([]);
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState();
-  const [loading, setLoading] = useState(true);
+  const [selectedClassRecord, setSelectedClassRecord] = useState(null);
   const [studentList, setStudentList] = useState([]);
-
+  const [selectedDate, setSelectedDate] = useState(dayjs());
   const user = useSelector((state) => state.user);
 
+  const isToday = selectedDate.isSame(dayjs(), "day");
+
   useEffect(() => {
+    setStudentList([
+      { _id: "stu001", name: "Nguyễn Văn A", status: "Có mặt" },
+      { _id: "stu002", name: "Trần Thị B", status: "Vắng" },
+      { _id: "stu003", name: "Lê Văn C", status: "Nghỉ phép" },
+      { _id: "stu004", name: "Phạm Thị D", status: "Chưa điểm danh" },
+    ]);
     const fetchClasses = async () => {
       try {
-        setLoading(true);
         const response = await ClassService.getClassbyTeacher(user.user._id);
         const transformed = response.data.map((item, index) => ({
           key: item._id || index.toString(),
           className: item.name,
-          teacher: item.teacher?.name || "Không rõ",
-          date: item.schedule?.[0]?.day || "Chưa có lịch",
-          timeSlot:
-            item.schedule?.length > 0
-              ? `${item.schedule[0].startTime} - ${item.schedule[0].endTime}`
-              : "Chưa có giờ",
-          teacherStatus: item.teacherStatus || null,
         }));
         setData(transformed);
       } catch (error) {
         message.error("Lỗi khi lấy dữ liệu lớp học.");
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -59,106 +50,52 @@ export default function AdminAttendancePage() {
     }
   }, [user]);
 
-  const handleClassSelect = async (value) => {
-    setSelectedClass(value);
+  const handleSelectClass = async (value) => {
     const selected = data.find((item) => item.className === value);
-    if (selected) {
-      try {
-        const res = await ClassService.getStudentsInClass(selected.key);
-        console.log('data', res);
-
-        if (res.status === 'OK' && Array.isArray(res.students)) {
-          setStudentList(res.students);
-        } else {
-          setStudentList([]);
-          message.warning("Không thể lấy danh sách sinh viên.");
-        }
-      } catch (err) {
-        setStudentList([]);
-        message.error("Lỗi khi lấy danh sách sinh viên.");
-      }
+    if (!selected) {
+      setSelectedClass(undefined);
+      setStudentList([]);
+      return;
     }
-  };
 
-  const handleOpenModal = async (record) => {
-    setSelectedRecord(record);
-    setModalOpen(true);
+    setSelectedClass(selected.className);
+    setSelectedClassRecord(selected);
+
     try {
-      const res = await ClassService.getStudentsInClass(record.key);
-
-      if (res.status === 'OK' && Array.isArray(res.students)) {
-        setStudentList(res.students);
+      const res = await ClassService.getStudentsInClass(selected.key);
+      if (res.status === "OK" && Array.isArray(res.students)) {
+        const enriched = res.students.map((s) => ({
+          ...s,
+          status: s.status || "Chưa điểm danh",
+        }));
+        setStudentList(enriched);
       } else {
         setStudentList([]);
-        message.warning("Không thể lấy danh sách sinh viên.");
+        message.warning("Không thể lấy danh sách học viên.");
       }
     } catch (err) {
       setStudentList([]);
-      message.error("Lỗi khi lấy danh sách sinh viên.");
+      message.error("Lỗi khi lấy danh sách học viên.");
     }
   };
 
-  const handleTeacherStatusChange = (value) => {
-    const updatedData = data.map((item) =>
-      item.key === selectedRecord.key ? { ...item, teacherStatus: value } : item
-    );
-    setData(updatedData);
-    setSelectedRecord((prev) => ({ ...prev, teacherStatus: value }));
-    setModalOpen(false);
-    message.success("Đã cập nhật điểm danh giảng viên.");
+  const handleSaveAttendance = async () => {
+    if (!selectedClassRecord) return;
+    try {
+      await AttendanceService.bulkAttendance(
+        selectedClassRecord.key,
+        studentList.map((s) => ({
+          id: s._id,
+          status: s.status,
+        })),
+        user.user._id,
+        selectedDate.format("YYYY-MM-DD")
+      );
+      message.success("Đã lưu điểm danh thành công!");
+    } catch (err) {
+      message.error("Lưu điểm danh thất bại!");
+    }
   };
-
-  const columns = [
-    {
-      title: "Lớp học",
-      dataIndex: "className",
-      key: "className",
-    },
-    {
-      title: "Giảng viên",
-      dataIndex: "teacher",
-      key: "teacher",
-    },
-    {
-      title: "Ngày",
-      dataIndex: "date",
-      key: "date",
-    },
-    {
-      title: "Khung giờ",
-      dataIndex: "timeSlot",
-      key: "timeSlot",
-    },
-    {
-      title: "Giảng viên đi dạy",
-      dataIndex: "teacherStatus",
-      key: "teacherStatus",
-      render: (status) =>
-        status ? (
-          <Tag color={status === "Có dạy" ? "green" : "red"}>{status}</Tag>
-        ) : (
-          <Tag color="orange">Chưa xác nhận</Tag>
-        ),
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (_, record) => (
-        <CenteredAction>
-          <Tooltip title="Xem điểm danh">
-            <Button
-              icon={<EyeOutlined />}
-              onClick={() => handleOpenModal(record)}
-            />
-          </Tooltip>
-        </CenteredAction>
-      ),
-    },
-  ];
-
-  const filteredData = selectedClass
-    ? data.filter((item) => item.className === selectedClass)
-    : data;
 
   return (
     <div style={{ padding: 24 }}>
@@ -167,90 +104,105 @@ export default function AdminAttendancePage() {
       </PageHeader>
 
       <FilterContainer>
-        <span>
-          <strong>Chọn lớp học:</strong>
-        </span>
+        <span><strong>Chọn lớp học:</strong></span>
         <Select
-          style={{ width: 200 }}
+          style={{ width: 240 }}
           placeholder="Chọn lớp học"
           value={selectedClass}
-          onChange={handleClassSelect}
+          onChange={handleSelectClass}
           allowClear
         >
-          {[...new Set(data.map((item) => item.className))].map((className) => (
-            <Option key={className} value={className}>
-              {className}
+          {data.map((item) => (
+            <Option key={item.className} value={item.className}>
+              {item.className}
             </Option>
           ))}
         </Select>
+
+        <span><strong>Chọn ngày:</strong></span>
+        <DatePicker
+          value={selectedDate}
+          onChange={(date) => {
+            if (date && date.isAfter(dayjs(), "day")) {
+              message.warning("Không thể chọn ngày trong tương lai.");
+              return;
+            }
+            setSelectedDate(date);
+          }}
+          disabledDate={(current) => current && current > dayjs().endOf("day")}
+          format="DD/MM/YYYY"
+        />
       </FilterContainer>
 
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        loading={loading}
-        bordered
-        pagination={{ pageSize: 5 }}
-      />
+      <StudentListWrapper>
+        <SubSectionTitle>
+          {selectedClass
+            ? `Danh sách học viên lớp ${selectedClass}`
+            : "Danh sách học viên sẽ hiển thị sau khi chọn lớp"}
+        </SubSectionTitle>
 
-      {selectedClass && (
-        <div style={{ marginTop: 24 }}>
-          <h3>Danh sách học viên lớp {selectedClass}:</h3>
-          <ul style={{ paddingLeft: 16 }}>
-            {studentList.length > 0 ? (
-              studentList.map((student, index) => (
-                <li key={student._id || index}>
-                  {student.name || "Không tên"}{" "}
-                  <StatusTag status={student.status || "Chưa rõ"}>
-                    {student.status || "Chưa rõ"}
-                  </StatusTag>
-                </li>
-              ))
-            ) : (
-              <li>Không có học viên</li>
-            )}
-          </ul>
-        </div>
-      )}
+        <p style={{ color: "#666", marginBottom: 16 }}>
+          {selectedClass
+            ? isToday
+              ? "Vui lòng chọn trạng thái điểm danh cho từng học viên bên dưới."
+              : "Bạn đang xem lịch sử điểm danh (readonly)."
+            : "Chưa chọn lớp học. Hãy chọn lớp từ dropdown phía trên."}
+        </p>
 
-      <Modal
-        title={`Điểm danh lớp: ${selectedRecord?.className || ""}`}
-        open={modalOpen}
-        onCancel={() => setModalOpen(false)}
-        footer={null}
-        width={600}
-        destroyOnClose
-      >
-        {selectedRecord && (
-          <>
-            <p>
-              <strong>Ngày:</strong> {selectedRecord.date}
-            </p>
-            <p>
-              <strong>Khung giờ:</strong> {selectedRecord.timeSlot}
-            </p>
-            <p>
-              <strong>Giảng viên:</strong> {selectedRecord.teacher}
-            </p>
+        <Table
+          dataSource={studentList}
+          rowKey={(record) => record._id}
+          pagination={false}
+          bordered
+          locale={{
+            emptyText: (
+              <span style={{ color: "#999" }}>
+                {selectedClass
+                  ? "Không có học viên nào trong lớp này."
+                  : "Chưa có lớp nào được chọn."}
+              </span>
+            ),
+          }}
+          columns={[
+            {
+              title: "Họ tên học viên",
+              dataIndex: "name",
+              key: "name",
+            },
+            {
+              title: "Trạng thái điểm danh",
+              dataIndex: "status",
+              key: "status",
+              render: (_, record) => (
+                <Select
+                  style={{ width: 160 }}
+                  value={record.status}
+                  disabled={!isToday}
+                  onChange={(value) =>
+                    setStudentList((prev) =>
+                      prev.map((s) =>
+                        s._id === record._id ? { ...s, status: value } : s
+                      )
+                    )
+                  }
+                >
+                  <Option value="Có mặt">✅ Có mặt</Option>
+                  <Option value="Vắng">❌ Vắng</Option>
+                  <Option value="Nghỉ phép">📄 Nghỉ phép</Option>
+                </Select>
+              ),
+            },
+          ]}
+        />
 
-            <h4 style={{ marginTop: 12 }}>Danh sách học viên:</h4>
-            <ul style={{ paddingLeft: 16 }}>
-              {studentList.length > 0 ? (
-                studentList.map((student, index) => (
-                  <li key={student._id || index}>
-                    {student.name || "Không tên"}{" "}
-                    <StatusTag status={student.status || "Chưa rõ"}>
-                      {student.status || "Chưa rõ"}
-                    </StatusTag>
-                  </li>
-                ))
-              ) : (
-                <li>Chưa có học viên</li>
-              )}
-            </ul>
-          </>
+        {selectedClass && studentList.length > 0 && isToday && (
+          <CenteredAction style={{ marginTop: 20 }}>
+            <Button type="primary" onClick={handleSaveAttendance}>
+              Lưu điểm danh
+            </Button>
+          </CenteredAction>
         )}
-      </Modal>
+      </StudentListWrapper>
     </div>
   );
 }
