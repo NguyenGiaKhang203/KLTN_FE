@@ -15,14 +15,15 @@ import SchedulePage from "../pages/Admin/SchedulePage/SchedulePage";
 import StudentPage from "../pages/Admin/StudentPage/StudentPage";
 import ContactPage from "../pages/ContactPages/ContactPage";
 import TeacherPage from "../pages/Admin/TeacherPage/TeacherPage";
-import ExamPage from "../pages/Admin/TeacherPage/TeacherPage";
+import ExamPage from "../pages/Admin/ExamPage/ExamPage";
 import PaymentManagement from "../pages/Admin/PaymentManagementPage/PaymentManagement";
 import ReportPage from "../pages/Admin/ReportPage/ReportPage";
 import AssessPage from "../pages/Admin/AssessPage/AssessPage";
 import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
-import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage"
+import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage";
 
 export const routes = [
+  // Public Pages
   {
     path: "/",
     page: HomePage,
@@ -68,7 +69,6 @@ export const routes = [
   {
     path: "/profile-user",
     page: ProfilePage,
-
     isShowHeader: true,
     isShowFooter: false,
   },
@@ -97,22 +97,19 @@ export const routes = [
     isShowFooter: false,
   },
 
-  // Admin Routes
+  //  Admin Routes 
   {
     path: "/system/admin",
     layout: AdminLayout,
+    allowedRoles: ["admin"], // ✅ Phân quyền ở đây
     children: [
       {
-        path: "", // /system/admin
+        path: "",
         page: AdminDashboard,
       },
       {
-        path: "classes", // /system/admin/classes
+        path: "classes",
         page: ClassPage,
-      },
-      {
-        path: "schedule",
-        page: SchedulePage,
       },
       {
         path: "courses",
@@ -126,10 +123,7 @@ export const routes = [
         path: "teachers",
         page: TeacherPage,
       },
-      {
-        path: "exams",
-        page: ExamPage,
-      },
+      
       {
         path: "payment",
         page: PaymentManagement,
@@ -142,10 +136,27 @@ export const routes = [
         path: "report",
         page: ReportPage,
       },
+    ],
+  },
+  // Teacher Routes 
+  {
+    path: "/system/teacher",
+    layout: AdminLayout,
+    allowedRoles: ["teacher"], 
+    children: [
+      { path: "", page: AdminDashboard },
+      {
+        path: "exams",
+        page: ExamPage,
+      },
       {
         path: "attendance",
         page: AttendancePage,
       },
+      {
+        path: "schedule",
+        page: SchedulePage,
+      },
     ],
-  },
+  }
 ];

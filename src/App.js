@@ -9,6 +9,7 @@ import * as UserService from "./services/UserService";
 import { useDispatch, useSelector } from "react-redux";
 import { resetUser, updateUser } from "./redux/slices/userSlice";
 import Loading from "./components/LoadingComponent/LoadingComponent";
+import ProtectedRoute from "./routes/protectedRoute"; 
 
 function App() {
   const dispatch = useDispatch();
@@ -70,51 +71,65 @@ function App() {
       })
     );
   };
+
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <Loading isLoading={isLoading}>
         <Router>
-        <Routes>
-          {routes.map((route) => {
-            if (route.children) {
-              const Layout = route.layout;
+          <Routes>
+            {routes.map((route) => {
+              if (route.children) {
+                const Layout = route.layout;
+                const allowedRoles = route.allowedRoles || [];
+
+                return (
+                  <Route
+                    path={route.path}
+                    element={
+                      allowedRoles.length > 0 ? (
+                        <ProtectedRoute allowedRoles={allowedRoles}>
+                          <Layout />
+                        </ProtectedRoute>
+                      ) : (
+                        <Layout />
+                      )
+                    }
+                    key={route.path}
+                  >
+                    {route.children.map((child) => {
+                      const ChildPage = child.page;
+                      return (
+                        <Route
+                          key={child.path}
+                          path={child.path}
+                          element={<ChildPage />}
+                        />
+                      );
+                    })}
+                  </Route>
+                );
+              }
+
+              const Page = route.page;
+              const Layout = route.isShowHeader ? DefaultComponent : Fragment;
+              const ShowFooter = route.isShowFooter ? FooterComponent : Fragment;
+
               return (
-                <Route path={route.path} element={<Layout />} key={route.path}>
-                  {route.children.map((child) => {
-                    const ChildPage = child.page;
-                    return (
-                      <Route
-                        key={child.path}
-                        path={child.path}
-                        element={<ChildPage />}
-                      />
-                    );
-                  })}
-                </Route>
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={
+                    <>
+                      <Layout>
+                        <Page />
+                      </Layout>
+                      <ShowFooter />
+                    </>
+                  }
+                />
               );
-            }
-
-            // Route bình thường
-            const Page = route.page;
-            const Layout = route.isShowHeader ? DefaultComponent : Fragment;
-            const ShowFooter = route.isShowFooter ? FooterComponent : Fragment;
-
-            return (
-              <Route
-                key={route.path}
-                path={route.path}
-                element={
-                  <>
-                    <Layout>
-                      <Page />
-                    </Layout>
-                    <ShowFooter />
-                  </>
-                }
-              />
-            );
-          })}
-        </Routes>
+            })}
+          </Routes>
         </Router>
       </Loading>
     </div>
