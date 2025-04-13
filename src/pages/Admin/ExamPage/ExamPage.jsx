@@ -48,7 +48,7 @@ export default function ExamPage() {
 
   const fetchClasses = async () => {
     try {
-      const res = await ClassService.getAllClasses(token);
+      const res = await ClassService.getClassbyTeacher(user?.user._id);
       const mapped = res.data.map((cls) => ({
         _id: cls._id,
         name: cls.name,
@@ -61,7 +61,7 @@ export default function ExamPage() {
 
   const fetchExams = async () => {
     try {
-      const res = await ExamService.getAllExams(token);
+      const res = await ExamService.getExamsByTeacherId(user?.user._id,token);
       const examList = Array.isArray(res) ? res : res.data;
 
       const mapped = examList.map((exam) => ({
@@ -144,17 +144,17 @@ export default function ExamPage() {
       date: dayjs(record.date, "YYYY-MM-DD HH:mm"),
     });
   };
-
+ 
   const handleAddOrUpdate = async (values) => {
     const payload = {
       examName: values.title,
       examDeadline: values.date.toDate(),
       examUrl: values.examUrl,
       class: values.class,
-      teacher: user?.user?._id, // ✅ chính xác lấy từ Redux
+      teacher: user?.user?._id,
+      status: values.status,
     };
-
-    console.log("Payload gửi đi:", payload); // 🐞 debug xem giá trị gửi đi
+     
 
     try {
       if (isEditMode) {
@@ -293,7 +293,6 @@ export default function ExamPage() {
           >
             <Input />
           </Form.Item>
-
           <Form.Item
             label="Ngày và giờ thi"
             name="date"
