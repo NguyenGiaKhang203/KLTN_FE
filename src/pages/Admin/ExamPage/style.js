@@ -1,22 +1,23 @@
-// examStyle.js
 import styled from "styled-components";
 
 export const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 
   h2 {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
   }
 `;
 
 export const FilterContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
 export const HeaderActions = styled.div`
@@ -30,4 +31,8 @@ export const CenteredAction = styled.div`
   justify-content: center;
   align-items: center;
   gap: 8px;
+
+  button {
+    padding: 0 6px;
+  }
 `;

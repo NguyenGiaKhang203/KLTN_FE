@@ -3,12 +3,11 @@ import {
   Table,
   Input,
   Button,
-  Select,
   Tooltip,
   Modal,
   Form,
   DatePicker,
-  Tag,
+  Select,
 } from "antd";
 import {
   DeleteOutlined,
@@ -24,7 +23,6 @@ import {
   CenteredAction,
 } from "./style";
 import * as ExamService from "../../../services/ExamService";
-import * as UserService from "../../../services/UserService";
 import * as ClassService from "../../../services/ClassService";
 import { useSelector } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
@@ -41,25 +39,12 @@ export default function ExamPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingExam, setEditingExam] = useState(null);
-  const [teacherList, setTeacherList] = useState([]);
   const [classList, setClassList] = useState([]);
   const [deleteExamId, setDeleteExamId] = useState(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
   const user = useSelector((state) => state.user);
   const token = user?.access_token;
-
-  const fetchTeachers = async () => {
-    try {
-      const res = await UserService.getAllUser(token);
-      const teachers = res.data
-        .filter((u) => u.isTeacher)
-        .map((t) => ({ _id: t._id, name: t.name }));
-      setTeacherList(teachers);
-    } catch {
-      toast.error("Lỗi khi tải danh sách giảng viên");
-    }
-  };
 
   const fetchClasses = async () => {
     try {
@@ -80,13 +65,11 @@ export default function ExamPage() {
       const examList = Array.isArray(res) ? res : res.data;
 
       const mapped = examList.map((exam) => ({
-        ...exam,
+        _id: exam._id,
         title: exam.examName,
-        teacher: exam.teacher,
         class: exam.class,
-        date: dayjs(exam.examDeadline).format("YYYY-MM-DD"),
+        date: dayjs(exam.examDeadline).format("YYYY-MM-DD HH:mm"),
         examUrl: exam.examUrl,
-        status: exam.status || "Chưa thi",
       }));
       setExams(mapped);
     } catch {
@@ -95,8 +78,9 @@ export default function ExamPage() {
   };
 
   useEffect(() => {
+    console.log("🔍 classList", classList);
+    console.log("🔍 exams", exams);
     if (user && token) {
-      fetchTeachers();
       fetchClasses();
       fetchExams();
     }
@@ -105,13 +89,11 @@ export default function ExamPage() {
   useEffect(() => {
     let results = exams.filter((exam) => {
       const title = exam.title || "";
-      const teacherName =
-        typeof exam.teacher === "object"
-          ? exam.teacher?.name
-          : teacherList.find((t) => t._id === exam.teacher)?.name || "";
+      const className =
+        classList.find((c) => c._id === exam.class)?.name || "";
       return (
         title.toLowerCase().includes(search.toLowerCase()) ||
-        teacherName.toLowerCase().includes(search.toLowerCase())
+        className.toLowerCase().includes(search.toLowerCase())
       );
     });
 
@@ -122,7 +104,7 @@ export default function ExamPage() {
     }
 
     setFilteredData(results);
-  }, [search, sortOrder, exams, teacherList]);
+  }, [search, sortOrder, exams, classList]);
 
   const handleDelete = (record) => {
     setDeleteExamId(record._id);
@@ -147,40 +129,33 @@ export default function ExamPage() {
     setEditingExam(record);
     setIsModalOpen(true);
 
-    const waitUntilReady = () =>
-      new Promise((resolve) => {
-        const interval = setInterval(() => {
-          if (teacherList.length && classList.length) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 100);
-      });
-
-    await waitUntilReady();
+    await new Promise((resolve) => {
+      const interval = setInterval(() => {
+        if (classList.length) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 100);
+    });
 
     form.setFieldsValue({
       ...record,
-      teacher:
-        typeof record.teacher === "object"
-          ? record.teacher._id
-          : record.teacher,
-      class:
-        typeof record.class === "object" ? record.class._id : record.class,
-      date: dayjs(record.date),
+      class: record.class,
+      date: dayjs(record.date, "YYYY-MM-DD HH:mm"),
     });
   };
  
   const handleAddOrUpdate = async (values) => {
     const payload = {
       examName: values.title,
-      examDeadline: values.date.format("YYYY-MM-DD"),
+      examDeadline: values.date.toDate(),
       examUrl: values.examUrl,
       class: values.class,
       teacher: user?.user?._id,
       status: values.status,
     };
      
+
     try {
       if (isEditMode) {
         await ExamService.updateExam(editingExam._id, payload, token);
@@ -195,7 +170,8 @@ export default function ExamPage() {
       setIsEditMode(false);
       setEditingExam(null);
       fetchExams();
-    } catch {
+    } catch (error) {
+      console.error("Lỗi khi gửi bài thi:", error);
       toast.error("Thao tác thất bại!");
     }
   };
@@ -206,25 +182,20 @@ export default function ExamPage() {
       dataIndex: "title",
     },
     {
-      title: "Giáo viên ra đề",
-      dataIndex: "teacher",
-      render: (teacher) =>
-        typeof teacher === "object"
-          ? teacher?.name || "Không rõ"
-          : teacherList.find((t) => t._id === teacher)?.name || "Không rõ",
-    },
-    {
       title: "Ngày thi",
       dataIndex: "date",
     },
     {
       title: "Lớp áp dụng",
       dataIndex: "class",
-      render: (cls) =>
-        typeof cls === "object"
-          ? cls?.name || "Không rõ"
-          : classList.find((c) => c._id === cls)?.name || "Không rõ",
+      render: (cls) => {
+        if (typeof cls === "object" && cls?.name) return cls.name;
+    
+        const found = classList.find((c) => c._id === cls);
+        return found ? found.name : "Không rõ";
+      },
     },
+    
     {
       title: "Link bài thi",
       dataIndex: "examUrl",
@@ -232,13 +203,6 @@ export default function ExamPage() {
         <a href={text} target="_blank" rel="noopener noreferrer">
           {text}
         </a>
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      render: (status) => (
-        <Tag color={status === "Đã thi" ? "green" : "orange"}>{status}</Tag>
       ),
     },
     {
@@ -287,7 +251,7 @@ export default function ExamPage() {
 
       <FilterContainer>
         <Input
-          placeholder="Tìm theo tên hoặc giáo viên"
+          placeholder="Tìm theo tên hoặc lớp"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ width: 250 }}
@@ -329,14 +293,16 @@ export default function ExamPage() {
           >
             <Input />
           </Form.Item>
-
-
           <Form.Item
-            label="Ngày thi"
+            label="Ngày và giờ thi"
             name="date"
             rules={[{ required: true }]}
           >
-            <DatePicker style={{ width: "100%" }} />
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm"
+              style={{ width: "100%" }}
+            />
           </Form.Item>
 
           <Form.Item
@@ -366,21 +332,9 @@ export default function ExamPage() {
           >
             <Input placeholder="https://..." />
           </Form.Item>
-
-          <Form.Item
-            label="Trạng thái"
-            name="status"
-            rules={[{ required: true }]}
-          >
-            <Select>
-              <Option value="Chưa thi">Chưa thi</Option>
-              <Option value="Đã thi">Đã thi</Option>
-            </Select>
-          </Form.Item>
         </Form>
       </Modal>
 
-      {/* ✅ Modal xác nhận xoá */}
       <Modal
         title="Xác nhận xóa bài thi"
         open={isConfirmDeleteOpen}
