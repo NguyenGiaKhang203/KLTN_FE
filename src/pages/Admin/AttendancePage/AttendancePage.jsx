@@ -27,11 +27,8 @@ export default function AdminAttendancePage() {
 
   useEffect(() => {
     setStudentList([
-      { _id: "stu001", name: "Nguyễn Văn A", status: "Có mặt" },
-      { _id: "stu002", name: "Trần Thị B", status: "Vắng" },
-      { _id: "stu003", name: "Lê Văn C", status: "Nghỉ phép" },
-      { _id: "stu004", name: "Phạm Thị D", status: "Chưa điểm danh" },
     ]);
+    
     const fetchClasses = async () => {
       try {
         const response = await ClassService.getClassbyTeacher(user.user._id);
@@ -85,10 +82,11 @@ export default function AdminAttendancePage() {
       await AttendanceService.bulkAttendance(
         selectedClassRecord.key,
         studentList.map((s) => ({
-          id: s._id,
+          student: s._id,
           status: s.status,
         })),
         user.user._id,
+        user?.access_token,
         selectedDate.format("YYYY-MM-DD")
       );
       message.success("Đã lưu điểm danh thành công!");
@@ -186,9 +184,8 @@ export default function AdminAttendancePage() {
                     )
                   }
                 >
-                  <Option value="Có mặt">✅ Có mặt</Option>
-                  <Option value="Vắng">❌ Vắng</Option>
-                  <Option value="Nghỉ phép">📄 Nghỉ phép</Option>
+                  <Option value="present">✅ Có mặt</Option>
+                  <Option value="absent">❌ Vắng</Option>
                 </Select>
               ),
             },
