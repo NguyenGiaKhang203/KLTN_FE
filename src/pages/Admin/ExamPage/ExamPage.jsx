@@ -63,7 +63,7 @@ export default function ExamPage() {
 
   const fetchClasses = async () => {
     try {
-      const res = await ClassService.getAllClasses(token);
+      const res = await ClassService.getClassbyTeacher(user?.user._id);
       const mapped = res.data.map((cls) => ({
         _id: cls._id,
         name: cls.name,
@@ -76,7 +76,7 @@ export default function ExamPage() {
 
   const fetchExams = async () => {
     try {
-      const res = await ExamService.getAllExams(token);
+      const res = await ExamService.getExamsByTeacherId(user?.user._id,token);
       const examList = Array.isArray(res) ? res : res.data;
 
       const mapped = examList.map((exam) => ({
@@ -170,18 +170,17 @@ export default function ExamPage() {
       date: dayjs(record.date),
     });
   };
-
+ 
   const handleAddOrUpdate = async (values) => {
     const payload = {
       examName: values.title,
       examDeadline: values.date.format("YYYY-MM-DD"),
       examUrl: values.examUrl,
       class: values.class,
-      teacher: values.teacher,
+      teacher: user?.user?._id,
       status: values.status,
-      userId: user?.id,
     };
-
+     
     try {
       if (isEditMode) {
         await ExamService.updateExam(editingExam._id, payload, token);
@@ -331,19 +330,6 @@ export default function ExamPage() {
             <Input />
           </Form.Item>
 
-          <Form.Item
-            label="Giáo viên ra đề"
-            name="teacher"
-            rules={[{ required: true }]}
-          >
-            <Select placeholder="Chọn giáo viên">
-              {teacherList.map((t) => (
-                <Option key={t._id} value={t._id}>
-                  {t.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
 
           <Form.Item
             label="Ngày thi"

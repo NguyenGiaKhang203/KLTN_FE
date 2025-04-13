@@ -102,3 +102,67 @@ export const ClassCard = styled.div`
     gap: 4px;
   }
 `;
+
+export const HeaderSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .nav-btn,
+    .today-btn {
+      background-color: #dce3ec;
+      color: #000;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background-color: #cbd5e1;
+      }
+    }
+
+    .ant-picker {
+      border-radius: 6px;
+      height: 32px;
+    }
+
+    .date-range {
+      font-size: 13px;
+      font-weight: 500;
+      color: #0d47a1;
+      margin-left: 12px;
+    }
+  }
+
+  .right {
+    display: flex;
+    gap: 6px;
+
+    .tab {
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .tab.active {
+      background-color: #d1dbe7;
+      color: #111;
+      font-weight: 600;
+    }
+  }
+`;

@@ -171,11 +171,6 @@ export default function StudentPage() {
       key: "phone",
     },
     {
-      title: "Thành phố",
-      dataIndex: "city",
-      key: "city",
-    },
-    {
       title: "Địa chỉ",
       dataIndex: "address",
       key: "address",
