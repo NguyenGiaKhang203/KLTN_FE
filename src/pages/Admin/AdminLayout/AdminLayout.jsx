@@ -24,7 +24,7 @@ const AdminLayout = ({ children }) => {
     if (location.pathname === "/system/admin/classes") {
       return <ClassPage />;
     }
-    if (location.pathname === "/system/admin/schedule") {
+    if (location.pathname === "/system/teacher/schedule") {
       return <SchedulePage />;
     }
     if (location.pathname === "/system/admin/courses") {
@@ -36,7 +36,7 @@ const AdminLayout = ({ children }) => {
     if (location.pathname === "/system/admin/teachers") {
       return <TeacherPage />;
     }
-    if (location.pathname === "/system/admin/exams") {
+    if (location.pathname === "/system/teacher/exams") {
       return <ExamPage />;
     }
     if (location.pathname === "/system/admin/payment") {
@@ -48,7 +48,7 @@ const AdminLayout = ({ children }) => {
     if (location.pathname === "/system/admin/assess") {
       return <AssessPage />;
     }
-    if (location.pathname === "/system/admin/attendance") {
+    if (location.pathname === "/system/teacher/attendance") {
       return <AttendancePage />;
     }
     if (location.pathname === "/system/admin/payment") {

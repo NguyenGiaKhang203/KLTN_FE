@@ -30,26 +30,17 @@ const SignInPages = () => {
   const dispatch = useDispatch();
 
   const mutation = useMutationHooks((data) => UserService.loginUser(data));
-  const { data, isLoading, isSuccess, isError, error } = mutation;
+  const { data, isSuccess, isError, error } = mutation;
 
   useEffect(() => {
-    if (isSuccess) {
-      localStorage.setItem("access_token", JSON.stringify(data?.access_token));
-      localStorage.setItem("refresh_token", JSON.stringify(data?.refresh_token));
-      const decoded = jwtDecode(data?.access_token);
+    if (isSuccess && data?.access_token) {
+      localStorage.setItem("access_token", JSON.stringify(data.access_token));
+      localStorage.setItem("refresh_token", JSON.stringify(data.refresh_token));
 
+      const decoded = jwtDecode(data.access_token);
       if (decoded?.id) {
-        handleGetDetailsUser(decoded?.id, data?.access_token);
+        handleGetDetailsUser(decoded.id, data.access_token);
       }
-
-      if (decoded?.isAdmin) {
-        navigate("/system/admin");
-      } else {
-        const redirectPath = location?.state || "/";
-        navigate(redirectPath);
-      }
-
-      toast.success("Đăng nhập thành công!");
     }
 
     if (isError) {
@@ -68,7 +59,31 @@ const SignInPages = () => {
     const refreshToken = JSON.parse(localStorage.getItem("refresh_token"));
     try {
       const res = await UserService.getDetailsUser(id, token);
-      dispatch(updateUser({ ...res?.data, access_token: token, refreshToken }));
+      const userData = res?.data;
+
+      // ✅ Chuyển đổi từ isAdmin / isTeacher sang role
+      let role = "user";
+      if (userData.isAdmin) role = "admin";
+      else if (userData.isTeacher) role = "teacher";
+
+      dispatch(updateUser({
+        ...userData,
+        role, // 👈 Gán role để dùng trong ProtectedRoute
+        access_token: token,
+        refreshToken,
+      }));
+
+      // ✅ Điều hướng theo role
+      if (role === "admin") {
+        navigate("/system/admin");
+      } else if (role === "teacher") {
+        navigate("/system/teacher");
+      } else {
+        const redirectPath = location?.state || "/";
+        navigate(redirectPath);
+      }
+
+      toast.success("Đăng nhập thành công!");
     } catch (err) {
       toast.error("Không thể lấy thông tin người dùng.");
     }
@@ -79,22 +94,22 @@ const SignInPages = () => {
       toast.warning("Vui lòng điền đầy đủ thông tin.");
       return;
     }
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.warning("Email không đúng định dạng.");
       return;
     }
-  
+
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/;
     if (!passwordRegex.test(password)) {
       toast.warning("Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ và số.");
       return;
     }
-  
+
     mutation.mutate({ email, password });
   };
-  
+
   return (
     <SigninContainer>
       <SigninForm>
