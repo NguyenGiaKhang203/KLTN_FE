@@ -14,7 +14,7 @@ import {
 } from "./style";
 import { Typography } from "antd";
 import * as BlogService from "../../services/BlogService";
-
+import { useNavigate } from "react-router-dom";
 const { Title: AntTitle } = Typography;
 
 const BlogPage = () => {
@@ -25,7 +25,7 @@ const BlogPage = () => {
     try {
       const res = await BlogService.getAllBlogs();
       const data = res?.data; // Truy cập đúng mảng blog từ response
-  
+
       if (Array.isArray(data)) {
         setBlogs(data);
         const allCategories = [...new Set(data.map((b) => b.category))];
@@ -38,7 +38,6 @@ const BlogPage = () => {
       console.error("Lỗi khi lấy blog:", err);
     }
   };
-  
 
   useEffect(() => {
     fetchBlogs();
