@@ -102,9 +102,22 @@ const OrderPage = () => {
       toast.error("Vui lòng đăng nhập trước!");
       return navigate("/sign-in");
     }
+  
+    if (selectedItems.length === 0) {
+      toast.error("Vui lòng chọn ít nhất một khóa học!");
+      return;
+    }
+  
+    // Dispatch danh sách đã chọn để lưu trong Redux
+    dispatch({
+      type: 'order/selectedOrder',
+      payload: { listChecked }
+    });
+  
     toast.success("Chuyển đến thanh toán...");
+    navigate("/payment");
   };
-
+  
   return (
     <PageContainer>
       <CardContainer>

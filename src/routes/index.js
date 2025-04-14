@@ -22,6 +22,7 @@ import AssessPage from "../pages/Admin/AssessPage/AssessPage";
 import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage";
 import AccessDeniedPage from "../pages/AccessDeniedPage/AccessDeniedPage";
+import PaymentPage from "../pages/PaymentPage/PaymentPage";
 
 export const routes = [
   // Public Pages
@@ -94,6 +95,12 @@ export const routes = [
   {
     path: "/schedule",
     page: StudentschedulePage,
+    isShowHeader: true,
+    isShowFooter: false,
+  },
+  {
+    path: "/payment",
+    page: PaymentPage,
     isShowHeader: true,
     isShowFooter: false,
   },
