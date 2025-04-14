@@ -1,4 +1,3 @@
-// ✅ HeaderComponent.jsx
 import React, { useState, useEffect } from "react";
 import { Col, Badge, Popover, Modal } from "antd";
 import {
@@ -11,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetUser } from "../../redux/slices/userSlice";
 import Logo from "../../assets/Logo1.png";
 import Loading from "../LoadingComponent/LoadingComponent";
-
+import { resetOrderState } from "../../redux/slices/orderSlice";
 import {
   WrapperHeaderContainer,
   WrapperHeader,
@@ -56,9 +55,15 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
 
   const handleConfirmLogout = () => {
     setShowLogoutModal(false);
-    dispatch(resetUser());
-    localStorage.removeItem("user");
-    navigate("/sign-in");
+  
+    dispatch(resetUser());              
+    dispatch(resetOrderState());        
+  
+    localStorage.removeItem("persist:root"); 
+    localStorage.removeItem("user");         
+    localStorage.removeItem("cart");         
+  
+    navigate("/");
   };
 
   const content = (
