@@ -22,6 +22,7 @@ import AssessPage from "../pages/Admin/AssessPage/AssessPage";
 import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage";
 import AccessDeniedPage from "../pages/AccessDeniedPage/AccessDeniedPage";
+import PaymentPage from "../pages/PaymentPage/PaymentPage";
 
 export const routes = [
   // Public Pages
@@ -100,6 +101,10 @@ export const routes = [
   {
     path: "/*",
     page: AccessDeniedPage,
+  },
+  {
+    path: "/payment",
+    page: PaymentPage,
     isShowHeader: true,
     isShowFooter: false,
   },
@@ -135,7 +140,7 @@ export const routes = [
         path: "assess",
         page: AssessPage,
       },
-      
+
       {
         path: "payment",
         page: PaymentManagement,
@@ -155,7 +160,7 @@ export const routes = [
     path: "/system/teacher",
     layout: AdminLayout,
     isPrivated: true,
-    allowedRoles: ["teacher"], 
+    allowedRoles: ["teacher"],
     children: [
       { path: "", page: AdminDashboard },
       {
