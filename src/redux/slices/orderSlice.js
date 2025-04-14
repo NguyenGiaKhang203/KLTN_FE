@@ -92,6 +92,24 @@ export const orderSlide = createSlice({
         listChecked.includes(order.courseId)
       );
     },
+
+    // ✅ Reset toàn bộ giỏ hàng khi logout
+    resetOrderState: (state) => {
+      state.orderItems = [];
+      state.orderItemsSlected = [];
+      state.shippingAddress = {};
+      state.paymentMethod = '';
+      state.itemsPrice = 0;
+      state.shippingPrice = 0;
+      state.taxPrice = 0;
+      state.totalPrice = 0;
+      state.user = '';
+      state.isPaid = false;
+      state.paidAt = '';
+      state.isDelivered = false;
+      state.deliveredAt = '';
+      state.isSucessOrder = false;
+    },
   },
 });
 
@@ -103,6 +121,7 @@ export const {
   removeAllOrderProduct,
   selectedOrder,
   resetOrder,
+  resetOrderState,
 } = orderSlide.actions;
 
 export default orderSlide.reducer;

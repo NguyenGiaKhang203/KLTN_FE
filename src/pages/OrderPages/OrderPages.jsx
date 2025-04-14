@@ -28,6 +28,7 @@ import {
 import {
   removeOrderProduct,
   removeAllOrderProduct,
+  selectedOrder,
 } from "../../redux/slices/orderSlice";
 import { toast } from "react-toastify";
 
@@ -43,9 +44,11 @@ const OrderPage = () => {
   const [isBulkDelete, setIsBulkDelete] = useState(false);
 
   useEffect(() => {
-    const allIds = order?.orderItems?.map((item) => item.courseId);
-    setListChecked(allIds);
-  }, [order]);
+    if (user?.access_token) {
+      const allIds = order?.orderItems?.map((item) => item.courseId);
+      setListChecked(allIds);
+    }
+  }, [order, user]);
 
   const handleCheckAll = (e) => {
     const checked = e.target.checked;
@@ -102,22 +105,27 @@ const OrderPage = () => {
       toast.error("Vui lòng đăng nhập trước!");
       return navigate("/sign-in");
     }
-  
+
     if (selectedItems.length === 0) {
       toast.error("Vui lòng chọn ít nhất một khóa học!");
       return;
     }
-  
-    // Dispatch danh sách đã chọn để lưu trong Redux
-    dispatch({
-      type: 'order/selectedOrder',
-      payload: { listChecked }
-    });
-  
+
+    dispatch(selectedOrder({ listChecked }));
     toast.success("Chuyển đến thanh toán...");
     navigate("/payment");
   };
-  
+
+  if (!user?.access_token) {
+    return (
+      <PageContainer>
+        <CardContainer>
+          <Title>Vui lòng đăng nhập để xem giỏ hàng.</Title>
+        </CardContainer>
+      </PageContainer>
+    );
+  }
+
   return (
     <PageContainer>
       <CardContainer>
