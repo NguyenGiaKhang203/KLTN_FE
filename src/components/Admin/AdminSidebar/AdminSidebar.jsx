@@ -30,6 +30,7 @@ const Sidebar = () => {
 
   const user = useSelector((state) => state.user.user);
   const role = user?.role;
+  
 
   const showLogoutConfirm = () => {
     setIsLogoutModalOpen(true);
@@ -60,7 +61,7 @@ const Sidebar = () => {
 
         <Menu mode="inline" theme="dark" selectedKeys={[location.pathname]}>
           {/* 👑 ADMIN MENU */}
-          {role === "admin" && (
+          {user?.isAdmin === true && (
             <>
               <Menu.Item key="/system/admin/classes" icon={<AppstoreOutlined />}>
                 <Link to="/system/admin/classes">Danh sách lớp</Link>

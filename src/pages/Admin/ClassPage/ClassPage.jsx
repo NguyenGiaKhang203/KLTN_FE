@@ -28,7 +28,7 @@ const ClassPage = () => {
   const courseList = useSelector((state) => state.course.courseList);
   const user = useSelector((state) => state.user);
   const token = user?.access_token;
-
+    console.log("USER REDUX:", user);
   const [classes, setClasses] = useState([]);
   const [teacherList, setTeacherList] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);

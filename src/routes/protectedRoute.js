@@ -1,27 +1,23 @@
-import { Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+// ProtectedRoute.js
+import React from 'react';
+import { Route, Redirect } from 'react-router-dom';
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const user = useSelector((state) => state.user.user);
-  const accessToken = useSelector((state) => state.user.access_token);
+const ProtectedRoute = ({ component: Component, allowedRoles, ...rest }) => {
+  // Giả sử bạn có một hàm để lấy quyền người dùng hiện tại
+  const currentUserRole = getCurrentUserRole(); // Hàm này sẽ trả về quyền của người dùng (admin, teacher, v.v.)
 
-  // Nếu đang chờ lấy user từ localStorage (tức: chưa có access_token và user)
-  if (!user && !accessToken) {
-    return <div style={{ padding: 20 }}>Đang kiểm tra quyền truy cập...</div>; // hoặc spinner
-  }
-
-  // Nếu không có user thì đá ra login
-  if (!user) {
-    return <Navigate to="/sign-in" />;
-  }
-
-  // Nếu role không hợp lệ
-  if ((user?.isTeacher === false )) {
-    console.log('🚀 ~ ProtectedRoute ~ user?.isTeacher:', user?.isTeacher)
-    return <div style={{ padding: 20 }}>🚫 Bạn không có quyền truy cập trang này.</div>;
-  }
-
-  return children;
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        allowedRoles.includes(currentUserRole) ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/access-denied" />
+        )
+      }
+    />
+  );
 };
 
 export default ProtectedRoute;

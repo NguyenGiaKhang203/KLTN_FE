@@ -9,7 +9,9 @@ import * as UserService from "./services/UserService";
 import { useDispatch, useSelector } from "react-redux";
 import { resetUser, updateUser } from "./redux/slices/userSlice";
 import Loading from "./components/LoadingComponent/LoadingComponent";
-import ProtectedRoute from "./routes/protectedRoute"; 
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+import AccessDeniedPage from "./pages/AccessDeniedPage/AccessDeniedPage";
+
 
 function App() {
   const dispatch = useDispatch();
@@ -71,7 +73,6 @@ function App() {
       })
     );
   };
-
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <Loading isLoading={isLoading}>
@@ -80,22 +81,39 @@ function App() {
             {routes.map((route) => {
               if (route.children) {
                 const Layout = route.layout;
-                const allowedRoles = route.allowedRoles || [];
 
+                // Nếu là route yêu cầu đăng nhập và phân quyền
+                if (route.isPrivated) {
+                  return (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={
+                        <PrivateRoute
+                          allowedRoles={route.allowedRoles}
+                          user={user}
+                        />
+                      }
+                    >
+                      <Route element={<Layout />}>
+                        {route.children.map((child) => {
+                          const ChildPage = child.page;
+                          return (
+                            <Route
+                              key={child.path}
+                              path={child.path}
+                              element={<ChildPage />}
+                            />
+                          );
+                        })}
+                      </Route>
+                    </Route>
+                  );
+                }
+
+                // Route có children nhưng không phân quyền
                 return (
-                  <Route
-                    path={route.path}
-                    element={
-                      allowedRoles.length > 0 ? (
-                        <ProtectedRoute allowedRoles={allowedRoles}>
-                          <Layout />
-                        </ProtectedRoute>
-                      ) : (
-                        <Layout />
-                      )
-                    }
-                    key={route.path}
-                  >
+                  <Route path={route.path} element={<Layout />} key={route.path}>
                     {route.children.map((child) => {
                       const ChildPage = child.page;
                       return (
@@ -110,6 +128,7 @@ function App() {
                 );
               }
 
+              // Route không có children
               const Page = route.page;
               const Layout = route.isShowHeader ? DefaultComponent : Fragment;
               const ShowFooter = route.isShowFooter ? FooterComponent : Fragment;
@@ -129,7 +148,10 @@ function App() {
                 />
               );
             })}
+
+            <Route path="/access-denied" element={<AccessDeniedPage />} />
           </Routes>
+
         </Router>
       </Loading>
     </div>
