@@ -17,6 +17,8 @@ function App() {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const user = useSelector((state) => state.user);
+  console.log("User info:", user);
+
 
   useEffect(() => {
     setIsLoading(true);
@@ -61,6 +63,7 @@ function App() {
     }
   );
 
+
   const handleGetDetailsUser = async (id, token) => {
     let storageRefreshToken = localStorage.getItem("refresh_token");
     const refreshToken = JSON.parse(storageRefreshToken);
@@ -91,7 +94,8 @@ function App() {
                       element={
                         <PrivateRoute
                           allowedRoles={route.allowedRoles}
-                          user={user}
+                          userRole={user?.role} // 👈 truyền đúng role vào đây
+                          user={user?.user} // có thể giữ lại nếu PrivateRoute cần thêm info
                         />
                       }
                     >
@@ -151,6 +155,7 @@ function App() {
 
             <Route path="/access-denied" element={<AccessDeniedPage />} />
           </Routes>
+
 
         </Router>
       </Loading>

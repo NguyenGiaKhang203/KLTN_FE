@@ -97,6 +97,12 @@ export const routes = [
     isShowHeader: true,
     isShowFooter: false,
   },
+  {
+    path: "/*",
+    page: AccessDeniedPage,
+    isShowHeader: true,
+    isShowFooter: false,
+  },
 
   //  Admin Routes 
   {
