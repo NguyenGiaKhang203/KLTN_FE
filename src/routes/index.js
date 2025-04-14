@@ -99,6 +99,10 @@ export const routes = [
     isShowFooter: false,
   },
   {
+    path: "/*",
+    page: AccessDeniedPage,
+  },
+  {
     path: "/payment",
     page: PaymentPage,
     isShowHeader: true,
@@ -136,7 +140,7 @@ export const routes = [
         path: "assess",
         page: AssessPage,
       },
-      
+
       {
         path: "payment",
         page: PaymentManagement,
@@ -156,7 +160,7 @@ export const routes = [
     path: "/system/teacher",
     layout: AdminLayout,
     isPrivated: true,
-    allowedRoles: ["teacher"], 
+    allowedRoles: ["teacher"],
     children: [
       { path: "", page: AdminDashboard },
       {

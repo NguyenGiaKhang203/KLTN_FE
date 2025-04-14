@@ -32,6 +32,7 @@ const PaymentPage = () => {
   }, [selectedCourses]);
 
   const totalPriceMemo = useMemo(() => priceMemo, [priceMemo]);
+  console.log('user', user?.user.email);
 
   const handleVNPayPayment = async () => {
     setIsLoading(true);
@@ -42,15 +43,18 @@ const PaymentPage = () => {
         language: 'vn',
         orderType: 'other',
         orderDescription: `Thanh toán ${selectedCourses.length} khóa học`,
-        userId: user?.id,
-        email: user?.email,
+        userId: user?.user.id,
+        email: user?.user.email,
         redirectUrl: `${window.location.origin}/orderSuccess`
       });
-      if (response?.data?.payUrl) {
-        window.location.href = response.data.payUrl;
+      
+      console.log("VNPay Response:", response);
+      if (response?.paymentUrl) {
+        window.location.href = response.paymentUrl;
       } else {
         toast.error('Không tạo được link VNPay');
       }
+      
     } catch (error) {
       console.error(error);
       toast.error('Lỗi khi thanh toán với VNPay');
