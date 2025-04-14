@@ -21,6 +21,7 @@ import ReportPage from "../pages/Admin/ReportPage/ReportPage";
 import AssessPage from "../pages/Admin/AssessPage/AssessPage";
 import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage";
+import AccessDeniedPage from "../pages/AccessDeniedPage/AccessDeniedPage";
 
 export const routes = [
   // Public Pages
@@ -100,6 +101,7 @@ export const routes = [
   //  Admin Routes 
   {
     path: "/system/admin",
+    isPrivated: true,
     layout: AdminLayout,
     allowedRoles: ["admin"], // ✅ Phân quyền ở đây
     children: [
@@ -123,6 +125,10 @@ export const routes = [
         path: "teachers",
         page: TeacherPage,
       },
+      {
+        path: "assess",
+        page: AssessPage,
+      },
       
       {
         path: "payment",
@@ -142,6 +148,7 @@ export const routes = [
   {
     path: "/system/teacher",
     layout: AdminLayout,
+    isPrivated: true,
     allowedRoles: ["teacher"], 
     children: [
       { path: "", page: AdminDashboard },
