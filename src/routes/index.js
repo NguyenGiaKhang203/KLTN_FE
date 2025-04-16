@@ -25,6 +25,8 @@ import AccessDeniedPage from "../pages/AccessDeniedPage/AccessDeniedPage";
 import PaymentPage from "../pages/PaymentPage/PaymentPage";
 import AttendanceManagement from "../pages/AttendanceManagement/AttendanceManagement";
 import ScoreManagementPage from "../pages/ScoreManagementPage/ScoreManagementPage";
+import BlogManagementPage from "../pages/Admin/BlogManagementPage/BlogManagementPage";
+
 
 export const routes = [
   // Public Pages
@@ -111,7 +113,7 @@ export const routes = [
     isShowFooter: false,
   },
 
-  //  Admin Routes 
+  //  Admin Routes
   {
     path: "/system/admin",
     isPrivated: true,
@@ -155,9 +157,13 @@ export const routes = [
         path: "report",
         page: ReportPage,
       },
+      {
+        path: "blog",
+        page: BlogManagementPage,
+      },
     ],
   },
-  // Teacher Routes 
+  // Teacher Routes
   {
     path: "/system/teacher",
     layout: AdminLayout,
@@ -187,5 +193,5 @@ export const routes = [
       },
 
     ],
-  }
+  },
 ];

@@ -17,7 +17,7 @@ import AssessPage from "../AssessPage/AssessPage";
 import AttendancePage from "../AttendancePage/AttendancePage";
 import AttendanceManagement from "../../AttendanceManagement/AttendanceManagement";
 import ScoreManagementPage from "../../ScoreManagementPage/ScoreManagementPage";
-
+import BlogManagementPage from "../BlogManagementPage/BlogManagementPage";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -54,10 +54,13 @@ const AdminLayout = ({ children }) => {
       return <AttendancePage />;
     }
     if (location.pathname === "/system/admin/payment") {
-      return <PaymentManagement/>
+      return <PaymentManagement />;
+    }
+    if (location.pathname === "/system/admin/blog") {
+      return <BlogManagementPage />;
     }
     if (location.pathname === "/system/admin/report") {
-      return <ReportPage/>
+      return <ReportPage />;
     }
     if (location.pathname === "/system/teacher/attendance-management") {
       return <AttendanceManagement/>
@@ -65,6 +68,7 @@ const AdminLayout = ({ children }) => {
     if (location.pathname === "/system/teacher/score-management") {
       return <ScoreManagementPage/>
     }
+
     return <AdminDashboard />;
   };
 
