@@ -7,7 +7,7 @@ export const getDetailsCourse = async (id, access_token) => {
     `${process.env.REACT_APP_API_URL}/course/get-details/${id}`,
     {
       headers: {
-        token: `Bearer ${access_token}`,
+        Authorization: `Bearer ${access_token}`,
       },
     }
   );

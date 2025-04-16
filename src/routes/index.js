@@ -23,7 +23,10 @@ import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage";
 import AccessDeniedPage from "../pages/AccessDeniedPage/AccessDeniedPage";
 import PaymentPage from "../pages/PaymentPage/PaymentPage";
+import AttendanceManagement from "../pages/AttendanceManagement/AttendanceManagement";
+import ScoreManagementPage from "../pages/ScoreManagementPage/ScoreManagementPage";
 import BlogManagementPage from "../pages/Admin/BlogManagementPage/BlogManagementPage";
+
 
 export const routes = [
   // Public Pages
@@ -180,6 +183,15 @@ export const routes = [
         path: "schedule",
         page: SchedulePage,
       },
+      {
+        path: "attendance-management",
+        page: AttendanceManagement,
+      },
+      {
+        path: "score-management",
+        page: ScoreManagementPage,
+      },
+
     ],
   },
 ];
