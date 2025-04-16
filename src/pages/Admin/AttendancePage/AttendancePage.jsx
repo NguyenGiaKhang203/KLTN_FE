@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Table, Button, Select, message, DatePicker } from "antd";
+import { Table, Button, Select, DatePicker } from "antd";
 import dayjs from "dayjs";
 import * as ClassService from "../../../services/ClassService";
 import * as AttendanceService from "../../../services/AttendanceService";
@@ -8,10 +8,11 @@ import {
   PageHeader,
   FilterContainer,
   CenteredAction,
-  StatusTag,
   StudentListWrapper,
   SubSectionTitle,
 } from "./style";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const { Option } = Select;
 
@@ -22,13 +23,11 @@ export default function AdminAttendancePage() {
   const [studentList, setStudentList] = useState([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const user = useSelector((state) => state.user);
-
   const isToday = selectedDate.isSame(dayjs(), "day");
 
   useEffect(() => {
-    setStudentList([
-    ]);
-    
+    setStudentList([]);
+
     const fetchClasses = async () => {
       try {
         const response = await ClassService.getClassbyTeacher(user.user._id);
@@ -38,7 +37,7 @@ export default function AdminAttendancePage() {
         }));
         setData(transformed);
       } catch (error) {
-        message.error("Lỗi khi lấy dữ liệu lớp học.");
+        toast.error("Lỗi khi lấy dữ liệu lớp học.");
       }
     };
 
@@ -68,16 +67,23 @@ export default function AdminAttendancePage() {
         setStudentList(enriched);
       } else {
         setStudentList([]);
-        message.warning("Không thể lấy danh sách học viên.");
+        toast.warning("Không thể lấy danh sách học viên.");
       }
     } catch (err) {
       setStudentList([]);
-      message.error("Lỗi khi lấy danh sách học viên.");
+      toast.error("Lỗi khi lấy danh sách học viên.");
     }
   };
 
   const handleSaveAttendance = async () => {
     if (!selectedClassRecord) return;
+
+    const valid = studentList.every((s) => s.status === "present" || s.status === "absent");
+    if (!valid) {
+      toast.warn("Vui lòng chọn trạng thái cho tất cả học viên trước khi lưu.");
+      return;
+    }
+
     try {
       await AttendanceService.bulkAttendance(
         selectedClassRecord.key,
@@ -89,9 +95,9 @@ export default function AdminAttendancePage() {
         user?.access_token,
         selectedDate.format("YYYY-MM-DD")
       );
-      message.success("Đã lưu điểm danh thành công!");
+      toast.success("Đã lưu điểm danh thành công!");
     } catch (err) {
-      message.error("Lưu điểm danh thất bại!");
+      toast.error("Lưu điểm danh thất bại!");
     }
   };
 
@@ -122,7 +128,7 @@ export default function AdminAttendancePage() {
           value={selectedDate}
           onChange={(date) => {
             if (date && date.isAfter(dayjs(), "day")) {
-              message.warning("Không thể chọn ngày trong tương lai.");
+              toast.warning(" Không thể chọn ngày trong tương lai.");
               return;
             }
             setSelectedDate(date);
@@ -200,6 +206,8 @@ export default function AdminAttendancePage() {
           </CenteredAction>
         )}
       </StudentListWrapper>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

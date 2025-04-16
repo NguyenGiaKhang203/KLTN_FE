@@ -12,6 +12,8 @@ import {
   CommentOutlined,
   LogoutOutlined,
   FormOutlined,
+  CarryOutOutlined,
+  TrophyOutlined
 } from "@ant-design/icons";
 import { SidebarWrapper, LogoSection, StyledModal } from "./style";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -94,13 +96,16 @@ const Sidebar = () => {
                 <Link to="/system/teacher/schedule">Lịch giảng dạy</Link>
               </Menu.Item>
               <Menu.Item key="/system/teacher/attendance" icon={<FormOutlined />}>
-                <Link to="/system/teacher/attendance">Điểm danh lớp</Link>
+                <Link to="/system/teacher/attendance">Điểm danh</Link>
               </Menu.Item>
-              <Menu.Item key="/system/teacher/attendance-management" icon={<FormOutlined />}>
+              <Menu.Item key="/system/teacher/attendance-management" icon={<CarryOutOutlined />}>
                 <Link to="/system/teacher/attendance-management">Quản lý điểm danh</Link>
               </Menu.Item>
               <Menu.Item key="/system/teacher/exams" icon={<DropboxOutlined />}>
                 <Link to="/system/teacher/exams">Quản lý bài thi</Link>
+              </Menu.Item>
+              <Menu.Item key="/system/teacher/score-management" icon={<TrophyOutlined />}>
+                <Link to="/system/teacher/score-management">Quản lý điểm</Link>
               </Menu.Item>
             </>
           )}
