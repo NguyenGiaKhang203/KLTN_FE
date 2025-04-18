@@ -26,6 +26,9 @@ import PaymentPage from "../pages/PaymentPage/PaymentPage";
 import AttendanceManagement from "../pages/AttendanceManagement/AttendanceManagement";
 import ScoreManagementPage from "../pages/ScoreManagementPage/ScoreManagementPage";
 import BlogManagementPage from "../pages/Admin/BlogManagementPage/BlogManagementPage";
+import ExamListPage from "../pages/ExamListPage/ExamListPage";
+import ExamResultPage from "../pages/ExamResultPage/ExamResultPage";
+import BlogDetailPage from "../pages/BlogDetailsPage/BlogDetailPage";
 
 
 export const routes = [
@@ -85,6 +88,12 @@ export const routes = [
     isShowFooter: true,
   },
   {
+    path: "/blogs-detail/:id",
+    page: BlogDetailPage,
+    isShowHeader: true,
+    isShowFooter: true,
+  },
+  {
     path: "/introduce",
     page: AboutPage,
     isShowHeader: true,
@@ -109,6 +118,18 @@ export const routes = [
   {
     path: "/payment",
     page: PaymentPage,
+    isShowHeader: true,
+    isShowFooter: false,
+  },
+  {
+    path: "/exam",
+    page: ExamListPage,
+    isShowHeader: true,
+    isShowFooter: false,
+  },
+  {
+    path: "/exam-result",
+    page: ExamResultPage,
     isShowHeader: true,
     isShowFooter: false,
   },

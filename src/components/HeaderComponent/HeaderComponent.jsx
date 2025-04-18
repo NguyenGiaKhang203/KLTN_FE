@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Col, Badge, Popover, Modal } from "antd";
+import { Col, Badge, Popover, Modal, Dropdown, Menu } from "antd";
 import {
   UserOutlined,
   ShoppingCartOutlined,
   ExclamationCircleOutlined,
+  DownOutlined,
+  FileTextOutlined,
+  SolutionOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { resetUser } from "../../redux/slices/userSlice";
+import { resetOrderState } from "../../redux/slices/orderSlice";
 import Logo from "../../assets/Logo1.png";
 import Loading from "../LoadingComponent/LoadingComponent";
-import { resetOrderState } from "../../redux/slices/orderSlice";
 import {
   WrapperHeaderContainer,
   WrapperHeader,
@@ -55,33 +58,72 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
 
   const handleConfirmLogout = () => {
     setShowLogoutModal(false);
-  
-    dispatch(resetUser());              
-    dispatch(resetOrderState());        
-  
-    localStorage.removeItem("persist:root"); 
-    localStorage.removeItem("user");         
-    localStorage.removeItem("cart");         
-  
+    dispatch(resetUser());
+    dispatch(resetOrderState());
+
+    localStorage.removeItem("persist:root");
+    localStorage.removeItem("user");
+    localStorage.removeItem("cart");
+
     navigate("/");
   };
+
+  const examMenu = (
+    <Menu
+      items={[
+        {
+          key: "do-exam",
+          icon: <FileTextOutlined />,
+          label: <span onClick={() => navigate("/exam")}>Làm bài thi</span>,
+        },
+        {
+          key: "view-result",
+          icon: <SolutionOutlined />,
+          label: <span onClick={() => navigate("/exam-result")}>Xem kết quả</span>,
+        },
+      ]}
+    />
+  );
 
   const content = (
     <div>
       <WrapperContentPopup onClick={() => navigate("/profile-user")}>
         Thông tin người dùng
       </WrapperContentPopup>
+
       {user?.isAdmin && (
         <WrapperContentPopup onClick={() => navigate("/system/admin")}>
           Quản lý hệ thống
         </WrapperContentPopup>
       )}
-      <WrapperContentPopup onClick={() => navigate("/schedule")}>
-        Lịch học
-      </WrapperContentPopup>
+
+      {user?.isTeacher && (
+        <WrapperContentPopup onClick={() => navigate("/T-schedule")}>
+          Lịch dạy
+        </WrapperContentPopup>
+      )}
+
+      {!user?.isTeacher && (
+        <>
+          <WrapperContentPopup onClick={() => navigate("/schedule")}>
+            Lịch học
+          </WrapperContentPopup>
+
+          {/* ✅ Dropdown "Bài thi" đẹp */}
+          <Dropdown overlay={examMenu} trigger={["click"]} placement="leftTop">
+            <WrapperContentPopup style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
+              Bài thi
+              <DownOutlined style={{ marginLeft: 6, fontSize: 12, color: "#555" }} />
+            </WrapperContentPopup>
+          </Dropdown>
+
+        </>
+      )}
+
       <WrapperContentPopup onClick={() => navigate("/my-order")}>
         Đơn hàng của tôi
       </WrapperContentPopup>
+
       <WrapperContentPopup
         onClick={() => {
           setIsOpenPopup(false);

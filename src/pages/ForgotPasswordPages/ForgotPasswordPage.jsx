@@ -3,7 +3,7 @@ import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import InputForm from "../../components/InputForm/InputForm";
 import * as UserService from "../../services/UserService";
 import Loading from "../../components/LoadingComponent/LoadingComponent";
-import { message } from "antd";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -33,35 +33,63 @@ const ForgotPasswordPage = () => {
   };
 
   const handleSendOtp = async () => {
+    if (!email) {
+      toast.error("Vui lòng nhập email");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Email không hợp lệ");
+      return;
+    }
+
     try {
       const res = await UserService.sendOtp({ email });
+
       if (res?.status === "OK") {
-        message.success(res.message);
+        toast.success(res.message || "OTP đã được gửi thành công");
         setOtpSent(true);
       } else {
-        message.error(res.message);
+        toast.error(res.message || "Không thể gửi OTP");
       }
     } catch (error) {
-      message.error("Có lỗi xảy ra khi gửi mã OTP.");
+      // ✅ Hiển thị lỗi từ response API khi email không tồn tại
+      toast.error(error?.message || "Có lỗi xảy ra khi gửi mã OTP.");
     }
   };
 
   const handleResetPasswordWithOtp = async () => {
+    if (!otp || !newPassword) {
+      toast.error("Vui lòng nhập đầy đủ OTP và mật khẩu mới");
+      return
+    }
+  
+    // ✅ Kiểm tra mật khẩu phải có ít nhất 6 ký tự + đủ thành phần
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      toast.error(
+        "Mật khẩu phải có ít nhất 6 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt."
+      );
+      return;
+    }
+  
     setIsSubmitting(true);
     try {
       const res = await UserService.resetPassword({ email, otp, newPassword });
       if (res?.status === "SUCCESS") {
-        message.success("Mật khẩu đã được thay đổi thành công.");
+        toast.success("Mật khẩu đã được thay đổi thành công.");
         navigate("/sign-in");
       } else {
-        message.error(res.message);
+        toast.error(res.message || "Không thể đặt lại mật khẩu.");
       }
     } catch (error) {
-      message.error("Có lỗi xảy ra khi đặt lại mật khẩu.");
+      toast.error(error?.message || "Có lỗi xảy ra khi đặt lại mật khẩu.");
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <PageContainer>
@@ -105,7 +133,7 @@ const ForgotPasswordPage = () => {
             </>
           ) : (
             <>
-              <p>Enter the OTP and your new password</p>
+              <p>Nhập mã OTP và mật khẩu mới</p>
               <StyledInput>
                 <InputForm placeholder="OTP" value={otp} onChange={setOtp} />
               </StyledInput>

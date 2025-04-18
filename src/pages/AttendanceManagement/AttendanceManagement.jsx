@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Select, DatePicker, Table, Button, message } from "antd";
+import React, { useState, useEffect } from "react";
+import { Select, DatePicker, Table, Button, message, Popconfirm } from "antd";
 import dayjs from "dayjs";
 import {
   PageHeader,
@@ -24,6 +24,7 @@ const AttendanceManagementPage = () => {
   const handleSelectClass = (val) => {
     setSelectedClass(val);
     if (val) {
+      // giả lập fetch API điểm danh
       setStudentList([
         { _id: "1", name: "Nguyễn Văn A", status: "present" },
         { _id: "2", name: "Trần Thị B", status: "absent" },
@@ -42,33 +43,33 @@ const AttendanceManagementPage = () => {
     );
   };
 
+  const handleDeleteRecord = (id) => {
+    setStudentList((prev) => prev.filter((student) => student._id !== id));
+  };
+
   const handleSave = () => {
-    // TODO: Gọi API lưu thực tế ở đây
-    message.success("✅ Đã lưu thay đổi điểm danh!");
-    console.log("Dữ liệu gửi đi:", {
+    // TODO: Gọi API cập nhật điểm danh
+    console.log("Đã lưu:", {
       classId: selectedClass,
       date: selectedDate.format("YYYY-MM-DD"),
       attendance: studentList,
     });
+    message.success("✅ Đã lưu thay đổi điểm danh!");
   };
 
   const columns = [
     {
       title: "STT",
-      dataIndex: "index",
-      key: "index",
       render: (_, __, index) => index + 1,
       width: 70,
     },
     {
       title: "Họ tên học viên",
       dataIndex: "name",
-      key: "name",
     },
     {
       title: "Trạng thái điểm danh",
       dataIndex: "status",
-      key: "status",
       render: (_, record) => (
         <Select
           value={record.status}
@@ -80,6 +81,20 @@ const AttendanceManagementPage = () => {
         </Select>
       ),
     },
+    {
+      title: "Hành động",
+      render: (_, record) => (
+        <Popconfirm
+          title="Xoá bản ghi điểm danh?"
+          onConfirm={() => handleDeleteRecord(record._id)}
+          okText="Xoá"
+          cancelText="Huỷ"
+        >
+          <Button danger>Xoá</Button>
+        </Popconfirm>
+      ),
+      width: 100,
+    },
   ];
 
   return (
@@ -90,7 +105,7 @@ const AttendanceManagementPage = () => {
 
       <FilterContainer>
         <span>
-          <strong>Chọn lớp học:</strong>
+          <strong>Lớp học:</strong>
         </span>
         <Select
           placeholder="Chọn lớp"
@@ -107,7 +122,7 @@ const AttendanceManagementPage = () => {
         </Select>
 
         <span>
-          <strong>Chọn ngày:</strong>
+          <strong>Ngày:</strong>
         </span>
         <DatePicker
           format="DD/MM/YYYY"
@@ -120,7 +135,7 @@ const AttendanceManagementPage = () => {
       <StudentListWrapper>
         <SubSectionTitle>
           {selectedClass
-            ? "Danh sách học viên đã điểm danh"
+            ? "Danh sách điểm danh học viên"
             : "Hãy chọn lớp để xem điểm danh"}
         </SubSectionTitle>
 
