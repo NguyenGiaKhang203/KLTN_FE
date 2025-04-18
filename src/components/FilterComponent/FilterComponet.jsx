@@ -14,9 +14,9 @@ import {
   IconWrapper,
 } from "./style";
 import { SearchOutlined } from "@ant-design/icons";
+
 const filterOptions = {
   category: [
-    { id: "all", label: "Tất cả trình độ" },
     { id: "is", label: "Sơ cấp" },
     { id: "kids", label: "Trung cấp" },
     { id: "accessories", label: "Cao cấp" },
@@ -24,7 +24,7 @@ const filterOptions = {
   ],
 };
 
-function Filter({ filters, handleFilter }) {
+function Filter({ filters, handleFilter, searchText, setSearchText }) {
   return (
     <WrapperFilterContainer>
       <WrapperCourseFilter>
@@ -36,7 +36,8 @@ function Filter({ filters, handleFilter }) {
             </IconWrapper>
             <Input
               placeholder="Tìm kiếm khóa học..."
-              onChange={(e) => handleFilter("search", e.target.value)}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
             />
           </WrapperSearchInput>
         </WrapperFilterHeader>

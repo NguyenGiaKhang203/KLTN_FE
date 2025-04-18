@@ -5,9 +5,7 @@ import {
   Sidebar,
   StyledCard,
   ArticleImage,
-  Category,
   Title,
-  Author,
   Excerpt,
   Section,
   PromoTitle,
@@ -15,23 +13,24 @@ import {
 import { Typography } from "antd";
 import * as BlogService from "../../services/BlogService";
 import { useNavigate } from "react-router-dom";
+
 const { Title: AntTitle } = Typography;
 
 const BlogPage = () => {
   const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
 
   const fetchBlogs = async () => {
     try {
       const res = await BlogService.getAllBlogs();
-      const data = res?.data; // Truy cập đúng mảng blog từ response
+      const data = res?.data;
 
       if (Array.isArray(data)) {
         setBlogs(data);
         const allCategories = [...new Set(data.map((b) => b.category))];
         setCategories(allCategories);
       } else {
-        console.warn("Dữ liệu blog không phải mảng:", data);
         setBlogs([]);
       }
     } catch (err) {
@@ -43,31 +42,32 @@ const BlogPage = () => {
     fetchBlogs();
   }, []);
 
+  const getExcerpt = (text, length = 120) => {
+    if (!text) return "";
+    return text.length > length ? text.substring(0, length) + "..." : text;
+  };
+
   return (
     <WrapperBlogPage>
       <MainContent>
-        {Array.isArray(blogs) &&
-          blogs.map((item, index) => (
-            <StyledCard
-              key={index}
-              hoverable
-              cover={<ArticleImage src={item.img} alt={item.title} />}
-            >
-              <Category>{item.category}</Category>
-              <Title>{item.title}</Title>
-              <Author>
-                {item.author} / {item.date}
-              </Author>
-              <Excerpt>{item.excerpt}</Excerpt>
-            </StyledCard>
-          ))}
+        {blogs.map((item, index) => (
+          <StyledCard
+            key={index}
+            hoverable
+            onClick={() => navigate(`/blogs-detail/${item._id}`)}
+          >
+            <ArticleImage src={item.image} alt={item.title} />
+            <Title>{item.title}</Title>
+            <Excerpt>{getExcerpt(item.content)}</Excerpt>
+          </StyledCard>
+        ))}
       </MainContent>
 
       <Sidebar>
         <Section>
           <AntTitle level={4}>Bài viết gần đây</AntTitle>
           <ul>
-            {blogs.map((a, i) => (
+            {blogs.slice(0, 5).map((a, i) => (
               <li key={i}>{a.title}</li>
             ))}
           </ul>

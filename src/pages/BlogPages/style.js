@@ -70,8 +70,13 @@ export const Author = styled.p`
 export const Excerpt = styled.p`
   font-size: 14px;
   color: #374151;
-  line-height: 1.4;
+  line-height: 1.5;
   margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* 👈 giới hạn 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const Section = styled.div`

@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Image, Space, Tooltip, Input, Modal } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { toast, ToastContainer } from "react-toastify";
+import { useSelector } from "react-redux";
+
 import {
   PageHeader,
   FilterContainer,
   HeaderActions,
   FilterLeft,
 } from "./style";
+
 import BlogForm from "../../../components/Admin/BlogForm/BlogForm";
 import {
   getAllBlogs,
@@ -24,13 +27,16 @@ const BlogManagementPage = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState(null);
 
+  const { user } = useSelector((state) => state.user);
+  const token = user?.access_token;
+
   useEffect(() => {
     fetchArticles();
   }, []);
 
   const fetchArticles = async () => {
     try {
-      const res = await getAllBlogs();
+      const res = await getAllBlogs(token);
       setArticles(res.data || []);
     } catch (err) {
       toast.error("Lỗi khi tải danh sách bài viết");
@@ -54,7 +60,7 @@ const BlogManagementPage = () => {
 
   const confirmDelete = async () => {
     try {
-      await deleteBlog(articleToDelete._id);
+      await deleteBlog(articleToDelete._id, token);
       toast.success("Xóa bài viết thành công");
       fetchArticles();
     } catch (error) {
@@ -66,21 +72,31 @@ const BlogManagementPage = () => {
   };
 
   const handleSubmit = async (values) => {
+    
     try {
+      if (!values.image || typeof values.image !== "string") {
+        toast.error("Hình ảnh không hợp lệ hoặc chưa chọn ảnh");
+        return;
+      }
+  
       if (selectedArticle) {
-        await updateBlog(selectedArticle._id, values);
+        await updateBlog(selectedArticle._id, values, token);
         toast.success("Cập nhật bài viết thành công!");
       } else {
-        await createBlog(values);
+        await createBlog(values, token);
         toast.success("Tạo bài viết thành công!");
       }
-
+      console.log('🚀 ~ handleSubmit ~ values:', values)
       setIsModalOpen(false);
       fetchArticles();
+      
     } catch (error) {
       toast.error("Đã xảy ra lỗi khi lưu bài viết");
     }
   };
+  
+  
+  
 
   const filteredArticles = articles.filter((article) =>
     article.title?.toLowerCase().includes(search.toLowerCase())
@@ -195,7 +211,8 @@ const BlogManagementPage = () => {
         okType="danger"
       >
         <p>
-          Bạn có chắc chắn muốn xoá bài viết "{articleToDelete?.title}" không?
+          Bạn có chắc chắn muốn xoá bài viết "
+          <strong>{articleToDelete?.title}</strong>" không?
         </p>
       </Modal>
 

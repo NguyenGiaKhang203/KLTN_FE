@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Input,
   Select,
   Table,
-  Button,
   Popconfirm,
   InputNumber,
+  message,
 } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import * as ScoreService from "../../services/ScoreService";
+import * as ClassService from "../../services/ClassService";
 import {
   PageHeader,
   FilterContainer,
@@ -19,87 +22,115 @@ const { Search } = Input;
 const { Option } = Select;
 
 const ScoreManagementPage = () => {
-  const [selectedExam, setSelectedExam] = useState(null);
+  const [classList, setClassList] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [editingRow, setEditingRow] = useState(null);
-  const [dataSource, setDataSource] = useState([
-    {
-      key: "1",
-      name: "Nguyễn Văn A",
-      email: "a@gmail.com",
-      exam: "Giữa kỳ",
-      score: 8.5,
-    },
-    {
-      key: "2",
-      name: "Trần Thị B",
-      email: "b@gmail.com",
-      exam: "Giữa kỳ",
-      score: 7,
-    },
-  ]);
+  const [scores, setScores] = useState([]);
+  const { user } = useSelector((state) => state.user);
+  const token = user?.access_token;
 
-  const handleDelete = (key) => {
-    setDataSource((prev) => prev.filter((item) => item.key !== key));
+  // Fetch lớp học
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const res = await ClassService.getAllClasses(token);
+        const data = Array.isArray(res?.data) ? res.data : res;
+        setClassList(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Lỗi khi lấy danh sách lớp:", err);
+        setClassList([]);
+      }
+    };
+    if (token) fetchClasses();
+  }, [token]);
+
+  // Fetch điểm số
+  useEffect(() => {
+    const fetchScores = async () => {
+      try {
+        const res = await ScoreService.getAllScores(token);
+        const data = Array.isArray(res?.data) ? res.data : res;
+        setScores(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Lỗi khi lấy điểm:", err);
+        setScores([]);
+      }
+    };
+    if (token) fetchScores();
+  }, [token]);
+
+  // Xoá điểm
+  const handleDelete = async (id) => {
+    try {
+      await ScoreService.deleteScore(id, token);
+      setScores((prev) => prev.filter((item) => item._id !== id));
+      message.success("Đã xoá điểm thành công");
+    } catch (err) {
+      message.error("Xoá thất bại");
+    }
   };
 
-  const handleSave = (key, newScore) => {
-    setDataSource((prev) =>
-      prev.map((item) =>
-        item.key === key ? { ...item, score: newScore } : item
-      )
-    );
-    setEditingRow(null);
+  // Lưu điểm
+  const handleSave = async (id, newScore) => {
+    try {
+      await ScoreService.updateScore(id, { score: newScore }, token);
+      setScores((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, score: newScore } : item
+        )
+      );
+      setEditingRow(null);
+      message.success("Cập nhật điểm thành công");
+    } catch (err) {
+      message.error("Cập nhật điểm thất bại");
+    }
   };
 
   const columns = [
     {
       title: "STT",
-      dataIndex: "index",
-      key: "index",
       render: (_, __, index) => index + 1,
-      width: 70,
+      width: 60,
     },
     {
       title: "Họ tên học viên",
-      dataIndex: "name",
+      render: (_, record) => record.student?.name || "Không rõ",
     },
     {
       title: "Email",
-      dataIndex: "email",
+      render: (_, record) => record.student?.email || "Không rõ",
     },
     {
       title: "Bài thi",
-      dataIndex: "exam",
+      render: (_, record) => record.exam?.title || "Không rõ",
     },
     {
       title: "Điểm",
-      dataIndex: "score",
-      render: (text, record) =>
-        editingRow === record.key ? (
+      render: (_, record) =>
+        editingRow === record._id ? (
           <InputNumber
             min={0}
             max={10}
             defaultValue={record.score}
-            onChange={(val) => handleSave(record.key, val)}
+            onChange={(val) => handleSave(record._id, val)}
           />
         ) : (
-          text
+          record.score
         ),
     },
     {
       title: "Hành động",
-      dataIndex: "action",
       align: "center",
       render: (_, record) => (
         <ActionButtons>
           <EditOutlined
             style={{ color: "#1890ff", fontSize: 18, cursor: "pointer" }}
-            onClick={() => setEditingRow(record.key)}
+            onClick={() => setEditingRow(record._id)}
           />
           <Popconfirm
             title="Bạn có chắc muốn xoá điểm này không?"
-            onConfirm={() => handleDelete(record.key)}
+            onConfirm={() => handleDelete(record._id)}
             okText="Xoá"
             cancelText="Huỷ"
           >
@@ -112,10 +143,11 @@ const ScoreManagementPage = () => {
     },
   ];
 
-  const filteredData = dataSource.filter(
+  // Lọc danh sách học viên theo lớp và tên
+  const filteredData = scores.filter(
     (item) =>
-      (!selectedExam || item.exam === selectedExam) &&
-      item.name.toLowerCase().includes(searchText.toLowerCase())
+      (!selectedClass || item.class === selectedClass) &&
+      item.student?.name?.toLowerCase().includes(searchText.toLowerCase())
   );
 
   return (
@@ -125,31 +157,36 @@ const ScoreManagementPage = () => {
       </PageHeader>
 
       <FilterContainer>
+        <Select
+          placeholder="Chọn lớp học"
+          style={{ width: 220 }}
+          onChange={(val) => setSelectedClass(val)}
+          allowClear
+        >
+          {Array.isArray(classList) &&
+            classList.map((cls) => (
+              <Option key={cls._id} value={cls._id}>
+                {cls.name}
+              </Option>
+            ))}
+        </Select>
+
         <Search
           placeholder="Tìm kiếm học viên..."
           onSearch={(value) => setSearchText(value)}
           style={{ width: 250 }}
           allowClear
         />
-
-        <Select
-          placeholder="Chọn bài thi"
-          style={{ width: 200 }}
-          onChange={(val) => setSelectedExam(val)}
-          allowClear
-        >
-          <Option value="Giữa kỳ">Giữa kỳ</Option>
-          <Option value="Cuối kỳ">Cuối kỳ</Option>
-        </Select>
       </FilterContainer>
 
       <TableWrapper>
         <Table
           dataSource={filteredData}
           columns={columns}
-          rowKey="key"
+          rowKey="_id"
           bordered
-          pagination={false}
+          pagination={{ pageSize: 8 }}
+          locale={{ emptyText: "Chưa có dữ liệu điểm số" }}
         />
       </TableWrapper>
     </div>

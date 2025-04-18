@@ -144,14 +144,27 @@ export const WrapperCartIcon = styled.div`
 `;
 
 export const WrapperContentPopup = styled.div`
-  padding: 8px 12px;
+  padding: 10px 16px;
+  font-size: 15px;
+  color: #333;
   cursor: pointer;
-  font-size: 14px;
+  transition: background 0.2s ease;
+  border-radius: 6px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
   &:hover {
     background-color: #f0f0f0;
+    color: #1677ff;
+  }
+
+  svg {
+    font-size: 14px;
   }
 `;
+
 
 // ✅ Modal style tách riêng
 export const customModalStyles = {
