@@ -28,33 +28,31 @@ const PaymentPage = () => {
   const selectedCourses = order.orderItemsSlected || [];
 
   const priceMemo = useMemo(() => {
-    return selectedCourses.reduce((total, cur) => total + (cur.price * cur.quantity), 0);
+    return selectedCourses.reduce((total, cur) => total + (cur.price), 0);
   }, [selectedCourses]);
 
   const totalPriceMemo = useMemo(() => priceMemo, [priceMemo]);
-  console.log('user', user?.user.email);
 
   const handleVNPayPayment = async () => {
     setIsLoading(true);
     try {
+      const orderInfo = `Thanh toán ${selectedCourses.length} khóa học - Email: ${user?.user.email} - Redirect: ${window.location.origin}/orderSuccess`;
+      
       const response = await PaymentService.createPaymentVNPay({
-        amount: totalPriceMemo,
-        bankCode: '',
-        language: 'vn',
-        orderType: 'other',
-        orderDescription: `Thanh toán ${selectedCourses.length} khóa học`,
-        userId: user?.user.id,
-        email: user?.user.email,
-        redirectUrl: `${window.location.origin}/orderSuccess`
+        orderInfo: orderInfo,
+        amount: totalPriceMemo, // Add the total amount here
+        courses: selectedCourses.map(course => ({
+          courseId: course.courseId,
+          name: course.name,
+          price: course.price,
+        }))
       });
       
-      console.log("VNPay Response:", response);
       if (response?.paymentUrl) {
-        window.location.href = response.paymentUrl;
+        window.location.href = response.paymentUrl;  // Redirect to the payment gateway
       } else {
         toast.error('Không tạo được link VNPay');
       }
-      
     } catch (error) {
       console.error(error);
       toast.error('Lỗi khi thanh toán với VNPay');
@@ -62,7 +60,7 @@ const PaymentPage = () => {
       setIsLoading(false);
     }
   };
-
+  
   const handlePayment = () => {
     if (payment === 'vnpay') {
       handleVNPayPayment();

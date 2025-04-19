@@ -111,6 +111,17 @@ const OrderPage = () => {
       return;
     }
 
+    // Generate totalAmount
+    const totalAmount = selectedItems.reduce((sum, item) => sum + item.price, 0);
+
+    // Payload to be sent to backend or next step
+    const payload = {
+      courses: selectedItems,
+      orderInfo: `Thanh toán ${selectedItems.length} khóa học - Email: ${user?.email} - Redirect: http://localhost:3000/orderSuccess`,
+      amount: totalAmount,
+    };
+
+    // Dispatch selected order for payment
     dispatch(selectedOrder({ listChecked }));
     toast.success("Chuyển đến thanh toán...");
     navigate("/payment");
@@ -136,10 +147,7 @@ const OrderPage = () => {
               <span>
                 <Checkbox
                   onChange={handleCheckAll}
-                  checked={
-                    listChecked.length === order?.orderItems?.length &&
-                    order?.orderItems?.length > 0
-                  }
+                  checked={listChecked.length === order?.orderItems?.length && order?.orderItems?.length > 0}
                 />
                 Tất cả ({order?.orderItems?.length} khóa học)
               </span>

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Select, DatePicker, Table, Button, message, Popconfirm } from "antd";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import {
   PageHeader,
   FilterContainer,
@@ -8,6 +12,7 @@ import {
   SubSectionTitle,
   CenteredAction,
 } from "./style";
+import * as ClassService from "../../services/ClassService";
 
 const { Option } = Select;
 
@@ -15,11 +20,30 @@ const AttendanceManagementPage = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [studentList, setStudentList] = useState([]);
+  const [classList, setClassList] = useState([]);
+  const user = useSelector((state) => state.user);
+  const isToday = selectedDate.isSame(dayjs(), "day");
 
-  const mockClasses = [
-    { id: "class1", name: "Lớp A" },
-    { id: "class2", name: "Lớp B" },
-  ];
+  useEffect(() => {
+    setStudentList([]);
+
+    const fetchClasses = async () => {
+      try {
+        const response = await ClassService.getClassbyTeacher(user.user._id);
+        const transformed = response.data.map((item, index) => ({
+          key: item._id || index.toString(),
+          className: item.name,
+        }));
+        setClassList(transformed);
+      } catch (error) {
+        toast.error("Lỗi khi lấy dữ liệu lớp học.");
+      }
+    };
+
+    if (user?.user?._id) {
+      fetchClasses();
+    }
+  }, [user]);
 
   const handleSelectClass = (val) => {
     setSelectedClass(val);
@@ -114,9 +138,9 @@ const AttendanceManagementPage = () => {
           value={selectedClass}
           allowClear
         >
-          {mockClasses.map((cls) => (
-            <Option key={cls.id} value={cls.id}>
-              {cls.name}
+          {classList.map((cls) => (
+            <Option key={cls.key} value={cls.key}>
+              {cls.className}
             </Option>
           ))}
         </Select>
