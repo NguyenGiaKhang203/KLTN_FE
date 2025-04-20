@@ -30,6 +30,7 @@ import ExamListPage from "../pages/ExamListPage/ExamListPage";
 import ExamResultPage from "../pages/ExamResultPage/ExamResultPage";
 import BlogDetailPage from "../pages/BlogDetailsPage/BlogDetailPage";
 import OrderSuccessPage from "../pages/OrderSuccesPage/OrderSuccesPage";
+import MyOrderPage from "../pages/MyOrderPage/MyOrderPage";
 
 export const routes = [
   // Public Pages
@@ -79,6 +80,8 @@ export const routes = [
   {
     path: "/order-success",
     page: OrderSuccessPage,
+    isShowHeader: true,
+    isShowFooter: false,
 
   },
   {
@@ -136,6 +139,12 @@ export const routes = [
   {
     path: "/exam-result",
     page: ExamResultPage,
+    isShowHeader: true,
+    isShowFooter: false,
+  },
+  {
+    path: "/my-orders",
+    page: MyOrderPage,
     isShowHeader: true,
     isShowFooter: false,
   },

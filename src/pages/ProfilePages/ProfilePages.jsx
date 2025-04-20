@@ -175,7 +175,7 @@ const ProfilePage = () => {
 
   return (
     <div>
-      <WrapperHeader>Hồ sơ học viên</WrapperHeader>
+      <WrapperHeader>Hồ sơ</WrapperHeader>
       <WrapperProfileContainer>
         <WrapperAvatarSection>
           {avatar ? (

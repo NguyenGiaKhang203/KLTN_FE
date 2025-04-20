@@ -98,12 +98,12 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
       )}
 
       {user?.isTeacher && (
-        <WrapperContentPopup onClick={() => navigate("/T-schedule")}>
-          Lịch dạy
+        <WrapperContentPopup onClick={() => navigate("/system/teacher")}>
+          Quản lý của giảng viên
         </WrapperContentPopup>
       )}
 
-      {!user?.isTeacher && (
+      {!user?.isTeacher && !user?.isAdmin && (
         <>
           <WrapperContentPopup onClick={() => navigate("/schedule")}>
             Lịch học
@@ -120,7 +120,7 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
         </>
       )}
 
-      <WrapperContentPopup onClick={() => navigate("/my-order")}>
+      <WrapperContentPopup onClick={() => navigate("/my-orders")}>
         Đơn hàng của tôi
       </WrapperContentPopup>
 

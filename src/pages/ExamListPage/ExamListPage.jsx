@@ -10,9 +10,9 @@ import {
   PageContainer,
   StyledHeader,
   StyledTableWrapper,
+  TopBar,
 } from "./style";
 import { FilterContainer } from "../Admin/AttendancePage/style";
-
 const { Option } = Select;
 
 const ExamListPage = () => {
@@ -70,6 +70,7 @@ const ExamListPage = () => {
       }
     } catch (err) {
       message.error("Không thể tải danh sách bài thi.");
+
     }
   };
 
@@ -132,10 +133,10 @@ const ExamListPage = () => {
 
   return (
     <PageContainer>
+
       <StyledHeader>
         <h2>Danh sách bài thi</h2>
       </StyledHeader>
-
       <FilterContainer>
         <span><strong>Chọn lớp học:</strong></span>
         <Select

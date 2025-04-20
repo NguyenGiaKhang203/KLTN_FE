@@ -54,7 +54,7 @@ const Sidebar = () => {
   return (
     <Sider width={240} theme="dark">
       <SidebarWrapper>
-        <Link to="/system/admin">
+        <Link to="/">
           <LogoSection>
             <img src={Logo} alt="King-chess" />
             <h3>KING-CHESS</h3>
