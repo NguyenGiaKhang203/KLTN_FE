@@ -63,3 +63,13 @@ export const deleteExam = async (id, token) => {
     });
     return res.data;
 };
+
+export const getExamsByClassId = async (id) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/exam//get-exam-by-classid/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi khi gọi API lấy danh sách bài thi:", error);
+      throw error;
+    }
+  };

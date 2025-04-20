@@ -29,7 +29,7 @@ import BlogManagementPage from "../pages/Admin/BlogManagementPage/BlogManagement
 import ExamListPage from "../pages/ExamListPage/ExamListPage";
 import ExamResultPage from "../pages/ExamResultPage/ExamResultPage";
 import BlogDetailPage from "../pages/BlogDetailsPage/BlogDetailPage";
-
+import OrderSuccessPage from "../pages/OrderSuccesPage/OrderSuccesPage";
 
 export const routes = [
   // Public Pages
@@ -74,6 +74,12 @@ export const routes = [
     page: OrderPage,
     isShowHeader: true,
     isShowFooter: true,
+  },
+  
+  {
+    path: "/order-success",
+    page: OrderSuccessPage,
+
   },
   {
     path: "/profile-user",

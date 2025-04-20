@@ -23,11 +23,7 @@ export const getAllClasses = async () => {
 
 // Lấy lớp học theo ID
 export const getClassById = async (id, token) => {
-  const res = await axios.get(`${process.env.REACT_APP_API_URL}/class/get-class-by-id/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await axios.get(`${process.env.REACT_APP_API_URL}/class/get-class-by-id/${id}`);
   return res.data;
 };
 
@@ -68,6 +64,13 @@ export const getClassbyTeacher = async (id) => {
 export const getStudentsInClass  = async (id) => {
   const res = await axios.get(
     `${process.env.REACT_APP_API_URL}/class/get-student-in-classes/${id}`,
+  );
+  return res.data;
+};
+
+export const getClassbyStudent = async (id) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-class-by-studentId/${id}`,
   );
   return res.data;
 };
