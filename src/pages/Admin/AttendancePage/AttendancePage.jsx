@@ -122,20 +122,6 @@ export default function AdminAttendancePage() {
             </Option>
           ))}
         </Select>
-
-        <span><strong>Chọn ngày:</strong></span>
-        <DatePicker
-          value={selectedDate}
-          onChange={(date) => {
-            if (date && date.isAfter(dayjs(), "day")) {
-              toast.warning(" Không thể chọn ngày trong tương lai.");
-              return;
-            }
-            setSelectedDate(date);
-          }}
-          disabledDate={(current) => current && current > dayjs().endOf("day")}
-          format="DD/MM/YYYY"
-        />
       </FilterContainer>
 
       <StudentListWrapper>
