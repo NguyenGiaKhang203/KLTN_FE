@@ -2,9 +2,10 @@ import styled from "styled-components";
 
 export const PageContainer = styled.div`
   padding: 24px;
-  background-color: #f9f9f9;
+  background: linear-gradient(to right, #f4f6f9, #e6f7ff);
   min-height: 100vh;
 `;
+
 
 export const StyledHeader = styled.h2`
   font-size: 24px;
@@ -14,10 +15,82 @@ export const StyledHeader = styled.h2`
 `;
 
 export const StyledTableWrapper = styled.div`
-  background-color: #ffffff;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+
+  .ant-table {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .ant-table-thead > tr > th {
+    background-color: #e6f7ff;
+    color: #0050b3;
+    font-weight: bold;
+    font-size: 15px;
+    text-transform: uppercase;
+  }
+
+  .ant-table-tbody > tr > td {
+    font-size: 14px;
+    padding: 12px;
+    color: #262626;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fafcff;
+
+    &:hover {
+      background-color: #e6f7ff;
+    }
+  }
+
+  .ant-tag {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  .ant-tag-green {
+    background-color: #d9f7be;
+    color: #389e0d;
+  }
+
+  .ant-tag-red {
+    background-color: #ffd8bf;
+    color: #cf1322;
+  }
+
+  .ant-tag-default {
+    background-color: #f5f5f5;
+    color: #595959;
+  }
+
+  .ant-btn-primary {
+    background-color: #722ed1;
+    border-color: #722ed1;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(114, 46, 209, 0.3);
+
+    &:hover {
+      background-color: #9254de;
+      border-color: #9254de;
+    }
+
+    &:disabled {
+      background-color: #f5f5f5;
+      color: #999;
+      border-color: #d9d9d9;
+      box-shadow: none;
+    }
+  }
+`;
+
+export const TopBar = styled.div`
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-start;
 `;
 
 

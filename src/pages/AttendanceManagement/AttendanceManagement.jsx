@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Select, DatePicker, Table, Button, message, Popconfirm } from "antd";
+import { Select, DatePicker, Table, Button, message } from "antd";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
@@ -12,21 +12,22 @@ import {
   SubSectionTitle,
   CenteredAction,
 } from "./style";
+
 import * as ClassService from "../../services/ClassService";
+import * as ScheduleService from "../../services/ScheduleService";
+import { getStudentsInClass } from "../../services/ClassService";
 
 const { Option } = Select;
 
 const AttendanceManagementPage = () => {
   const [selectedClass, setSelectedClass] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [validDates, setValidDates] = useState([]);
   const [studentList, setStudentList] = useState([]);
   const [classList, setClassList] = useState([]);
   const user = useSelector((state) => state.user);
-  const isToday = selectedDate.isSame(dayjs(), "day");
 
   useEffect(() => {
-    setStudentList([]);
-
     const fetchClasses = async () => {
       try {
         const response = await ClassService.getClassbyTeacher(user.user._id);
@@ -36,7 +37,7 @@ const AttendanceManagementPage = () => {
         }));
         setClassList(transformed);
       } catch (error) {
-        toast.error("Lỗi khi lấy dữ liệu lớp học.");
+        toast.error("Lỗi khi lấy danh sách lớp.");
       }
     };
 
@@ -45,17 +46,46 @@ const AttendanceManagementPage = () => {
     }
   }, [user]);
 
-  const handleSelectClass = (val) => {
-    setSelectedClass(val);
-    if (val) {
-      // giả lập fetch API điểm danh
-      setStudentList([
-        { _id: "1", name: "Nguyễn Văn A", status: "present" },
-        { _id: "2", name: "Trần Thị B", status: "absent" },
-        { _id: "3", name: "Lê Văn C", status: "present" },
-      ]);
-    } else {
+  const handleSelectClass = async (classId) => {
+    setSelectedClass(classId);
+    setStudentList([]);
+    setSelectedDate(null);
+    setValidDates([]);
+
+    if (!classId) return;
+
+    try {
+      const scheduleRes = await ScheduleService.getTeacherSchedule(user.user._id, user.access_token);
+      const classSchedules = scheduleRes?.data?.filter((item) => item.classId === classId);
+      const valid = classSchedules.map((item) => dayjs(item.date).format("YYYY-MM-DD"));
+      setValidDates(valid);
+    } catch (error) {
+      toast.error("Lỗi khi tải lịch dạy.");
+    }
+  };
+
+  const handleDateChange = async (date) => {
+    const formatted = date.format("YYYY-MM-DD");
+
+    if (!validDates.includes(formatted)) {
+      toast.warning("Ngày này không nằm trong lịch dạy của lớp.");
+      setSelectedDate(null);
       setStudentList([]);
+      return;
+    }
+
+    setSelectedDate(date);
+
+    try {
+      const res = await getStudentsInClass(selectedClass);
+      const formattedStudents = res.data.map((stu) => ({
+        _id: stu._id,
+        name: stu.name,
+        status: "present",
+      }));
+      setStudentList(formattedStudents);
+    } catch (err) {
+      toast.error("Lỗi khi tải danh sách học viên.");
     }
   };
 
@@ -67,17 +97,13 @@ const AttendanceManagementPage = () => {
     );
   };
 
-  const handleDeleteRecord = (id) => {
-    setStudentList((prev) => prev.filter((student) => student._id !== id));
-  };
-
   const handleSave = () => {
-    // TODO: Gọi API cập nhật điểm danh
-    console.log("Đã lưu:", {
+    const payload = {
       classId: selectedClass,
       date: selectedDate.format("YYYY-MM-DD"),
       attendance: studentList,
-    });
+    };
+    console.log("Lưu dữ liệu:", payload);
     message.success("✅ Đã lưu thay đổi điểm danh!");
   };
 
@@ -105,20 +131,6 @@ const AttendanceManagementPage = () => {
         </Select>
       ),
     },
-    {
-      title: "Hành động",
-      render: (_, record) => (
-        <Popconfirm
-          title="Xoá bản ghi điểm danh?"
-          onConfirm={() => handleDeleteRecord(record._id)}
-          okText="Xoá"
-          cancelText="Huỷ"
-        >
-          <Button danger>Xoá</Button>
-        </Popconfirm>
-      ),
-      width: 100,
-    },
   ];
 
   return (
@@ -128,9 +140,7 @@ const AttendanceManagementPage = () => {
       </PageHeader>
 
       <FilterContainer>
-        <span>
-          <strong>Lớp học:</strong>
-        </span>
+        <span><strong>Lớp học:</strong></span>
         <Select
           placeholder="Chọn lớp"
           style={{ width: 200 }}
@@ -145,43 +155,54 @@ const AttendanceManagementPage = () => {
           ))}
         </Select>
 
-        <span>
-          <strong>Ngày:</strong>
-        </span>
+        <span><strong>Ngày:</strong></span>
         <DatePicker
           format="DD/MM/YYYY"
           value={selectedDate}
-          onChange={(date) => setSelectedDate(date)}
-          disabledDate={(current) => current && current > dayjs().endOf("day")}
+          onChange={handleDateChange}
+          disabledDate={(current) => {
+            const formatted = current.format("YYYY-MM-DD");
+            return current > dayjs().endOf("day") || !validDates.includes(formatted);
+          }}
         />
       </FilterContainer>
 
       <StudentListWrapper>
         <SubSectionTitle>
-          {selectedClass
+          {selectedClass && selectedDate
             ? "Danh sách điểm danh học viên"
-            : "Hãy chọn lớp để xem điểm danh"}
+            : "Vui lòng chọn lớp và ngày học hợp lệ"}
         </SubSectionTitle>
 
-        <Table
-          dataSource={studentList}
-          rowKey="_id"
-          columns={columns}
-          pagination={false}
-          bordered
-          locale={{
-            emptyText: "Không có dữ liệu điểm danh",
-          }}
-        />
+        {studentList.length > 0 ? (
+          <>
+            <Table
+              dataSource={studentList}
+              rowKey="_id"
+              columns={columns}
+              pagination={false}
+              bordered
+              locale={{
+                emptyText: "Không có dữ liệu điểm danh",
+              }}
+            />
 
-        {studentList.length > 0 && (
-          <CenteredAction style={{ marginTop: 20 }}>
-            <Button type="primary" onClick={handleSave}>
-              Lưu thay đổi
-            </Button>
-          </CenteredAction>
+            <CenteredAction style={{ marginTop: 20 }}>
+              <Button type="primary" onClick={handleSave}>
+                Lưu thay đổi
+              </Button>
+            </CenteredAction>
+          </>
+        ) : (
+          <p style={{ color: "#888", padding: 12 }}>
+            {selectedClass && selectedDate
+              ? "Không có dữ liệu điểm danh cho ngày này."
+              : "Chọn lớp và ngày học để xem điểm danh."}
+          </p>
         )}
       </StudentListWrapper>
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

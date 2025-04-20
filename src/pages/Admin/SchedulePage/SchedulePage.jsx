@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 import "dayjs/locale/vi";
-import { DatePicker, Button } from "antd";
+import { DatePicker, Button, Tooltip } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import * as ScheduleService from "../../../services/ScheduleService";
+
 import {
   ScheduleContainer,
   HeaderSection,
@@ -12,7 +14,6 @@ import {
   ClassCell,
   ClassCard,
 } from "./style";
-import dayjs from 'dayjs';
 
 const getWeekDays = (startDate = new Date()) => {
   const result = [];
@@ -42,7 +43,7 @@ const timeSlots = [
   { id: "ca4", label: "19H00 - 21H00", time: "19:00", session: "Buổi tối" },
 ];
 
-const StudentSchedulePage = () => {
+const SchedulePage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [scheduleData, setScheduleData] = useState({});
   const user = useSelector((state) => state.user);
@@ -56,7 +57,6 @@ const StudentSchedulePage = () => {
   };
 
   const handleToday = () => setCurrentDate(new Date());
-
   const handlePrevWeek = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() - 7);
@@ -71,27 +71,23 @@ const StudentSchedulePage = () => {
 
   const formatSchedule = (data, days) => {
     const result = {};
-  
     data.forEach((classItem) => {
-      // Parse ngày bắt đầu và kết thúc với định dạng rõ ràng
       const classStartDate = dayjs(classItem.startDate);
       const classEndDate = dayjs(classItem.endDate);
-      if (!classStartDate.isValid() || !classEndDate.isValid()) {
-        console.warn(`⚠️ Lớp "${classItem.name}" có ngày bắt đầu/kết thúc không hợp lệ. Bỏ qua.`);
-        return;
-      }
-  
+      if (!classStartDate.isValid() || !classEndDate.isValid()) return;
+
       days.forEach((day) => {
         const currentDay = dayjs(day.fullDate);
-  
-        if (currentDay.isBefore(classStartDate, 'day') || currentDay.isAfter(classEndDate, 'day')) return;
+        if (currentDay.isBefore(classStartDate, "day") || currentDay.isAfter(classEndDate, "day"))
+          return;
+
         classItem.schedule.forEach((sch) => {
-          const matchedDay = sch.day.replace("Thứ ", "T"); // "Thứ 2" => "T2"
+          const matchedDay = sch.day.replace("Thứ ", "T");
           if (day.label !== matchedDay) return;
-  
+
           const dateKey = day.date;
           if (!result[dateKey]) result[dateKey] = {};
-  
+
           let slotId = "";
           switch (sch.startTime) {
             case "07:00": slotId = "ca1"; break;
@@ -100,7 +96,7 @@ const StudentSchedulePage = () => {
             case "18:00":
             case "19:00": slotId = "ca4"; break;
           }
-  
+
           if (slotId) {
             result[dateKey][slotId] = {
               name: classItem.name,
@@ -113,23 +109,19 @@ const StudentSchedulePage = () => {
         });
       });
     });
-  
+
     return result;
   };
-  
 
   const fetchSchedule = async () => {
     try {
       const res = await ScheduleService.getTeacherSchedule(studentId, token);
-      console.log('res',res.data);
-      const formatted = formatSchedule(res?.data || [], days); // truyền days vào
+      const formatted = formatSchedule(res?.data || [], days);
       setScheduleData(formatted);
     } catch (error) {
       console.error("❌ Lỗi lấy lịch học học viên:", error);
     }
   };
-  
-
 
   useEffect(() => {
     if (studentId && token) fetchSchedule();
@@ -139,19 +131,9 @@ const StudentSchedulePage = () => {
     <ScheduleContainer>
       <HeaderSection>
         <div className="left">
-          <Button
-            className="arrow-btn"
-            icon={<LeftOutlined />}
-            onClick={handlePrevWeek}
-          />
-          <Button
-            className="arrow-btn"
-            icon={<RightOutlined />}
-            onClick={handleNextWeek}
-          />
-          <Button className="today-btn" onClick={handleToday}>
-            Hôm nay
-          </Button>
+          <Button className="arrow-btn" icon={<LeftOutlined />} onClick={handlePrevWeek} />
+          <Button className="arrow-btn" icon={<RightOutlined />} onClick={handleNextWeek} />
+          <Button className="today-btn" onClick={handleToday}>Hôm nay</Button>
           <DatePicker
             allowClear={false}
             value={dayjs(currentDate)}
@@ -160,8 +142,7 @@ const StudentSchedulePage = () => {
             locale="vi"
           />
           <div className="date-range">
-            {days[0].fullDate.toLocaleDateString("vi-VN")} -{" "}
-            {days[6].fullDate.toLocaleDateString("vi-VN")}
+            {days[0].fullDate.toLocaleDateString("vi-VN")} - {days[6].fullDate.toLocaleDateString("vi-VN")}
           </div>
         </div>
         <div className="right">
@@ -174,9 +155,7 @@ const StudentSchedulePage = () => {
           <tr>
             <th>Ca dạy</th>
             {days.map((day) => (
-              <th key={day.date}>
-                {day.label}, {day.date}
-              </th>
+              <th key={day.date}>{day.label}, {day.date}</th>
             ))}
           </tr>
         </thead>
@@ -194,12 +173,24 @@ const StudentSchedulePage = () => {
                 return (
                   <ClassCell key={`${day.date}-${slot.id}`}>
                     {cell && (
-                      <ClassCard>
-                        <div className="class-name">{cell.name}</div>
-                        <div className="level">🎯 {cell.level}</div>
-                        <div className="teacher">👤 {cell.teacher}</div>
-                        <div className="room">🏫 {cell.room}</div>
-                      </ClassCard>
+                      <Tooltip
+                        title={
+                          <>
+                            <div><strong>{cell.name}</strong></div>
+                            <div>🎯 {cell.level}</div>
+                            <div>👤 {cell.teacher}</div>
+                            <div>🏫 {cell.room}</div>
+                          </>
+                        }
+                        placement="top"
+                      >
+                        <ClassCard>
+                          <div className="class-name">{cell.name}</div>
+                          <div className="level">🎯 {cell.level}</div>
+                          <div className="teacher">👤 {cell.teacher}</div>
+                          <div className="room">🏫 {cell.room}</div>
+                        </ClassCard>
+                      </Tooltip>
                     )}
                   </ClassCell>
                 );
@@ -212,4 +203,4 @@ const StudentSchedulePage = () => {
   );
 };
 
-export default StudentSchedulePage;
+export default SchedulePage;
