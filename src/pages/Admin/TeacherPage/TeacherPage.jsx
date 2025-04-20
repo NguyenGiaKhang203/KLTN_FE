@@ -1,14 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Table,
-  Input,
-  Button,
-  Tooltip,
-  Avatar,
-  Select,
-  message,
-  Modal,
-} from "antd";
+import { Table, Input, Button, Tooltip, Avatar, Select, Modal } from "antd";
 import {
   DeleteOutlined,
   SortAscendingOutlined,
@@ -22,6 +13,9 @@ import {
   HeaderActions,
   CenteredAction,
 } from "./style";
+import TeacherForm from "../../../components/Admin/TeacherForm/TeacherForm";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const { Option } = Select;
 
@@ -48,9 +42,7 @@ export default function TeacherPage() {
     password: "",
     confirmPassword: "",
     phone: "",
-   
   });
-
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -71,9 +63,8 @@ export default function TeacherPage() {
           }));
         setTeachers(teacherList);
         setFilteredData(teacherList);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách người dùng:", error);
-        message.error("Không thể tải danh sách giảng viên");
+      } catch {
+        toast.error("Không thể tải danh sách giảng viên");
       }
     };
 
@@ -116,13 +107,13 @@ export default function TeacherPage() {
   const handleConfirmDelete = async () => {
     try {
       await UserService.deleteUser(currentTeacher.key, user?.access_token);
-      message.success(`Đã xóa giảng viên: ${currentTeacher.name}`);
+      toast.success(`Đã xóa giảng viên: ${currentTeacher.name}`);
       setFilteredData((prev) =>
         prev.filter((item) => item.key !== currentTeacher.key)
       );
       setIsDeleteModalVisible(false);
-    } catch (error) {
-      message.error("Xóa giảng viên thất bại!");
+    } catch {
+      toast.error("Xóa giảng viên thất bại!");
     }
   };
 
@@ -140,12 +131,12 @@ export default function TeacherPage() {
 
   const handleEditSubmit = async () => {
     try {
-      const updatedTeacher = await UserService.updateUser(
+      await UserService.updateUser(
         currentTeacher.key,
         editedTeacherData,
         user?.access_token
       );
-      message.success(`Đã cập nhật giảng viên: ${updatedTeacher.name}`);
+      toast.success("Đã cập nhật giảng viên");
       setFilteredData((prev) =>
         prev.map((item) =>
           item.key === currentTeacher.key
@@ -154,8 +145,8 @@ export default function TeacherPage() {
         )
       );
       setIsEditModalVisible(false);
-    } catch (error) {
-      message.error("Cập nhật giảng viên thất bại!");
+    } catch {
+      toast.error("Cập nhật giảng viên thất bại!");
     }
   };
 
@@ -166,7 +157,7 @@ export default function TeacherPage() {
         isTeacher: true,
       };
       const res = await UserService.createTeacher(payload);
-      message.success("Thêm giảng viên thành công!");
+      toast.success("Thêm giảng viên thành công!");
       setIsModalVisible(false);
 
       const addedTeacher = {
@@ -185,12 +176,11 @@ export default function TeacherPage() {
         name: "",
         email: "",
         password: "",
+        confirmPassword: "",
         phone: "",
-        address: "",
-        city: "",
       });
     } catch (error) {
-      message.error(error.message || "Thêm giảng viên thất bại!");
+      toast.error(error.message || "Thêm giảng viên thất bại!");
     }
   };
 
@@ -205,31 +195,11 @@ export default function TeacherPage() {
         </Avatar>
       ),
     },
-    {
-      title: "Tên giảng viên",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "Điện thoại",
-      dataIndex: "phone",
-      key: "phone",
-    },
-    {
-      title: "Thành phố",
-      dataIndex: "city",
-      key: "city",
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      key: "address",
-    },
+    { title: "Tên giảng viên", dataIndex: "name", key: "name" },
+    { title: "Email", dataIndex: "email", key: "email" },
+    { title: "Điện thoại", dataIndex: "phone", key: "phone" },
+    { title: "Thành phố", dataIndex: "city", key: "city" },
+    { title: "Địa chỉ", dataIndex: "address", key: "address" },
     {
       title: "Hành động",
       key: "action",
@@ -255,9 +225,7 @@ export default function TeacherPage() {
     },
   ];
 
-  const cityOptions = [
-    ...new Set(teachers.map((s) => s.city).filter(Boolean)),
-  ];
+  const cityOptions = [...new Set(teachers.map((s) => s.city).filter(Boolean))];
 
   return (
     <div style={{ padding: 24 }}>
@@ -315,53 +283,27 @@ export default function TeacherPage() {
         bordered
       />
 
-      {/* Modal Sửa */}
-      <Modal
-        title="Chỉnh sửa giảng viên"
-        open={isEditModalVisible}
-        onOk={handleEditSubmit}
-        onCancel={() => setIsEditModalVisible(false)}
-        okText="Lưu"
-        cancelText="Hủy"
-      >
-        <Input
-          placeholder="Tên giảng viên"
-          value={editedTeacherData.name}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, name: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Email"
-          value={editedTeacherData.email}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, email: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Số điện thoại"
-          value={editedTeacherData.phone}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, phone: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Địa chỉ"
-          value={editedTeacherData.address}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, address: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Thành phố"
-          value={editedTeacherData.city}
-          onChange={(e) =>
-            setEditedTeacherData({ ...editedTeacherData, city: e.target.value })
-          }
-        />
-      </Modal>
+      {/* Modal Thêm */}
+      <TeacherForm
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSubmit={handleCreateTeacher}
+        newTeacherData={newTeacherData}
+        setNewTeacherData={setNewTeacherData}
+        isEdit={false}
+      />
 
-      {/* Modal Xác nhận Xóa */}
+      {/* Modal Sửa */}
+      <TeacherForm
+        visible={isEditModalVisible}
+        onCancel={() => setIsEditModalVisible(false)}
+        onSubmit={handleEditSubmit}
+        newTeacherData={editedTeacherData}
+        setNewTeacherData={setEditedTeacherData}
+        isEdit
+      />
+
+      {/* Modal Xác nhận xóa */}
       <Modal
         title="Xác nhận xóa"
         open={isDeleteModalVisible}
@@ -373,54 +315,8 @@ export default function TeacherPage() {
         <p>Bạn có chắc chắn muốn xóa giảng viên {currentTeacher?.name}?</p>
       </Modal>
 
-      {/* Modal Thêm */}
-      <Modal
-        title="Thêm Giảng Viên"
-        open={isModalVisible}
-        onOk={handleCreateTeacher}
-        onCancel={() => setIsModalVisible(false)}
-        okText="Tạo mới"
-        cancelText="Hủy"
-      >
-        <Input
-          placeholder="Tên giảng viên"
-          value={newTeacherData.name}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, name: e.target.value })
-          }
-        />
-        <Input
-          placeholder="Email"
-          value={newTeacherData.email}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, email: e.target.value })
-          }
-        />
-        <Input.Password
-          placeholder="Mật khẩu"
-          value={newTeacherData.password}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, password: e.target.value })
-          }
-        />
-        <Input.Password
-          placeholder="Xác nhận mật khẩu"
-          value={newTeacherData.confirmPassword}
-          onChange={(e) =>
-            setNewTeacherData({
-              ...newTeacherData,
-              confirmPassword: e.target.value,
-            })
-          }
-        />
-        <Input
-          placeholder="Số điện thoại"
-          value={newTeacherData.phone}
-          onChange={(e) =>
-            setNewTeacherData({ ...newTeacherData, phone: e.target.value })
-          }
-        />
-      </Modal>
+      {/* Toastify Container */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }
