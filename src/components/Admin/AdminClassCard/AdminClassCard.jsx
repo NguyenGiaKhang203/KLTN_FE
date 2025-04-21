@@ -15,8 +15,8 @@ const ClassCard = ({
 }) => {
   return (
     <ClassCardWrapper>
-      <div className="top-line" />
-      <Card bordered={false}>
+      {/* <div className="top-line" /> */}
+      {/* <Card bordered={false}>
         <div className="card-header">
           <h3>{title}</h3>
           <span className="start-date">Bắt đầu: {startDate}</span>
@@ -43,7 +43,7 @@ const ClassCard = ({
         <div className="card-footer">
           <Button type="primary">Xem kết quả học tập</Button>
         </div>
-      </Card>
+      </Card> */}
     </ClassCardWrapper>
   );
 };

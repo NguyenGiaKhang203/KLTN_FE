@@ -113,7 +113,6 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
           <Dropdown overlay={examMenu} trigger={["click"]} placement="leftTop">
             <WrapperContentPopup style={{ cursor: "pointer", display: "flex", alignItems: "center" }}>
               Bài thi
-              <DownOutlined style={{ marginLeft: 6, fontSize: 12, color: "#555" }} />
             </WrapperContentPopup>
           </Dropdown>
 

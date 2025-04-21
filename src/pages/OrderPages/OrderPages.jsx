@@ -105,6 +105,11 @@ const OrderPage = () => {
       toast.error("Vui lòng đăng nhập trước!");
       return navigate("/sign-in");
     }
+     
+    if (!user?.name || user.name.trim() === "") {
+      toast.error("Vui lòng cập nhật họ tên trước khi thanh toán!");
+      return navigate("/profile-user"); 
+    }
 
     if (selectedItems.length === 0) {
       toast.error("Vui lòng chọn ít nhất một khóa học!");

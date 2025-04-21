@@ -19,20 +19,20 @@ export default function PaymentPage() {
       try {
         const response = await OrderService.getAllOrder();
         const data = response.data || [];
-        console.log('data',data);
-        
+        console.log('data', data);
+
         const formattedData = data.map((item, index) => ({
           key: index,
           orderId: item._id,
-          studentName: 'Chưa có', // hoặc fetch thêm từ user nếu có
+          studentName: item.studentName || '', // hoặc fetch thêm từ user nếu có
           email: item.email,       // hoặc fetch thêm từ user nếu có
           className: item.orderItems?.map(i => i.name).join(', '),
           amount: item.totalPrice,
           status: 'paid',
           date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
         }));
-        console.log('formattedData',formattedData);
-        
+        console.log('formattedData', formattedData);
+
         setRawData(formattedData);
       } catch (error) {
         console.error('Lỗi khi gọi API:', error);
@@ -68,6 +68,11 @@ export default function PaymentPage() {
       title: 'Mã đơn hàng',
       dataIndex: 'orderId',
       key: 'orderId',
+    },
+    {
+      title: 'Học viên',
+      dataIndex: 'studentName',
+      key: 'studentName',
     },
     {
       title: 'Email',
