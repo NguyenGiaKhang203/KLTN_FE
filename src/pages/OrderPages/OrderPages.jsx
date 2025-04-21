@@ -116,6 +116,8 @@ const OrderPage = () => {
 
     // Payload to be sent to backend or next step
     const payload = {
+      user: user._id,
+      email: user.email,
       courses: selectedItems,
       orderInfo: `Thanh toán ${selectedItems.length} khóa học - Email: ${user?.email} - Redirect: http://localhost:3000/orderSuccess`,
       amount: totalAmount,

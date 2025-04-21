@@ -43,16 +43,17 @@ const CourseDetailPage = () => {
     }
 
     try {
-      const { courseId, classId, name, image, price, schedule } = selectedClass;
-
-      dispatch(
+      const { courseId, classId, name, image, price, schedule} = selectedClass;
+      console.log("selectedClass",selectedClass);
+      
+       dispatch(
         addOrderProduct({
           courseId,
           classId,
           name,
           image,
           price,
-          schedule,
+          schedule
         })
       );
 

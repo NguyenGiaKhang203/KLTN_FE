@@ -49,6 +49,8 @@ const OrderSuccessPage = () => {
         fullName: user.fullName,
         address: user.address,
         phone: user.phone,
+        email: user.email,
+        name: user.name
       };
 
       try {
