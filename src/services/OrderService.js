@@ -26,3 +26,33 @@ export const OrderService = {
     }
   },
 };
+
+export const getAllOrder = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/order/get-all-order`);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi khi gọi API lấy danh sách order:", error);
+      throw error;
+    }
+  };
+
+  export const getTotalOrder = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/order/get-total-orders`);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi khi gọi API lấy danh sách order:", error);
+      throw error;
+    }
+  };
+
+  export const getTotalRevenue = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/order/get-total-revenue`);
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi khi gọi API lấy danh sách order:", error);
+      throw error;
+    }
+  };

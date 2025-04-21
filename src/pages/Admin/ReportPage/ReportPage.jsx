@@ -23,6 +23,7 @@ import {
 } from "./style";
 import dayjs from "dayjs";
 import * as ClassService from "../../../services/ClassService";
+import * as OrderService from "../../../services/OrderService";
 
 const { Option } = Select;
 
@@ -37,24 +38,43 @@ export default function ReportPage() {
   const [selectedQuarter, setSelectedQuarter] = useState(1);
   const [selectedYear, setSelectedYear] = useState(defaultYear);
   const [total, setTotal] = useState(0);
-
-  const token = localStorage.getItem("access-token");
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
 
   const fetchClasses = async () => {
     try {
-      const res = await ClassService.getAllClasses(token);
+      const res = await ClassService.getAllClasses();
       const classes = res.data;
-      // Tính tổng số học viên đã đăng ký ở tất cả các lớp
       const totalStudents = classes.reduce((acc, item) => acc + item.students.length, 0);
       setTotal(totalStudents);
     } catch (error) {
       console.error("Lỗi lấy danh sách lớp học:", error);
     }
   };
-  
+
+  const fetchTotalOrder = async () => {
+    try {
+      const res = await OrderService.getTotalOrder();
+      setTotalOrders(res.totalOrders);
+    } catch (error) {
+      console.error("Lỗi khi lấy tổng số đơn hàng:", error);
+    }
+  };
+
+  const fetchTotalRevenue = async () => {
+    try {
+      const res = await OrderService.getTotalRevenue();
+      setTotalRevenue(res.totalRevenue);
+    } catch (error) {
+      console.error("Lỗi khi lấy tổng số doanh thu:", error);
+    }
+  };
+
   useEffect(() => {
     fetchClasses();
-  }, [token]);
+    fetchTotalOrder();
+    fetchTotalRevenue();
+  }, []);
 
   const revenueData = [
     { month: "T1", revenue: 30 },
@@ -69,11 +89,6 @@ export default function ReportPage() {
     { name: "Nâng cao", value: 30 },
     { name: "Chiến thuật", value: 20 },
     { name: "Giải đấu", value: 10 },
-  ];
-
-  const paymentStatus = [
-    { name: "Đã thanh toán", value: 80 },
-    { name: "Chờ xử lý", value: 20 },
   ];
 
   const studentGrowth = [
@@ -95,12 +110,12 @@ export default function ReportPage() {
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card className="card-info orders">
-            <Statistic title="Đơn hàng" value={125} />
+            <Statistic title="Đơn hàng" value={totalOrders} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card className="card-info revenue">
-            <Statistic title="Doanh thu (triệu ₫)" value={215} />
+            <Statistic title="Doanh thu" value={totalRevenue} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
@@ -221,25 +236,7 @@ export default function ReportPage() {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Trạng thái thanh toán">
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={paymentStatus}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
-                label
-                dataKey="value"
-              >
-                {paymentStatus.map((entry, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
+
 
         <Card title="Tăng trưởng học viên">
           <ResponsiveContainer width="100%" height={250}>
@@ -247,12 +244,11 @@ export default function ReportPage() {
               <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
-              <Legend />
               <Line
                 type="monotone"
                 dataKey="students"
-                stroke="#52c41a"
-                strokeWidth={2}
+                stroke="#8884d8"
+                activeDot={{ r: 8 }}
               />
             </LineChart>
           </ResponsiveContainer>
