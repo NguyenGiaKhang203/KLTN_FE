@@ -43,11 +43,12 @@ export const RightSection = styled.div`
 
 export const HeaderRow = styled.div`
   display: grid;
-  grid-template-columns: 1.5fr 1fr 0.8fr auto;
+  grid-template-columns: 1.5fr 0.8fr 1fr 0.8fr auto;
   font-weight: 600;
-  padding-bottom: 10px;
+  padding: 10px 0;
   align-items: center;
 `;
+
 
 export const ListOrder = styled.div`
   display: flex;
@@ -57,14 +58,15 @@ export const ListOrder = styled.div`
 
 export const ItemOrder = styled.div`
   display: grid;
-  grid-template-columns: 1.5fr 1fr 0.8fr auto;
-  align-items: center;
+  grid-template-columns: 1.5fr 0.8fr 1fr 0.8fr auto;
+  align-items: center; 
   padding: 12px;
   background: #fdfdfd;
   border: 1px solid #ddd;
   border-radius: 8px;
   gap: 10px;
 `;
+
 
 export const CourseInfo = styled.div`
   display: flex;
@@ -141,4 +143,12 @@ export const CheckoutButton = styled.button`
   &:hover {
     opacity: 0.95;
   }
+`;
+export const ClassNameText = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  display: flex;
+  align-items: center;
 `;

@@ -45,6 +45,8 @@ const PaymentPage = () => {
           courseId: course.courseId,
           name: course.name,
           price: course.price,
+          className: course.className,  
+          classId: course.classId     
         }))
       });
       

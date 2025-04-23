@@ -55,6 +55,7 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
       courseId: course._id,
       classId: selected._id,
       name: course.name,
+      className: selected.name,
       image: course.image,
       price: course.price,
       schedule: scheduleText,
@@ -85,14 +86,14 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
             {filteredClasses.map((cls) => (
               <ClassOption
                 key={cls._id}
-                disabled={cls.studentCount >= cls.capacity}
+                disabled={cls.students?.length >= cls.studentCount && cls.studentCount > 0}
                 selected={selectedClassId === cls._id}
               >
                 <input
                   type="radio"
                   name="selectedClass"
                   value={cls._id}
-                  disabled={cls.studentCount >= cls.capacity}
+                  disabled={cls.students?.length >= cls.studentCount && cls.studentCount > 0}
                   onChange={() => setSelectedClassId(cls._id)}
                   checked={selectedClassId === cls._id}
                 />
@@ -100,10 +101,10 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
                   <strong>{cls.name}</strong>
                   <ClassDetail>
                     Đã đăng ký:{" "}
-                    <span>{cls.studentCount}/{cls.capacity} học viên</span>
+                    <span>{cls.students?.length || 0}/{cls.studentCount > 0 ? cls.studentCount : "?"} học viên</span>
                   </ClassDetail>
                   <ClassDetail>
-                    Giảng viên: <span>{cls.teacher?.email}</span>
+                    Giảng viên: <span>{cls.teacher?.name}</span>
                   </ClassDetail>
                   <ClassDetail>
                     Phòng học: <span>{cls.address}</span>
