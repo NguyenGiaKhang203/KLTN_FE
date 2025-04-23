@@ -43,14 +43,24 @@ const CourseDetailPage = () => {
     }
 
     try {
-      const { courseId, classId, name, image, price, schedule} = selectedClass;
-      console.log("selectedClass",selectedClass);
-      
-       dispatch(
+      const {
+        courseId,
+        classId,
+        name,
+        className, // ✅ Lấy thêm className
+        image,
+        price,
+        schedule
+      } = selectedClass;
+
+      console.log("selectedClass", selectedClass);
+
+      dispatch(
         addOrderProduct({
           courseId,
           classId,
           name,
+          className, // ✅ Gửi className vào Redux
           image,
           price,
           schedule
@@ -126,29 +136,6 @@ const CourseDetailPage = () => {
                   </BulletList>
                 </>
               )}
-
-              {course.learnings?.length > 0 && (
-                <>
-                  <SectionTitle>Bạn sẽ học được gì?</SectionTitle>
-                  <BulletList>
-                    {course.learnings.map((item, idx) => (
-                      <li key={idx}>{item}</li>
-                    ))}
-                  </BulletList>
-                </>
-              )}
-
-              {course.lessons?.length > 0 && (
-                <>
-                  <SectionTitle>Nội dung khóa học</SectionTitle>
-                  {course.lessons.map((item, index) => (
-                    <LessonBox key={index}>
-                      <span>{item}</span>
-                      <span style={{ color: "#2d66f4" }}>❯</span>
-                    </LessonBox>
-                  ))}
-                </>
-              )}
             </div>
           ) : (
             <ReviewSection />
@@ -159,44 +146,11 @@ const CourseDetailPage = () => {
           <PriceBox>{course.price?.toLocaleString()}₫</PriceBox>
           <BuyButton onClick={() => setIsModalOpen(true)}>Mua khóa học</BuyButton>
 
-          <InfoItem>📊 Trình độ: {course.level || "Không rõ"}</InfoItem>
-          <InfoItem>🎓 {course.studentsCount || 0} Tổng số học viên</InfoItem>
-          <InfoItem>⏱ {course.duration || "Không rõ"} Thời lượng</InfoItem>
+          <InfoItem>📚 Loại: {course.type || "Không rõ"}</InfoItem>
+          <InfoItem>⏱ 2.5 tháng • 2 buổi/tuần</InfoItem>
           <InfoItem>🔁 {course.updatedAt?.slice(0, 10)} Cập nhật mới nhất</InfoItem>
+
           {course.hasCertificate && <InfoItem>🎖 Có chứng chỉ hoàn thành</InfoItem>}
-
-          {course.materials && (
-            <>
-              <SectionTitle>Tài liệu khóa học</SectionTitle>
-              <BulletList>
-                {course.materials.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </BulletList>
-            </>
-          )}
-
-          {course.requirements && (
-            <>
-              <SectionTitle>Yêu cầu kiến thức</SectionTitle>
-              <BulletList>
-                {course.requirements.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </BulletList>
-            </>
-          )}
-
-          {course.targetAudience && (
-            <>
-              <SectionTitle>Đối tượng</SectionTitle>
-              <BulletList>
-                {course.targetAudience.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </BulletList>
-            </>
-          )}
         </CourseSidebar>
       </CourseContent>
 

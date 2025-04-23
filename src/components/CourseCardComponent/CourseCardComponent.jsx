@@ -16,12 +16,19 @@ import {
   WrapperBuyButton,
   WrapperRate,
 } from "./style";
+import { useNavigate } from "react-router-dom";
 
 function CourseCardComponent({ course, handleAddToCart, onClick }) {
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    navigate(`/course-details/${course._id || course.id}`);
+  };
+
   return (
     <WrapperCourseCard>
       {/* Hình thumbnail và badge */}
-      <WrapperThumbnail onClick={onClick} style={{ cursor: "pointer" }}>
+      <WrapperThumbnail onClick={handleViewDetails} style={{ cursor: "pointer" }}>
         <img src={course.imageUrl || course.image} alt={course.name} />
         {course.badge && <WrapperBadge>{course.badge}</WrapperBadge>}
       </WrapperThumbnail>
@@ -37,23 +44,25 @@ function CourseCardComponent({ course, handleAddToCart, onClick }) {
         {/* Tên khóa học */}
         <WrapperTitle
           title={course.name}
-          onClick={onClick}
+          onClick={handleViewDetails}
           style={{ cursor: "pointer" }}
         >
           {course.name}
         </WrapperTitle>
 
-        {/* Meta */}
+        {/* Loại khóa học */}
         <WrapperMeta>
-          <span>👤 {course.studentsCount || 0}</span>
-          <span>⏱ {course.duration || "Không rõ"}</span>
+          <span>📘 {course.type || "Chưa rõ loại"}</span>
         </WrapperMeta>
 
         {/* Giảng viên + danh mục */}
         <WrapperInstructor>
-          Bởi <strong>{course.instructor || "Chưa cập nhật"}</strong> trong{" "}
-          {course.categories || "Chưa có danh mục"}
+          {course.description
+            ? `${course.description.slice(0, 80)}${course.description.length > 80 ? "..." : ""}`
+            : "Thông tin khóa học đang được cập nhật..."}
         </WrapperInstructor>
+
+
 
         {/* Footer: Giá và nút mua */}
         <WrapperFooter>
@@ -65,9 +74,7 @@ function CourseCardComponent({ course, handleAddToCart, onClick }) {
             )}
             <WrapperNewPrice>{course.price.toLocaleString()}₫</WrapperNewPrice>
           </WrapperPrice>
-          <WrapperBuyButton
-            onClick={() => handleAddToCart(course.id, course.totalStock || 1)}
-          >
+          <WrapperBuyButton onClick={handleViewDetails}>
             Mua khóa học
           </WrapperBuyButton>
         </WrapperFooter>

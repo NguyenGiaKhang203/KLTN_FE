@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { Table, Input, Select, Button, Tag, message } from 'antd';
 import { SortAscendingOutlined } from '@ant-design/icons';
 import { PageHeader, FilterContainer, HeaderActions } from './style';
-import * as OrderService from '../../../services/OrderService'; // cập nhật đường dẫn đúng
-
+import * as OrderService from '../../../services/OrderService'; 
+import * as ClassService from '../../../services/ClassService';
 const { Option } = Select;
 
 export default function PaymentPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [classList, setClassList] = useState([]);
+  const [filterClass, setFilterClass] = useState('');
   const [sortOrder, setSortOrder] = useState('');
   const [rawData, setRawData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -50,18 +52,33 @@ export default function PaymentPage() {
         p.studentName.toLowerCase().includes(search.toLowerCase()) ||
         p.email.toLowerCase().includes(search.toLowerCase()) ||
         p.orderId.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = filterStatus ? p.status === filterStatus : true;
-      return matchSearch && matchStatus;
+  
+      const matchClass = filterClass ? p.className.includes(filterClass) : true;
+  
+      return matchSearch && matchClass;
     });
-
+  
     if (sortOrder === 'asc') {
       results.sort((a, b) => a.studentName.localeCompare(b.studentName));
     } else if (sortOrder === 'desc') {
       results.sort((a, b) => b.studentName.localeCompare(a.studentName));
     }
-
+  
     setFilteredData(results);
-  }, [search, filterStatus, sortOrder, rawData]);
+  }, [search, filterClass, sortOrder, rawData]);
+  
+  //Lấy dah sách lớp
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const res = await ClassService.getAllClasses();
+        setClassList(res.data || []);
+      } catch (err) {
+        console.error('Lỗi khi lấy danh sách lớp:', err);
+      }
+    };
+    fetchClasses();
+  }, []);
 
   const columns = [
     {
@@ -123,13 +140,17 @@ export default function PaymentPage() {
           style={{ width: 250 }}
         />
         <Select
-          placeholder="Lọc theo trạng thái"
+          value={filterClass || undefined} 
+          placeholder="Lọc theo lớp học"
           allowClear
           style={{ width: 200 }}
-          value={filterStatus}
-          onChange={(value) => setFilterStatus(value)}
+          onChange={(value) => setFilterClass(value)}
         >
-          <Option value="paid">Đã thanh toán</Option>
+          {classList.map((cls) => (
+            <Option key={cls._id} value={cls.name}>
+              {cls.name}
+            </Option>
+          ))}
         </Select>
         <Button icon={<SortAscendingOutlined />} ghost onClick={() =>
           setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))

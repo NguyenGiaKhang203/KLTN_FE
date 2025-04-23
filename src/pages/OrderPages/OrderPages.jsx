@@ -24,6 +24,7 @@ import {
   TotalWrapper,
   TotalPrice,
   CheckoutButton,
+  ClassNameText
 } from "./style";
 import {
   removeOrderProduct,
@@ -95,6 +96,7 @@ const OrderPage = () => {
       listChecked.includes(item.courseId)
     );
   }, [order, listChecked]);
+  console.log("selectedItems:", selectedItems);
 
   const totalPrice = useMemo(() => {
     return selectedItems.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -105,10 +107,10 @@ const OrderPage = () => {
       toast.error("Vui lòng đăng nhập trước!");
       return navigate("/sign-in");
     }
-     
+
     if (!user?.name || user.name.trim() === "") {
       toast.error("Vui lòng cập nhật họ tên trước khi thanh toán!");
-      return navigate("/profile-user"); 
+      return navigate("/profile-user");
     }
 
     if (selectedItems.length === 0) {
@@ -116,10 +118,8 @@ const OrderPage = () => {
       return;
     }
 
-    // Generate totalAmount
     const totalAmount = selectedItems.reduce((sum, item) => sum + item.price, 0);
 
-    // Payload to be sent to backend or next step
     const payload = {
       user: user._id,
       email: user.email,
@@ -128,7 +128,6 @@ const OrderPage = () => {
       amount: totalAmount,
     };
 
-    // Dispatch selected order for payment
     dispatch(selectedOrder({ listChecked }));
     toast.success("Chuyển đến thanh toán...");
     navigate("/payment");
@@ -150,49 +149,56 @@ const OrderPage = () => {
         <Title>🛒 Giỏ hàng khóa học</Title>
         <ContentWrapper>
           <LeftSection>
-            <HeaderRow>
-              <span>
-                <Checkbox
-                  onChange={handleCheckAll}
-                  checked={listChecked.length === order?.orderItems?.length && order?.orderItems?.length > 0}
-                />
-                Tất cả ({order?.orderItems?.length} khóa học)
-              </span>
-              <span>Lịch học</span>
-              <span>Giá</span>
-              <DeleteIcon onClick={handleDeleteSelected} />
-            </HeaderRow>
+          <HeaderRow>
+            <span>
+              <Checkbox
+                onChange={handleCheckAll}
+                checked={listChecked.length === order?.orderItems?.length && order?.orderItems?.length > 0}
+              />
+              Tất cả ({order?.orderItems?.length} khóa học)
+            </span>
+            <span>Lớp</span>
+            <span>Lịch học</span>
+            <span>Giá</span>
+            <DeleteIcon onClick={handleDeleteSelected} />
+          </HeaderRow>
 
-            <ListOrder>
-              {order?.orderItems?.map((item) => (
-                <ItemOrder key={item.courseId}>
-                  <CourseInfo>
-                    <Checkbox
-                      value={item.courseId}
-                      checked={listChecked.includes(item.courseId)}
-                      onChange={handleCheck}
-                    />
-                    <CourseImage src={item.image} alt="course" />
-                    <div>
-                      <CourseName>{item.name}</CourseName>
-                    </div>
-                  </CourseInfo>
 
-                  <CourseSchedule>
-                    {(item.schedule || "Chưa có thông tin lịch học")
-                      .replace(/Thứ/g, "|Thứ")
-                      .split("|")
-                      .map((line, index) => (
-                        <div key={index}>{line.trim()}</div>
-                      ))}
-                  </CourseSchedule>
+          <ListOrder>
+            {order?.orderItems?.map((item) => (
+              <ItemOrder key={item.courseId}>
+                <CourseInfo>
+                  <Checkbox
+                    value={item.courseId}
+                    checked={listChecked.includes(item.courseId)}
+                    onChange={handleCheck}
+                  />
+                  <CourseImage src={item.image} alt="course" />
+                  <div>
+                    <CourseName>{item.name}</CourseName>
+                  </div>
+                </CourseInfo>
 
-                  <CoursePrice>{convertPrice(item.price)}</CoursePrice>
+                <ClassNameText>{item.className || "Chưa có lớp"}</ClassNameText> 
 
-                  <DeleteIcon onClick={() => handleDelete(item.courseId)} />
-                </ItemOrder>
-              ))}
-            </ListOrder>
+                <CourseSchedule>
+                  {(item.schedule || "Chưa có thông tin lịch học")
+                    .replace(/Thứ/g, "|Thứ")
+                    .split("|")
+                    .map((line, index) => (
+                      <div key={index}>{line.trim()}</div>
+                    ))}
+                </CourseSchedule>
+
+                
+
+                <CoursePrice>{convertPrice(item.price)}</CoursePrice>
+
+                <DeleteIcon onClick={() => handleDelete(item.courseId)} />
+              </ItemOrder>
+            ))}
+          </ListOrder>
+
           </LeftSection>
 
           <RightSection>
