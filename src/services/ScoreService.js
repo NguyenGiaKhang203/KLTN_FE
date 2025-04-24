@@ -17,28 +17,16 @@ export const createScore = async (data, token) => {
 };
 
 // Lấy toàn bộ điểm số
-export const getAllScores = async (token) => {
+export const getAllScores = async () => {
   const res = await axios.get(
-    `${process.env.REACT_APP_API_URL}/score/get-all-score`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+    `${process.env.REACT_APP_API_URL}/score/get-all-score`);
   return res.data;
 };
 
 // Lấy điểm số theo ID
-export const getScoreById = async (id, token) => {
+export const getScoreById = async (id) => {
   const res = await axios.get(
-    `${process.env.REACT_APP_API_URL}/score/get-score-by-id/${id}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+    `${process.env.REACT_APP_API_URL}/score/get-score-by-id/${id}`)
   return res.data;
 };
 

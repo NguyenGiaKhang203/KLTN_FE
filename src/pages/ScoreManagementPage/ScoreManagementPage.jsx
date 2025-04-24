@@ -1,40 +1,33 @@
 import React, { useEffect, useState } from "react";
-import {
-  Input,
-  Select,
-  Table,
-  Popconfirm,
-  InputNumber,
-  message,
-} from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Input, Select, Table, Modal, Button } from "antd";
 import { useSelector } from "react-redux";
 import * as ScoreService from "../../services/ScoreService";
 import * as ClassService from "../../services/ClassService";
-import {
-  PageHeader,
-  FilterContainer,
-  TableWrapper,
-  ActionButtons,
-} from "./style";
+import * as ExamService from "../../services/ExamService";
+import { PageHeader, FilterContainer, CreateScoreButton } from "./style";
+import { toast } from 'react-toastify';  // Import toastify
 
 const { Search } = Input;
 const { Option } = Select;
 
 const ScoreManagementPage = () => {
   const [classList, setClassList] = useState([]);
+  const [examList, setExamList] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedExam, setSelectedExam] = useState(null);
   const [searchText, setSearchText] = useState("");
-  const [editingRow, setEditingRow] = useState(null);
-  const [scores, setScores] = useState([]);
+  const [studentsInClass, setStudentsInClass] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   const { user } = useSelector((state) => state.user);
+  const userId = user?._id;
   const token = user?.access_token;
 
-  // Fetch lớp học
+  // Fetch danh sách lớp học của giáo viên
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await ClassService.getAllClasses(token);
+        const res = await ClassService.getClassbyTeacher(userId);
         const data = Array.isArray(res?.data) ? res.data : res;
         setClassList(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -45,46 +38,45 @@ const ScoreManagementPage = () => {
     if (token) fetchClasses();
   }, [token]);
 
-  // Fetch điểm số
+  // Fetch danh sách bài thi khi chọn lớp học
   useEffect(() => {
-    const fetchScores = async () => {
-      try {
-        const res = await ScoreService.getAllScores(token);
-        const data = Array.isArray(res?.data) ? res.data : res;
-        setScores(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Lỗi khi lấy điểm:", err);
-        setScores([]);
+    const fetchExams = async () => {
+      if (selectedClass) {
+        try {
+          const res = await ExamService.getExamsByClassId(selectedClass, token);
+          const data = Array.isArray(res?.data) ? res.data : res;
+          setExamList(Array.isArray(data) ? data : []);
+        } catch (err) {
+          console.error("Lỗi khi lấy danh sách bài thi:", err);
+          setExamList([]);
+        }
       }
     };
-    if (token) fetchScores();
-  }, [token]);
+    fetchExams();
+  }, [selectedClass, token]);
 
-  // Xoá điểm
-  const handleDelete = async (id) => {
+  const handleExamSelect = async (examId) => {
+    setSelectedExam(examId);
     try {
-      await ScoreService.deleteScore(id, token);
-      setScores((prev) => prev.filter((item) => item._id !== id));
-      message.success("Đã xoá điểm thành công");
+      const res = await ClassService.getStudentsInClass(selectedClass, token);
+      if (res?.students && Array.isArray(res.students)) {
+        setStudentsInClass(res.students);
+      } else {
+        setStudentsInClass([]);
+      }
+      setIsModalVisible(true);
     } catch (err) {
-      message.error("Xoá thất bại");
+      console.error("Lỗi khi lấy danh sách học viên:", err);
+      setStudentsInClass([]);
     }
   };
 
-  // Lưu điểm
-  const handleSave = async (id, newScore) => {
-    try {
-      await ScoreService.updateScore(id, { score: newScore }, token);
-      setScores((prev) =>
-        prev.map((item) =>
-          item._id === id ? { ...item, score: newScore } : item
-        )
-      );
-      setEditingRow(null);
-      message.success("Cập nhật điểm thành công");
-    } catch (err) {
-      message.error("Cập nhật điểm thất bại");
-    }
+  const filteredData = studentsInClass.filter((student) =>
+    student.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   const columns = [
@@ -95,61 +87,73 @@ const ScoreManagementPage = () => {
     },
     {
       title: "Họ tên học viên",
-      render: (_, record) => record.student?.name || "Không rõ",
+      render: (_, record) => record.name || "Không rõ",
     },
     {
       title: "Email",
-      render: (_, record) => record.student?.email || "Không rõ",
-    },
-    {
-      title: "Bài thi",
-      render: (_, record) => record.exam?.title || "Không rõ",
+      render: (_, record) => record.email || "Không rõ",
     },
     {
       title: "Điểm",
-      render: (_, record) =>
-        editingRow === record._id ? (
-          <InputNumber
-            min={0}
-            max={10}
-            defaultValue={record.score}
-            onChange={(val) => handleSave(record._id, val)}
-          />
-        ) : (
-          record.score
-        ),
-    },
-    {
-      title: "Hành động",
-      align: "center",
       render: (_, record) => (
-        <ActionButtons>
-          <EditOutlined
-            style={{ color: "#1890ff", fontSize: 18, cursor: "pointer" }}
-            onClick={() => setEditingRow(record._id)}
-          />
-          <Popconfirm
-            title="Bạn có chắc muốn xoá điểm này không?"
-            onConfirm={() => handleDelete(record._id)}
-            okText="Xoá"
-            cancelText="Huỷ"
-          >
-            <DeleteOutlined
-              style={{ color: "red", fontSize: 18, cursor: "pointer" }}
-            />
-          </Popconfirm>
-        </ActionButtons>
+        <Input
+          defaultValue={record.score || ""}
+          onChange={(e) => handleScoreChange(e, record._id)} // Gọi hàm để xử lý thay đổi điểm
+          style={{ width: 100, marginRight: 8 }}
+        />
       ),
     },
   ];
 
-  // Lọc danh sách học viên theo lớp và tên
-  const filteredData = scores.filter(
-    (item) =>
-      (!selectedClass || item.class === selectedClass) &&
-      item.student?.name?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const handleScoreChange = (e, studentId) => {
+    const updatedScore = e.target.value;
+    setStudentsInClass((prev) =>
+      prev.map((student) =>
+        student._id === studentId ? { ...student, score: updatedScore } : student
+      )
+    );
+  };
 
+  const handleSubmitScores = async () => {
+    const invalidScores = studentsInClass.filter((student) => !student.score);
+    if (invalidScores.length > 0) {
+      toast.error("Vui lòng nhập điểm cho tất cả học viên.");
+      return;
+    }
+  
+    const scoreData = {
+      examId: selectedExam,
+      scores: studentsInClass.map((student) => ({
+        studentId: student._id,
+        score: student.score,
+      })),
+    };
+  
+    try {
+      const response = await ScoreService.createScore(scoreData, token);
+  
+      if (response.status === "ERROR" && response.message === "Bảng điểm cho bài thi này đã tồn tại!") {
+        toast.error(response.message);  
+      } else {
+        toast.success("Điểm đã được gửi thành công!");
+        const updatedStudents = studentsInClass.map((student) => ({
+          ...student,
+          score: student.score,  
+        }));
+        setStudentsInClass(updatedStudents); 
+      
+        setIsModalVisible(false);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi điểm:", error);
+      if (error.response && error.response.data.message === "Bảng điểm cho bài thi này đã tồn tại!") {
+        toast.error("Bảng điểm cho bài thi này đã tồn tại!");
+      } else {
+        toast.error("Đã xảy ra lỗi, vui lòng thử lại.");
+      }
+    }
+  };
+  
   return (
     <div style={{ padding: 24 }}>
       <PageHeader>
@@ -160,35 +164,88 @@ const ScoreManagementPage = () => {
         <Select
           placeholder="Chọn lớp học"
           style={{ width: 220 }}
-          onChange={(val) => setSelectedClass(val)}
+          onChange={setSelectedClass}
           allowClear
         >
-          {Array.isArray(classList) &&
-            classList.map((cls) => (
-              <Option key={cls._id} value={cls._id}>
-                {cls.name}
-              </Option>
-            ))}
+          {classList.map((cls) => (
+            <Option key={cls._id} value={cls._id}>
+              {cls.name}
+            </Option>
+          ))}
         </Select>
-
-        <Search
-          placeholder="Tìm kiếm học viên..."
-          onSearch={(value) => setSearchText(value)}
-          style={{ width: 250 }}
-          allowClear
-        />
       </FilterContainer>
 
-      <TableWrapper>
-        <Table
-          dataSource={filteredData}
-          columns={columns}
-          rowKey="_id"
-          bordered
-          pagination={{ pageSize: 8 }}
-          locale={{ emptyText: "Chưa có dữ liệu điểm số" }}
-        />
-      </TableWrapper>
+      {selectedClass && (
+        <div style={{ marginTop: 16 }}>
+          <h3>Quản lí điểm</h3>
+          <Table
+            dataSource={examList}
+            rowKey="_id"
+            pagination={false}
+            columns={[
+              {
+                title: "STT",
+                render: (_, __, index) => index + 1,
+                width: 60,
+              },
+              {
+                title: "Bài thi",
+                render: (_, record) => record.examName || "Không rõ",
+              },
+              {
+                title: "Chọn",
+                render: (_, record) => (
+                  <Button type="primary" onClick={() => handleExamSelect(record._id)}>
+                    Tạo bảng điểm
+                  </Button>
+                ),
+              },
+            ]}
+            locale={{ emptyText: "Chưa có bài thi" }}
+          />
+        </div>
+      )}
+
+      <Modal
+        title="Danh sách học viên"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+        width={800}
+      >
+        <div>
+          <Search
+            placeholder="Tìm kiếm học viên..."
+            onSearch={(value) => setSearchText(value)}
+            style={{ width: 250, marginBottom: 16 }}
+            allowClear
+          />
+
+          <Table
+            dataSource={filteredData}
+            columns={columns}
+            rowKey="_id"
+            bordered
+            pagination={{ pageSize: 8 }}
+            locale={{ emptyText: "Chưa có dữ liệu học viên" }}
+          />
+
+          <div style={{ textAlign: "center", marginTop: 20 }}>
+            <button
+              onClick={handleSubmitScores}
+              style={{
+                backgroundColor: "#1890ff",
+                color: "white",
+                padding: "8px 16px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Gửi điểm
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
