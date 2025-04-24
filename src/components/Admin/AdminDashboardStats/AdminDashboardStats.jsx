@@ -49,7 +49,7 @@ const DashboardStats = () => {
 
 
   const stats = [
-    { label: 'Cơ sở', value: 5, icon: <BankOutlined />, color: '#00bcd4' },
+    { label: 'Cơ sở', value: 1, icon: <BankOutlined />, color: '#00bcd4' },
     { label: 'Đang học', value: total, icon: <TeamOutlined />, color: '#4caf50' },
     { label: 'Nhân viên', value: totalTeachers, icon: <UserOutlined />, color: '#ff9800' },
     { label: 'Lớp đang học', value: totalClasses, icon: <AppstoreAddOutlined />, color: '#f44336' },
