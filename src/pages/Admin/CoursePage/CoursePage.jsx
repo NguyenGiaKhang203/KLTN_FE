@@ -145,17 +145,6 @@ const CoursePage = () => {
       render: (desc) => desc || 'Chưa có mô tả',
     },
     {
-      title: 'Lớp',
-      dataIndex: 'classes',
-      key: 'classes',
-      render: (classes) =>
-        Array.isArray(classes) && classes.length > 0
-          ? classes.map((cls, idx) => (
-              <div key={idx}>{cls.name || `Lớp ${idx + 1}`}</div>
-            ))
-          : 'Chưa có lớp',
-    },
-    {
       title: 'Giá',
       dataIndex: 'price',
       key: 'price',

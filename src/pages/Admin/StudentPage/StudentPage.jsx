@@ -114,7 +114,7 @@ export default function StudentPage() {
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Điện thoại", dataIndex: "phone", key: "phone" },
     { title: "Địa chỉ", dataIndex: "address", key: "address" },
-    { title: "Phụ huynh", dataIndex: "parentname", key: "parentname" },
+    { title: "Tên phụ huynh", dataIndex: "parentname", key: "parentname" },
     {
       title: "Hành động",
       key: "action",
