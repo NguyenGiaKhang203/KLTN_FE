@@ -15,8 +15,17 @@ import {
   SortSelect,
   CenteredPagination,
 } from "./style";
-import { Pagination, Input } from "antd";
+import { Pagination } from "antd";
 import * as CourseService from "../../services/CourseService";
+
+// ✅ Bổ sung mapping cho type từ BE → FE
+const typeMapping = {
+  "Cơ bản": "basic",
+  "Trung cấp 1": "intermediate1",
+  "Trung cấp 2": "intermediate2",
+  "Nâng cao 1": "advanced1",
+  "Nâng cao 2": "advanced2",
+};
 
 const sortOptions = [
   { id: "price-lowtohigh", label: "Giá: Thấp đến Cao" },
@@ -60,12 +69,14 @@ function CoursePage() {
     const applyFilterAndSort = () => {
       let filtered = [...allCourses];
 
-      // ✅ Lọc theo danh mục
+      // ✅ Lọc theo filter (bao gồm mapping type)
       for (const key in filters) {
         if (filters[key].length > 0) {
-          filtered = filtered.filter((course) =>
-            filters[key].includes(course[key])
-          );
+          filtered = filtered.filter((course) => {
+            const mappedValue =
+              key === "type" ? typeMapping[course[key]] || course[key] : course[key];
+            return filters[key].includes(mappedValue);
+          });
         }
       }
 

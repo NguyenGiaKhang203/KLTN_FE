@@ -103,7 +103,7 @@ export const routes = [
     isShowFooter: true,
   },
   {
-    path: "/introduce",
+    path: "/about",
     page: AboutPage,
     isShowHeader: true,
     isShowFooter: true,

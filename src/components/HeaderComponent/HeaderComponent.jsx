@@ -148,7 +148,7 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
             <WrapperTextHeader to="/">Trang Chủ</WrapperTextHeader>
             <WrapperTextHeader to="/courses">Khóa Học</WrapperTextHeader>
             <WrapperTextHeader to="/blogs">Bài Viết</WrapperTextHeader>
-            <WrapperTextHeader to="/introduce">Giới Thiệu</WrapperTextHeader>
+            <WrapperTextHeader to="/about">Giới Thiệu</WrapperTextHeader>
             <WrapperTextHeader to="/contact">Liên Hệ</WrapperTextHeader>
           </WrapperNavLinks>
 

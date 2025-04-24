@@ -68,7 +68,7 @@ const Footer = () => {
             <PhoneFilled style={{ marginRight: 8, color: "#f39c12" }} />
             Số điện thoại
           </WrapperSectionTitle>
-          <WrapperParagraph>0905 112 113 (Cô Huệ)</WrapperParagraph>
+          <WrapperParagraph>0823 031 503 (Thầy Hoàng Anh)</WrapperParagraph>
           <WrapperParagraph>0613 998 996 (Thầy Linh)</WrapperParagraph>
         </WrapperCenter>
 
