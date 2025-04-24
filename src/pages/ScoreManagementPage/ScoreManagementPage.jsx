@@ -23,7 +23,7 @@ const ScoreManagementPage = () => {
   const userId = user?._id;
   const token = user?.access_token;
 
-  // Fetch danh sách lớp học của giáo viên
+  
   useEffect(() => {
     const fetchClasses = async () => {
       try {
