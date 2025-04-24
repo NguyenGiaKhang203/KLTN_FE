@@ -12,6 +12,7 @@ const ClassPageHeader = () => {
   const getTitleFromPath = (pathname) => {
     if (pathname.includes("classes")) return "Danh sách lớp";
     if (pathname.includes("schedule")) return "Thời khóa biểu";
+    if (pathname.includes("teacher/schedule")) return "Lịch dạy";
     if (pathname.includes("courses")) return "Quản lý khóa học";
     if (pathname.includes("attendance")) return "Điểm danh";
     if (pathname.includes("students")) return "Học sinh";
@@ -19,6 +20,9 @@ const ClassPageHeader = () => {
     if (pathname.includes("teachers")) return "Giảng viên";
     if (pathname.includes("exams")) return "Quản lý bài thi";
     if (pathname.includes("assess")) return "Quản lý đánh giá";
+    if (pathname.includes("blog")) return "Quản lý bài viết";
+    if (pathname.includes("report")) return "Báo cáo & thống kê";
+    if (pathname.includes("score-management")) return "Quản lý điểm";
     return "Hệ thống";
   };
 

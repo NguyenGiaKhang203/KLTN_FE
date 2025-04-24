@@ -100,9 +100,9 @@ export default function CourseFormModal({
             rules={[{ required: true, message: 'Vui lòng chọn loại' }]}
           >
             <Select placeholder="Chọn loại">
-              <Option value="Lớp cơ bản">Lớp cơ bản</Option>
-              <Option value="Lớp trung cấp 1">Lớp trung cấp 1</Option>
-              <Option value="Lớp trung cấp 2">Lớp trung cấp 2</Option>
+              <Option value="Cơ bản">Cơ bản</Option>
+              <Option value="Trung cấp 1">Trung cấp 1</Option>
+              <Option value="Trung cấp 2">Trung cấp 2</Option>
               <Option value="Nâng cao 1">Nâng cao 1</Option>
               <Option value="Nâng cao 2">Nâng cao 2</Option>
             </Select>

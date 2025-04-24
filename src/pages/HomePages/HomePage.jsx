@@ -8,12 +8,15 @@ import ChessInforComponent from "../../components/ChessInforComponent/ChessInfor
 import Slideshow from "../../components/SlideShowComponent/SlideShowComponent";
 import FlexibleLearningProgram from "../../components/FlexibleProgramComponent/FlexibleProgramComponent";
 import GalleryComponent from "../../components/GallaryComponents/GallaryComponents";
+import MessBox from "../../components/MessBox/MessBox"
+import BlogPage from "../BlogPages/BlogPage";
+
 import banner1 from "../../assets/banner.png";
 import banner2 from "../../assets/banner2.png";
 import banner3 from "../../assets/banner3.png";
 import banner4 from "../../assets/banner4.png";
 import banner5 from "../../assets/banner5.png";
-import BlogPage from "../BlogPages/BlogPage";
+
 
 const featureImageList = [
   { image: banner1 },
@@ -36,6 +39,7 @@ const HomePage = () => {
       <Slideshow featureImageList={featureImageList} />
       <FlexibleLearningProgram />
       <GalleryComponent />
+      <MessBox/>
     </div>
   );
 };

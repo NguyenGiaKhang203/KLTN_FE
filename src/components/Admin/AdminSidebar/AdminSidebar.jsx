@@ -66,15 +66,16 @@ const Sidebar = () => {
           {/* 👑 ADMIN MENU */}
           {user?.isAdmin === true && (
             <>
+              <Menu.Item key="/system/admin/courses" icon={<BookOutlined />}>
+                <Link to="/system/admin/courses">Quản lý khóa học</Link>
+              </Menu.Item>
               <Menu.Item
                 key="/system/admin/classes"
                 icon={<AppstoreOutlined />}
               >
                 <Link to="/system/admin/classes">Danh sách lớp</Link>
               </Menu.Item>
-              <Menu.Item key="/system/admin/courses" icon={<BookOutlined />}>
-                <Link to="/system/admin/courses">Quản lý khóa học</Link>
-              </Menu.Item>
+
               <Menu.Item key="/system/admin/students" icon={<TeamOutlined />}>
                 <Link to="/system/admin/students">Học viên</Link>
               </Menu.Item>

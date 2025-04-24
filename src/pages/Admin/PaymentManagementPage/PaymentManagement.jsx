@@ -97,7 +97,7 @@ export default function PaymentPage() {
       key: 'email',
     },
     {
-      title: 'Lớp',
+      title: 'Khóa học',
       dataIndex: 'className',
       key: 'className',
     },
