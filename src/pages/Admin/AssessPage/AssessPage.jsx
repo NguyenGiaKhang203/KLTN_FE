@@ -10,61 +10,54 @@ import {
   Select,
 } from "antd";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import axios from "axios";
+import dayjs from "dayjs";
 import {
   PageHeader,
   FilterContainer,
   HeaderActions,
   CenteredAction,
 } from "./style";
-
+import * as ReviewService from "../../../services/ReviewService";
 const { Option } = Select;
 
-const sampleReviews = [
-  {
-    key: "1",
-    student: "Nguyễn Văn A",
-    course: "Cờ vua cơ bản",
-    rating: 5,
-    comment: "Khóa học rất hay và dễ hiểu!",
-    date: "2024-04-05",
-  },
-  {
-    key: "2",
-    student: "Trần Thị B",
-    course: "Cờ vua nâng cao",
-    rating: 4,
-    comment: "Giảng viên giỏi, kiến thức thực tiễn.",
-    date: "2024-03-29",
-  },
-  {
-    key: "3",
-    student: "Lê Văn C",
-    course: "Chiến thuật khai cuộc",
-    rating: 3,
-    comment: "Ổn nhưng còn hơi nhanh.",
-    date: "2024-03-20",
-  },
-  {
-    key: "4",
-    student: "Phạm Thị D",
-    course: "Cờ vua cơ bản",
-    rating: 4,
-    comment: "Tốt nhưng cần nhiều ví dụ hơn.",
-    date: "2024-04-01",
-  },
-];
-
 export default function AssessPage() {
-  const [reviews, setReviews] = useState(sampleReviews);
+  const [reviews, setReviews] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
-  const [filtered, setFiltered] = useState(sampleReviews);
+  const [filtered, setFiltered] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const courseOptions = [...new Set(sampleReviews.map((r) => r.course))];
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const res = await ReviewService.getAllReviews();
+        
+        const formatted = res.map((r, idx) => ({
+          key: r._id,
+          student: r.user?.name || "Không rõ",
+          course: r.course?.name || "Không rõ",
+          rating: r.rating,
+          comment: r.comment,
+          date: dayjs(r.createdAt).format("YYYY-MM-DD"),
+        }));
+        setReviews(formatted);
+        setFiltered(formatted);
+      } catch (error) {
+        message.error("Lỗi khi tải đánh giá");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  const courseOptions = [...new Set(reviews.map((r) => r.course))];
 
   useEffect(() => {
     const lower = search.toLowerCase();
-
     const result = reviews.filter(
       (r) =>
         (r.student.toLowerCase().includes(lower) ||
@@ -75,12 +68,6 @@ export default function AssessPage() {
     setFiltered(result);
   }, [search, selectedCourses, reviews]);
 
-  const handleDelete = (record) => {
-    const updated = reviews.filter((r) => r.key !== record.key);
-    setReviews(updated);
-    message.success("Đã xoá đánh giá");
-  };
-
   const columns = [
     {
       title: "Học viên",
@@ -90,7 +77,7 @@ export default function AssessPage() {
     {
       title: "Khoá học",
       dataIndex: "course",
-      key: "course",
+      render: (course) => course
     },
     {
       title: "Đánh giá",
@@ -107,23 +94,7 @@ export default function AssessPage() {
       title: "Ngày",
       dataIndex: "date",
       key: "date",
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (_, record) => (
-        <CenteredAction>
-          <Tooltip title="Xoá">
-            <Button
-              icon={<DeleteOutlined />}
-              danger
-              type="link"
-              onClick={() => handleDelete(record)}
-            />
-          </Tooltip>
-        </CenteredAction>
-      ),
-    },
+    }
   ];
 
   return (
@@ -162,6 +133,7 @@ export default function AssessPage() {
         dataSource={filtered}
         pagination={{ pageSize: 5 }}
         bordered
+        loading={loading}
       />
     </div>
   );

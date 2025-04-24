@@ -13,7 +13,7 @@ export const createReview = async (courseId, data) => {
 };
 
 // Lấy tất cả đánh giá của khóa học
-export const getAllReviews = async (courseId) => {
+export const getAllReviewsByCourseId = async (courseId) => {
     const res = await axios.get(`${process.env.REACT_APP_API_URL}/review/get-all-review/${courseId}`)
     return res.data;
 
@@ -30,3 +30,7 @@ export const deleteReview = async (reviewId) => {
     return res.data;
 };
 
+export const getAllReviews = async () => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/review/get-all-reviews`)
+    return res.data;
+};

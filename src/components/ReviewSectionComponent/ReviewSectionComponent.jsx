@@ -1,31 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Rate, Input, Button, message } from "antd";
-import { FaStar } from "react-icons/fa";
-import {
-  ReviewSummary,
-  AverageScore,
-  StarRow,
-  RatingBreakdown,
-  RatingRow,
-  Bar,
-  Fill,
-  ReviewItem,
-  ActionButtons,
-} from "./style";
-import axios from "axios";
+import { Rate, Input, Button } from "antd";
+import { ReviewItem, ActionButtons } from "./style";
 import * as ReviewService from "../../services/ReviewService";
-import * as UserService from "../../services/UserService";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";  // Import toastify
 
 const ReviewSection = () => {
   const [reviews, setReviews] = useState([]);
   const [newRating, setNewRating] = useState(0);
   const [comment, setComment] = useState("");
   const [editingId, setEditingId] = useState(null);
-  const [averageRating, setAverageRating] = useState(0);
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [ratingsBreakdown, setRatingsBreakdown] = useState({});
   const { id: courseId } = useParams();
   const user = useSelector((state) => state.user);
   const userId = user?.user?._id;
@@ -43,14 +28,10 @@ const ReviewSection = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await ReviewService.getAllReviews(courseId);
-        const data = response;
-        setReviews(data || []); // Đảm bảo dữ liệu reviews được lấy đúng
-        setAverageRating(data.averageRating || 0);
-        setTotalReviews(data.totalReviews || 0);
-        setRatingsBreakdown(data.ratingsBreakdown || {});
+        const response = await ReviewService.getAllReviewsByCourseId(courseId);
+        setReviews(response || []); // Đảm bảo dữ liệu reviews được lấy đúng
       } catch (error) {
-        message.error("Không thể tải đánh giá.");
+        toast.error("Không thể tải đánh giá.");  // Using toast for error message
       }
     };
     fetchReviews();
@@ -58,7 +39,7 @@ const ReviewSection = () => {
 
   const handleSubmit = async () => {
     if (!comment || newRating === 0) {
-      return message.warning("Vui lòng nhập đầy đủ nội dung và chọn sao đánh giá.");
+      return toast.warning("Vui lòng nhập đầy đủ nội dung và chọn sao đánh giá.");
     }
 
     try {
@@ -74,30 +55,29 @@ const ReviewSection = () => {
         setReviews((prev) =>
           prev.map((r) => (r._id === editingId ? { ...r, comment, rating: newRating } : r))
         );
-        message.success("Cập nhật đánh giá thành công!");
+        toast.success("Cập nhật đánh giá thành công!");  // Success toast
         setEditingId(null);
       } else {
         // Create new review
         const newReview = {
+          courseId,
           userId,
           comment,
           rating: newRating,
         };
 
         const response = await ReviewService.createReview(courseId, newReview);
-        const createdReview = response.data;
-
+        const createdReview = response;
         setReviews((prev) => [createdReview, ...prev]);
-        message.success("Gửi đánh giá thành công!");
+        toast.success("Gửi đánh giá thành công!");  // Success toast
       }
-
       setComment("");
       setNewRating(0);
     } catch (error) {
-      message.error("Lỗi khi gửi đánh giá.");
+      const errorMessage = error?.message || "Lỗi khi gửi đánh giá.";  // Lấy thông báo lỗi từ server
+      toast.error(errorMessage);
     }
   };
-
 
   const handleEdit = (review) => {
     setComment(review.comment);
@@ -109,42 +89,15 @@ const ReviewSection = () => {
     try {
       await ReviewService.deleteReview(id);  // Gọi API xóa đánh giá theo ID
       setReviews((prev) => prev.filter((r) => r._id !== id));  // Cập nhật lại danh sách đánh giá sau khi xóa
-      message.success("Đã xoá đánh giá!");
+      toast.success("Đã xoá đánh giá!");  // Success toast
     } catch (error) {
-      message.error(error.response?.data?.message || "Lỗi khi xoá đánh giá.");
+      toast.error(error?.message || "Lỗi khi xoá đánh giá.");  // Error toast
     }
   };
 
   return (
     <div>
       <h3>Cảm nhận & Đánh giá từ Học viên</h3>
-
-      {/* ✅ PHẦN TỔNG SỐ ĐÁNH GIÁ */}
-      <ReviewSummary>
-        <AverageScore>
-          <h1>{averageRating.toFixed(1)}</h1>
-          <div className="star-row">
-            {[...Array(5)].map((_, i) => (
-              <FaStar key={i} color="#FFA534" />
-            ))}
-          </div>
-          <div className="review-total">Tổng cộng {totalReviews} đánh giá</div>
-        </AverageScore>
-
-        <RatingBreakdown>
-          {[5, 4, 3, 2, 1].map((star) => (
-            <RatingRow key={star}>
-              <span>⭐ {star}</span>
-              <Bar>
-                <Fill style={{ width: `${ratingsBreakdown[star] * 100}%` }} />
-              </Bar>
-              <span>{ratingsBreakdown[star]} đánh giá</span>
-            </RatingRow>
-          ))}
-        </RatingBreakdown>
-      </ReviewSummary>
-
-      {/* ✅ PHẦN NHẬP ĐÁNH GIÁ ĐẶT Ở DƯỚI */}
       <div style={{ background: "#fafafa", padding: 16, borderRadius: 8, margin: "24px 0" }}>
         <p style={{ marginBottom: 8 }}>Đánh giá của bạn về khóa học:</p>
         <Rate value={newRating} onChange={setNewRating} />
@@ -165,13 +118,12 @@ const ReviewSection = () => {
           <ReviewItem key={review._id}>
             <img src={review?.user?.avatar || "/default-avatar.png"} alt="avatar" />
             <div>
-              <Rate disabled value={review.rating || 0} style={{ fontSize: 14 }} /> {/* Kiểm tra rating ở đây */}
+              <Rate disabled value={review.rating ?? 0} style={{ fontSize: 14 }} />
               <p>{review.comment}</p>
-              <strong>{review.user?.name || "Người dùng ẩn danh"}</strong>{" "}
+              <strong>{review.user?.name || "Người dùng ẩn danh"}</strong>
               <span style={{ fontSize: 12, color: "#999" }}>
                 {formatTimeAgo(review.createdAt)}
               </span>
-              {/* Chỉ hiển thị nút sửa và xóa nếu người dùng hiện tại là người đã đánh giá */}
               {review.user?._id === userId && (
                 <ActionButtons>
                   <Button size="small" type="link" onClick={() => handleEdit(review)}>
@@ -186,7 +138,6 @@ const ReviewSection = () => {
           </ReviewItem>
         ))}
       </div>
-
     </div>
   );
 };
