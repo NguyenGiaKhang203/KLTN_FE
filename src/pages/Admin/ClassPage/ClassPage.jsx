@@ -117,9 +117,12 @@ const ClassPage = () => {
       setEditingClass(null);
       fetchClasses();
     } catch (error) {
-      toast.error('Lỗi khi lưu lớp học');
+      const errorMessage =
+        error?.response?.data?.message || 'Lỗi khi lưu lớp học';
+      toast.error(errorMessage);
     }
   };
+  
 
   const handleEdit = async (record) => {
     if (!token) return;

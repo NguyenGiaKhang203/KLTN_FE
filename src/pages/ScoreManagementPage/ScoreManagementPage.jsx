@@ -24,6 +24,7 @@ const ScoreManagementPage = () => {
   const token = user?.access_token;
 
   
+  
   useEffect(() => {
     const fetchClasses = async () => {
       try {
