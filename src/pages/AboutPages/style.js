@@ -60,7 +60,6 @@ export const CarouselImage = styled.img`
   border-radius: 8px;
 `;
 
-// ====== Thêm phần "Tại sao lại chọn Daisy Chess?" ======
 export const ReasonGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -82,6 +81,12 @@ export const ReasonCard = styled.div`
   padding: 20px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 export const ReasonImage = styled.img`

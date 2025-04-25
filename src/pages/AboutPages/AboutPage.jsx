@@ -16,9 +16,9 @@ import {
   ReasonText,
 } from "./style";
 import logo from "../../assets/Logo1.png";
-import image1 from "../../assets/About1.jpg";
-import image2 from "../../assets/About2.jpg";
-import image3 from "../../assets/About3.jpg";
+import image1 from "../../assets/About4.jpg";
+import image2 from "../../assets/About5.jpg";
+import image3 from "../../assets/About6.jpg";
 
 // Icon assets
 import targetIcon from "../../assets/target.png";
@@ -32,7 +32,7 @@ import trophyIcon from "../../assets/trophy.png";
 const reasons = [
   {
     title: "Tầm nhìn",
-    text: "Daisy chú trọng đến đào tạo học viên theo hướng tư duy, giúp các bé chủ động suy nghĩ trên ý tưởng của các thầy cô.",
+    text: "King-Chess chú trọng đến đào tạo học viên theo hướng tư duy, giúp các bé chủ động suy nghĩ trên ý tưởng của các thầy cô.",
     image: targetIcon,
   },
   {
@@ -47,7 +47,7 @@ const reasons = [
   },
   {
     title: "Giáo viên",
-    text: "Giáo viên tại CLB Daisy đều là các HLV Quốc Gia được cấp bởi liên đoàn cờ vua Việt Nam.",
+    text: "Giáo viên tại King-Chess đều là các HLV Quốc Gia được cấp bởi liên đoàn cờ vua Việt Nam.",
     image: teacherIcon,
   },
   {
@@ -57,7 +57,7 @@ const reasons = [
   },
   {
     title: "Học viên",
-    text: "Với sự đào tạo của Daisy, rất nhiều học viên đã đạt nhiều thành tích tốt tại giải cấp tỉnh - quốc gia.",
+    text: "Với sự đào tạo của King-Chess, rất nhiều học viên đã đạt nhiều thành tích tốt tại giải cấp tỉnh - quốc gia.",
     image: trophyIcon,
   },
 ];
