@@ -28,7 +28,7 @@ const ContactInfoComponent = () => {
               <MailOutlined />
             </IconWrapper>
             <Title>Email</Title>
-            <Text>clbkingchess@k-chess.com</Text>
+            <Text>hoanganhtt11@gmail.com</Text>
           </GradientCard>
         </Col>
 
@@ -39,10 +39,10 @@ const ContactInfoComponent = () => {
             </IconWrapper>
             <Title>Hotline</Title>
             <Text>
-              <PhoneOutlined /> 0978.234.132
+              <PhoneOutlined /> 0823 031 503
             </Text>
             <Text>
-              <PhoneOutlined /> 0935.931.135
+              <PhoneOutlined /> 0971 400 236
             </Text>
           </GradientCard>
         </Col>
