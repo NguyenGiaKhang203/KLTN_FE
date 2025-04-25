@@ -3,47 +3,43 @@ import { Row, Col, Card, Button, Tag } from 'antd';
 import { ClassCardWrapper } from './style';
 
 const ClassCard = ({
-  title,
-  program,
-  students,
-  startDate,
-  room,
-  lessonsDone,
-  time,
+  name,
+  course,
+  studentCount,
+  address,
+  schedule,
   teacher,
-  days,
+  todayName,
 }) => {
+  const todaySchedule = schedule?.filter(s => s.day?.toLowerCase() === todayName?.toLowerCase());
+
   return (
     <ClassCardWrapper>
-      {/* <div className="top-line" /> */}
-      {/* <Card bordered={false}>
+      <Card bordered={false}>
         <div className="card-header">
-          <h3>{title}</h3>
-          <span className="start-date">Bắt đầu: {startDate}</span>
+          <h3>{name}</h3>
         </div>
 
         <Row gutter={[12, 12]} className="info-grid">
-          <Col span={12}><strong>Chương trình:</strong> {program}</Col>
-          <Col span={12}><strong>Học viên:</strong> {students}</Col>
+          <Col span={12}><strong>Khoá học:</strong> {course?.name || "N/A"}</Col>
+          <Col span={12}><strong>Học viên:</strong> {studentCount}</Col>
 
-          <Col span={12}><strong>Phòng học:</strong> {room}</Col>
-          <Col span={12}><strong>Giờ học:</strong> {time}</Col>
+          <Col span={24}><strong>Địa chỉ:</strong> {address}</Col>
+          <Col span={24}><strong>Chủ nhiệm:</strong> {teacher?.name || "N/A"}</Col>
 
-          <Col span={12}><strong>Số ca đã học:</strong> {lessonsDone}</Col>
-          <Col span={12}><strong>Chủ nhiệm:</strong> {teacher}</Col>
-
-          <Col span={24}>
-            <strong>Ngày học:</strong>{' '}
-            {days.map((day, index) => (
-              <Tag color="blue" key={index}>{day}</Tag>
-            ))}
-          </Col>
+          {todaySchedule.length > 0 && (
+            <Col span={24}>
+              <strong>Lịch hôm nay:</strong>{' '}
+              {todaySchedule.map((s, i) => (
+                <Tag color="green" key={i}>
+                  {s.day} {s.startTime} - {s.endTime}
+                </Tag>
+              ))}
+            </Col>
+          )}
         </Row>
 
-        <div className="card-footer">
-          <Button type="primary">Xem kết quả học tập</Button>
-        </div>
-      </Card> */}
+      </Card>
     </ClassCardWrapper>
   );
 };

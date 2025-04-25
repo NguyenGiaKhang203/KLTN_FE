@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Input, Select, Table, Modal, Button } from "antd";
+import { Input, InputNumber, Select, Table, Modal, Button } from "antd";
 import { useSelector } from "react-redux";
 import * as ScoreService from "../../services/ScoreService";
 import * as ClassService from "../../services/ClassService";
 import * as ExamService from "../../services/ExamService";
-import { PageHeader, FilterContainer, CreateScoreButton } from "./style";
-import { toast } from 'react-toastify';  // Import toastify
+import { PageHeader, FilterContainer, TableWrapper } from "./style";
+import { toast } from "react-toastify";
 
 const { Search } = Input;
 const { Option } = Select;
 
-const ScoreManagementPage = () => {
+const CreateScoreManagement = () => {
   const [classList, setClassList] = useState([]);
   const [examList, setExamList] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -23,8 +23,6 @@ const ScoreManagementPage = () => {
   const userId = user?._id;
   const token = user?.access_token;
 
-  
-  
   useEffect(() => {
     const fetchClasses = async () => {
       try {
@@ -39,7 +37,6 @@ const ScoreManagementPage = () => {
     if (token) fetchClasses();
   }, [token]);
 
-  // Fetch danh sách bài thi khi chọn lớp học
   useEffect(() => {
     const fetchExams = async () => {
       if (selectedClass) {
@@ -51,6 +48,8 @@ const ScoreManagementPage = () => {
           console.error("Lỗi khi lấy danh sách bài thi:", err);
           setExamList([]);
         }
+      } else {
+        setExamList([]);
       }
     };
     fetchExams();
@@ -62,6 +61,7 @@ const ScoreManagementPage = () => {
       const res = await ClassService.getStudentsInClass(selectedClass, token);
       if (res?.students && Array.isArray(res.students)) {
         setStudentsInClass(res.students);
+        toast.success("Đã chọn bài thi, hãy nhập điểm cho học viên.");
       } else {
         setStudentsInClass([]);
       }
@@ -78,6 +78,57 @@ const ScoreManagementPage = () => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const handleScoreChange = (e, studentId) => {
+    const updatedScore = e?.target?.value ?? e;
+    setStudentsInClass((prev) =>
+      prev.map((student) =>
+        student._id === studentId ? { ...student, score: updatedScore } : student
+      )
+    );
+  };
+
+  const handleSubmitScores = async () => {
+    const invalidScores = studentsInClass.filter(
+      (student) => student.score === undefined || student.score === null || student.score === ""
+    );
+    if (invalidScores.length > 0) {
+      toast.error("Vui lòng nhập điểm cho tất cả học viên.");
+      return;
+    }
+
+    const scoreData = {
+      examId: selectedExam,
+      scores: studentsInClass.map((student) => ({
+        studentId: student._id,
+        score: Number(student.score),
+      })),
+    };
+
+    try {
+      const response = await ScoreService.createScore(scoreData, token);
+
+      if (
+        response.status === "ERROR" &&
+        response.message === "Bảng điểm cho bài thi này đã tồn tại!"
+      ) {
+        toast.error(response.message);
+      } else {
+        toast.success("Điểm đã được gửi thành công!");
+        setIsModalVisible(false);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi điểm:", error);
+      if (
+        error.response &&
+        error.response.data.message === "Bảng điểm cho bài thi này đã tồn tại!"
+      ) {
+        toast.error("Bảng điểm cho bài thi này đã tồn tại!");
+      } else {
+        toast.error("Đã xảy ra lỗi, vui lòng thử lại.");
+      }
+    }
   };
 
   const columns = [
@@ -97,64 +148,18 @@ const ScoreManagementPage = () => {
     {
       title: "Điểm",
       render: (_, record) => (
-        <Input
-          defaultValue={record.score || ""}
-          onChange={(e) => handleScoreChange(e, record._id)} // Gọi hàm để xử lý thay đổi điểm
-          style={{ width: 100, marginRight: 8 }}
+        <InputNumber
+          min={0}
+          max={10}
+          step={0.1}
+          value={record.score || null}
+          onChange={(value) => handleScoreChange(value, record._id)}
+          style={{ width: 100 }}
         />
       ),
     },
   ];
 
-  const handleScoreChange = (e, studentId) => {
-    const updatedScore = e.target.value;
-    setStudentsInClass((prev) =>
-      prev.map((student) =>
-        student._id === studentId ? { ...student, score: updatedScore } : student
-      )
-    );
-  };
-
-  const handleSubmitScores = async () => {
-    const invalidScores = studentsInClass.filter((student) => !student.score);
-    if (invalidScores.length > 0) {
-      toast.error("Vui lòng nhập điểm cho tất cả học viên.");
-      return;
-    }
-  
-    const scoreData = {
-      examId: selectedExam,
-      scores: studentsInClass.map((student) => ({
-        studentId: student._id,
-        score: student.score,
-      })),
-    };
-  
-    try {
-      const response = await ScoreService.createScore(scoreData, token);
-  
-      if (response.status === "ERROR" && response.message === "Bảng điểm cho bài thi này đã tồn tại!") {
-        toast.error(response.message);  
-      } else {
-        toast.success("Điểm đã được gửi thành công!");
-        const updatedStudents = studentsInClass.map((student) => ({
-          ...student,
-          score: student.score,  
-        }));
-        setStudentsInClass(updatedStudents); 
-      
-        setIsModalVisible(false);
-      }
-    } catch (error) {
-      console.error("Lỗi khi gửi điểm:", error);
-      if (error.response && error.response.data.message === "Bảng điểm cho bài thi này đã tồn tại!") {
-        toast.error("Bảng điểm cho bài thi này đã tồn tại!");
-      } else {
-        toast.error("Đã xảy ra lỗi, vui lòng thử lại.");
-      }
-    }
-  };
-  
   return (
     <div style={{ padding: 24 }}>
       <PageHeader>
@@ -176,79 +181,90 @@ const ScoreManagementPage = () => {
         </Select>
       </FilterContainer>
 
-      {selectedClass && (
-        <div style={{ marginTop: 16 }}>
-          <h3>Quản lí điểm</h3>
-          <Table
-            dataSource={examList}
-            rowKey="_id"
-            pagination={false}
-            columns={[
-              {
-                title: "STT",
-                render: (_, __, index) => index + 1,
-                width: 60,
-              },
-              {
-                title: "Bài thi",
-                render: (_, record) => record.examName || "Không rõ",
-              },
-              {
-                title: "Chọn",
-                render: (_, record) => (
+      <TableWrapper>
+        <Table
+          dataSource={examList}
+          rowKey="_id"
+          pagination={false}
+          locale={{ emptyText: "Không có dữ liệu" }}
+          columns={[
+            {
+              title: "STT",
+              render: (_, __, index) => index + 1,
+              width: 60,
+            },
+            {
+              title: "Bài thi",
+              render: (_, record) => record.examName || "Không rõ",
+            },
+            {
+              title: "Chọn",
+              render: (_, record) =>
+                selectedClass ? (
                   <Button type="primary" onClick={() => handleExamSelect(record._id)}>
                     Tạo bảng điểm
                   </Button>
+                ) : (
+                  <span style={{ color: "#888" }}>Chưa chọn lớp</span>
                 ),
-              },
-            ]}
-            locale={{ emptyText: "Chưa có bài thi" }}
-          />
-        </div>
-      )}
+            },
+          ]}
+        />
+      </TableWrapper>
 
       <Modal
-        title="Danh sách học viên"
-        visible={isModalVisible}
+        title={<h3 style={{ margin: 0, fontWeight: 600 }}>📋 Danh sách học viên</h3>}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
-        width={800}
+        width={900}
+        bodyStyle={{ padding: 24, borderRadius: 12 }}
+        style={{ borderRadius: 12 }}
       >
-        <div>
+        <div
+          style={{
+            marginBottom: 16,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Search
-            placeholder="Tìm kiếm học viên..."
+            placeholder="🔍 Tìm kiếm học viên..."
             onSearch={(value) => setSearchText(value)}
-            style={{ width: 250, marginBottom: 16 }}
+            style={{ width: 300 }}
             allowClear
           />
+        </div>
 
-          <Table
-            dataSource={filteredData}
-            columns={columns}
-            rowKey="_id"
-            bordered
-            pagination={{ pageSize: 8 }}
-            locale={{ emptyText: "Chưa có dữ liệu học viên" }}
-          />
+        <Table
+          dataSource={filteredData}
+          columns={columns}
+          rowKey="_id"
+          bordered
+          pagination={{ pageSize: 8 }}
+          locale={{ emptyText: "Chưa có dữ liệu học viên" }}
+          style={{ borderRadius: 10 }}
+        />
 
-          <div style={{ textAlign: "center", marginTop: 20 }}>
-            <button
-              onClick={handleSubmitScores}
-              style={{
-                backgroundColor: "#1890ff",
-                color: "white",
-                padding: "8px 16px",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Gửi điểm
-            </button>
-          </div>
+        <div style={{ textAlign: "center", marginTop: 30 }}>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleSubmitScores}
+            style={{
+              borderRadius: 8,
+              padding: "6px 24px",
+              fontWeight: 600,
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            🚀 Gửi điểm
+          </Button>
         </div>
       </Modal>
     </div>
   );
 };
 
-export default ScoreManagementPage;
+export default CreateScoreManagement;
