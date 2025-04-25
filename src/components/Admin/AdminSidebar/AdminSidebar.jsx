@@ -116,15 +116,9 @@ const Sidebar = () => {
               <Menu.Item key="/system/teacher/exams" icon={<DropboxOutlined />}>
                 <Link to="/system/teacher/exams">Quản lý bài thi</Link>
               </Menu.Item>
-              <Menu.SubMenu key="sub-score" icon={<TrophyOutlined />} title="Điểm thi">
-                <Menu.Item key="/system/teacher/create-score">
-                  <Link to="/system/teacher/create-score">Tạo bảng điểm</Link>
-                </Menu.Item>
-                <Menu.Item key="/system/teacher/score-management">
-                  <Link to="/system/teacher/score-management">Quản lý điểm</Link>
-                </Menu.Item>
-              </Menu.SubMenu>
-
+              <Menu.Item key="/system/teacher/score-management" icon={<TrophyOutlined />}>
+                <Link to="/system/teacher/score-management">Quản lý điểm</Link>
+              </Menu.Item>
             </>
           )}
 

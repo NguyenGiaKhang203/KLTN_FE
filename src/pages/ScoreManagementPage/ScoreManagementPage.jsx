@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Input, InputNumber, Select, Table, Modal, Button } from "antd";
+import { Input, InputNumber, Select, Table, Modal, Button, Tooltip } from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import * as ScoreService from "../../services/ScoreService";
 import * as ClassService from "../../services/ClassService";
@@ -10,14 +11,17 @@ import { toast } from "react-toastify";
 const { Search } = Input;
 const { Option } = Select;
 
-const CreateScoreManagement = () => {
+const ScoreManagement = () => {
   const [classList, setClassList] = useState([]);
   const [examList, setExamList] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedExam, setSelectedExam] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [studentsInClass, setStudentsInClass] = useState([]);
+  const [scoreList, setScoreList] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingScoreId, setEditingScoreId] = useState(null);
 
   const { user } = useSelector((state) => state.user);
   const userId = user?._id;
@@ -27,11 +31,9 @@ const CreateScoreManagement = () => {
     const fetchClasses = async () => {
       try {
         const res = await ClassService.getClassbyTeacher(userId);
-        const data = Array.isArray(res?.data) ? res.data : res;
-        setClassList(Array.isArray(data) ? data : []);
+        setClassList(Array.isArray(res?.data) ? res.data : res);
       } catch (err) {
         console.error("Lỗi khi lấy danh sách lớp:", err);
-        setClassList([]);
       }
     };
     if (token) fetchClasses();
@@ -42,42 +44,105 @@ const CreateScoreManagement = () => {
       if (selectedClass) {
         try {
           const res = await ExamService.getExamsByClassId(selectedClass, token);
-          const data = Array.isArray(res?.data) ? res.data : res;
-          setExamList(Array.isArray(data) ? data : []);
+          setExamList(Array.isArray(res?.data) ? res.data : res);
         } catch (err) {
           console.error("Lỗi khi lấy danh sách bài thi:", err);
           setExamList([]);
         }
-      } else {
-        setExamList([]);
-      }
+      } else setExamList([]);
     };
     fetchExams();
   }, [selectedClass, token]);
 
-  const handleExamSelect = async (examId) => {
-    setSelectedExam(examId);
-    try {
-      const res = await ClassService.getStudentsInClass(selectedClass, token);
-      if (res?.students && Array.isArray(res.students)) {
-        setStudentsInClass(res.students);
-        toast.success("Đã chọn bài thi, hãy nhập điểm cho học viên.");
-      } else {
-        setStudentsInClass([]);
+  useEffect(() => {
+    const fetchScores = async () => {
+      if (selectedClass) {
+        try {
+          const res = await ScoreService.getAllScores(token);
+          setScoreList(Array.isArray(res?.data) ? res.data : res);
+        } catch (err) {
+          console.error("Lỗi khi lấy bảng điểm:", err);
+        }
       }
-      setIsModalVisible(true);
+    };
+    fetchScores();
+  }, [selectedClass, token]);
+
+  const refreshScores = async () => {
+    try {
+      const res = await ScoreService.getAllScores(token);
+      setScoreList(Array.isArray(res?.data) ? res.data : res);
     } catch (err) {
-      console.error("Lỗi khi lấy danh sách học viên:", err);
-      setStudentsInClass([]);
+      console.error("Lỗi khi làm mới bảng điểm:", err);
     }
   };
 
-  const filteredData = studentsInClass.filter((student) =>
-    student.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const checkScoreExists = (examId) => {
+    return scoreList.some((score) => score.examId === examId);
+  };
+
+  const handleExamSelect = async (examId) => {
+    setSelectedExam(examId);
+    setIsEditMode(false);
+    setEditingScoreId(null);
+    try {
+      const res = await ClassService.getStudentsInClass(selectedClass, token);
+      setStudentsInClass(Array.isArray(res?.students) ? res.students : []);
+      toast.success("Đã chọn bài thi, hãy nhập điểm cho học viên.");
+      setIsModalVisible(true);
+    } catch (err) {
+      console.error("Lỗi khi lấy danh sách học viên:", err);
+    }
+  };
+
+  const handleEditScore = async (examId) => {
+    try {
+      const res = await ScoreService.getScoreById(examId, token);
+      const scores = res?.data?.scores || [];
+      setEditingScoreId(res?.data?._id);
+      setIsEditMode(true);
+
+      const studentRes = await ClassService.getStudentsInClass(selectedClass, token);
+      const studentsInThisClass = studentRes?.students || [];
+
+      const mergedStudents = scores.map((scoreObj) => {
+        const studentInfo = studentsInThisClass.find(
+          (student) => student._id === scoreObj.studentId
+        );
+        return {
+          _id: scoreObj.studentId,
+          name: studentInfo?.name || "Không rõ",
+          email: studentInfo?.email || "Không rõ",
+          score: scoreObj.score,
+        };
+      });
+
+      setStudentsInClass(mergedStudents);
+      setSelectedExam(examId);
+      setIsModalVisible(true);
+    } catch (error) {
+      toast.error("Không thể tải bảng điểm.");
+      console.error(error);
+    }
+  };
+
+  const handleDeleteScore = async (examId) => {
+    const scoreToDelete = scoreList.find((score) => score.examId === examId);
+    if (!scoreToDelete) return;
+    try {
+      await ScoreService.deleteScore(scoreToDelete._id, token);
+      toast.success("Xoá bảng điểm thành công!");
+      setScoreList((prev) => prev.filter((score) => score.examId !== examId));
+    } catch (error) {
+      toast.error("Lỗi khi xoá bảng điểm.");
+      console.error(error);
+    }
+  };
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    setIsEditMode(false);
+    setEditingScoreId(null);
   };
 
   const handleScoreChange = (e, studentId) => {
@@ -107,29 +172,34 @@ const CreateScoreManagement = () => {
     };
 
     try {
-      const response = await ScoreService.createScore(scoreData, token);
-
-      if (
-        response.status === "ERROR" &&
-        response.message === "Bảng điểm cho bài thi này đã tồn tại!"
-      ) {
-        toast.error(response.message);
+      if (isEditMode) {
+        await ScoreService.updateScore(editingScoreId, scoreData, token);
+        toast.success("Cập nhật bảng điểm thành công!");
       } else {
+        const response = await ScoreService.createScore(scoreData, token);
+        if (
+          response.status === "ERROR" &&
+          response.message === "Bảng điểm cho bài thi này đã tồn tại!"
+        ) {
+          toast.error(response.message);
+          return;
+        }
         toast.success("Điểm đã được gửi thành công!");
-        setIsModalVisible(false);
       }
+
+      setIsModalVisible(false);
+      setIsEditMode(false);
+      setEditingScoreId(null);
+      refreshScores();
     } catch (error) {
-      console.error("Lỗi khi gửi điểm:", error);
-      if (
-        error.response &&
-        error.response.data.message === "Bảng điểm cho bài thi này đã tồn tại!"
-      ) {
-        toast.error("Bảng điểm cho bài thi này đã tồn tại!");
-      } else {
-        toast.error("Đã xảy ra lỗi, vui lòng thử lại.");
-      }
+      console.error("Lỗi khi gửi/cập nhật điểm:", error);
+      toast.error("Đã xảy ra lỗi, vui lòng thử lại.");
     }
   };
+
+  const filteredData = studentsInClass.filter((student) =>
+    (student?.name || "").toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const columns = [
     {
@@ -198,15 +268,39 @@ const CreateScoreManagement = () => {
               render: (_, record) => record.examName || "Không rõ",
             },
             {
-              title: "Chọn",
-              render: (_, record) =>
-                selectedClass ? (
-                  <Button type="primary" onClick={() => handleExamSelect(record._id)}>
+              title: "Hành động",
+              render: (_, record) => {
+                const hasScore = checkScoreExists(record._id);
+                if (!selectedClass) {
+                  return <span style={{ color: "#888" }}>Chưa chọn lớp</span>;
+                }
+                return hasScore ? (
+                  <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+                    <Tooltip title="Sửa bảng điểm">
+                      <Button
+                        type="text"
+                        icon={<EditOutlined style={{ color: "#1677ff" }} />}
+                        onClick={() => handleEditScore(record._id)}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Xoá bảng điểm">
+                      <Button
+                        type="text"
+                        icon={<DeleteOutlined style={{ color: "red" }} />}
+                        onClick={() => handleDeleteScore(record._id)}
+                      />
+                    </Tooltip>
+                  </div>
+                ) : (
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => handleExamSelect(record._id)}
+                  >
                     Tạo bảng điểm
                   </Button>
-                ) : (
-                  <span style={{ color: "#888" }}>Chưa chọn lớp</span>
-                ),
+                );
+              },
             },
           ]}
         />
@@ -218,15 +312,13 @@ const CreateScoreManagement = () => {
         onCancel={handleCancel}
         footer={null}
         width={900}
-        bodyStyle={{ padding: 24, borderRadius: 12 }}
-        style={{ borderRadius: 12 }}
+        bodyStyle={{ padding: 24 }}
       >
         <div
           style={{
             marginBottom: 16,
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
           }}
         >
           <Search
@@ -244,7 +336,6 @@ const CreateScoreManagement = () => {
           bordered
           pagination={{ pageSize: 8 }}
           locale={{ emptyText: "Chưa có dữ liệu học viên" }}
-          style={{ borderRadius: 10 }}
         />
 
         <div style={{ textAlign: "center", marginTop: 30 }}>
@@ -259,7 +350,7 @@ const CreateScoreManagement = () => {
               boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
             }}
           >
-            🚀 Gửi điểm
+            {isEditMode ? "💾 Lưu chỉnh sửa" : "🚀 Gửi điểm"}
           </Button>
         </div>
       </Modal>
@@ -267,4 +358,4 @@ const CreateScoreManagement = () => {
   );
 };
 
-export default CreateScoreManagement;
+export default ScoreManagement;

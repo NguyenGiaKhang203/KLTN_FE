@@ -24,14 +24,13 @@ import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePag
 import AccessDeniedPage from "../pages/AccessDeniedPage/AccessDeniedPage";
 import PaymentPage from "../pages/PaymentPage/PaymentPage";
 import AttendanceManagement from "../pages/AttendanceManagement/AttendanceManagement";
-import ScoreManagementPage from "../pages/CreateScoreManagement/ScoreManagementPage";
 import BlogManagementPage from "../pages/Admin/BlogManagementPage/BlogManagementPage";
 import ExamListPage from "../pages/ExamListPage/ExamListPage";
 import ExamResultPage from "../pages/ExamResultPage/ExamResultPage";
 import BlogDetailPage from "../pages/BlogDetailsPage/BlogDetailPage";
 import OrderSuccessPage from "../pages/OrderSuccesPage/OrderSuccesPage";
 import MyOrderPage from "../pages/MyOrderPage/MyOrderPage";
-import CreateScoreManagement from "../pages/CreateScoreManagement/ScoreManagementPage";
+import ScoreManagement from "../pages/ScoreManagementPage/ScoreManagementPage";
 
 export const routes = [
   // Public Pages
@@ -225,12 +224,8 @@ export const routes = [
         page: AttendanceManagement,
       },
       {
-        path: "create-score",
-        page: CreateScoreManagement,
-      },
-      {
         path: "score-management",
-        page: ScoreManagementPage,
+        page: ScoreManagement,
       },
 
     ],
