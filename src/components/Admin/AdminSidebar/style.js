@@ -11,16 +11,19 @@ export const SidebarWrapper = styled.div`
     background-color: transparent;
   }
 
-  .ant-menu-item {
-    color: #b0bec5;
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    color: #cfd8dc;
     font-weight: 500;
     border-radius: 8px;
     margin: 4px 0;
-    transition: background 0.3s ease, color 0.3s ease;
+    padding-left: 16px !important;
+    transition: all 0.3s ease;
   }
 
-  .ant-menu-item:hover {
-    background-color: #2f3e4d;
+  .ant-menu-item:hover,
+  .ant-menu-submenu-title:hover {
+    background-color: #34495e;
     color: #ffffff;
   }
 
@@ -28,6 +31,43 @@ export const SidebarWrapper = styled.div`
     background-color: #1e88e5;
     color: #ffffff !important;
     font-weight: 600;
+  }
+
+  .ant-menu-submenu-open > .ant-menu-submenu-title {
+    background-color: #2c3e50;
+    color: #ffffff;
+  }
+
+  /* CHỈNH SUBMENU CĂN ĐỀU */
+  .ant-menu-submenu .ant-menu {
+    background-color: #2c3e50 !important;
+    margin-left: 0px; /* <- bỏ lệch trái */
+    padding: 4px 0;
+    border-radius: 8px;
+  }
+
+  .ant-menu-submenu .ant-menu-item {
+    border-radius: 6px;
+    padding: 10px 24px !important; /* padding trái vừa bằng menu cha */
+    margin: 4px 8px; /* thêm chút padding hai bên */
+    color: #b0bec5;
+    font-weight: 500;
+  }
+
+  .ant-menu-submenu .ant-menu-item:hover {
+    background-color: #1e88e5;
+    color: #ffffff;
+  }
+
+  .ant-menu-submenu .ant-menu-item-selected {
+    background-color: #1e88e5;
+    color: #ffffff !important;
+    font-weight: 600;
+  }
+
+  .ant-menu-item .anticon,
+  .ant-menu-submenu-title .anticon {
+    font-size: 18px;
   }
 
   .ant-menu-item a {
@@ -38,16 +78,14 @@ export const SidebarWrapper = styled.div`
     color: #ffffff;
   }
 
-  .ant-menu-item .anticon {
-    font-size: 18px;
-  }
-
   .logo-link {
     text-decoration: none;
     display: block;
     color: inherit;
   }
 `;
+  
+
 
 export const LogoSection = styled.div`
   text-align: center;
@@ -58,7 +96,7 @@ export const LogoSection = styled.div`
     height: 100px;
     object-fit: contain;
     transform: scale(1.5);
-    transformorigin: left center;
+    transform-origin: left center;
   }
 
   h3 {

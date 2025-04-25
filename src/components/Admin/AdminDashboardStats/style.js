@@ -1,30 +1,32 @@
-// DashboardStats.styles.js
-import styled from 'styled-components';
-import { Card } from 'antd';
+import styled from "styled-components";
 
-export const StyledCard = styled(Card)`
-  background-color: ${({ $bg }) => $bg};
+export const StyledCard = styled.div`
+  background-color: ${(props) => props.$bg || "#fff"};
   color: #fff;
-  border: none;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 
-  .ant-card-body {
-    padding: 20px;
+  &:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
 
   h2 {
-    margin: 10px 0 0;
-    font-size: 28px;
-    color: #fff;
+    font-size: 32px;
+    margin: 12px 0 4px;
   }
 
   p {
+    font-size: 16px;
     margin: 0;
-    color: #fff;
-    opacity: 0.95;
+    font-weight: 500;
   }
 
   svg {
-    font-size: 26px;
-    opacity: 0.6;
+    font-size: 36px;
   }
 `;
