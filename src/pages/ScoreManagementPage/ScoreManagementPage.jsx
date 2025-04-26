@@ -22,6 +22,8 @@ const ScoreManagement = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingScoreId, setEditingScoreId] = useState(null);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // Modal xác nhận xóa
+  const [scoreToDelete, setScoreToDelete] = useState(null); // Dữ liệu bảng điểm cần xóa
 
   const { user } = useSelector((state) => state.user);
   const userId = user?._id;
@@ -31,20 +33,20 @@ const ScoreManagement = () => {
     const fetchClasses = async () => {
       try {
         const res = await ClassService.getClassbyTeacher(userId);
-        setClassList(Array.isArray(res?.data) ? res.data : res);
+        setClassList(res?.data || []);
       } catch (err) {
         console.error("Lỗi khi lấy danh sách lớp:", err);
       }
     };
     if (token) fetchClasses();
-  }, [token]);
+  }, [token, userId]);
 
   useEffect(() => {
     const fetchExams = async () => {
       if (selectedClass) {
         try {
           const res = await ExamService.getExamsByClassId(selectedClass, token);
-          setExamList(Array.isArray(res?.data) ? res.data : res);
+          setExamList(res?.data || []);
         } catch (err) {
           console.error("Lỗi khi lấy danh sách bài thi:", err);
           setExamList([]);
@@ -59,9 +61,11 @@ const ScoreManagement = () => {
       if (selectedClass) {
         try {
           const res = await ScoreService.getAllScores(token);
-          setScoreList(Array.isArray(res?.data) ? res.data : res);
+          const data = res?.data || [];
+          setScoreList(Array.isArray(data.scores) ? data.scores : data);
         } catch (err) {
           console.error("Lỗi khi lấy bảng điểm:", err);
+          setScoreList([]);
         }
       }
     };
@@ -71,9 +75,11 @@ const ScoreManagement = () => {
   const refreshScores = async () => {
     try {
       const res = await ScoreService.getAllScores(token);
-      setScoreList(Array.isArray(res?.data) ? res.data : res);
+      const data = res?.data || [];
+      setScoreList(Array.isArray(data.scores) ? data.scores : data);
     } catch (err) {
       console.error("Lỗi khi làm mới bảng điểm:", err);
+      setScoreList([]);
     }
   };
 
@@ -87,7 +93,7 @@ const ScoreManagement = () => {
     setEditingScoreId(null);
     try {
       const res = await ClassService.getStudentsInClass(selectedClass, token);
-      setStudentsInClass(Array.isArray(res?.students) ? res.students : []);
+      setStudentsInClass(res?.students || []);
       toast.success("Đã chọn bài thi, hãy nhập điểm cho học viên.");
       setIsModalVisible(true);
     } catch (err) {
@@ -126,17 +132,28 @@ const ScoreManagement = () => {
     }
   };
 
-  const handleDeleteScore = async (examId) => {
+  const handleDeleteScore = (examId) => {
     const scoreToDelete = scoreList.find((score) => score.examId === examId);
     if (!scoreToDelete) return;
+    setScoreToDelete(scoreToDelete);
+    setIsDeleteModalVisible(true); // Hiển thị modal xác nhận
+  };
+
+  const handleConfirmDelete = async () => {
     try {
       await ScoreService.deleteScore(scoreToDelete._id, token);
       toast.success("Xoá bảng điểm thành công!");
-      setScoreList((prev) => prev.filter((score) => score.examId !== examId));
+      setScoreList((prev) => prev.filter((score) => score.examId !== scoreToDelete.examId));
+      setIsDeleteModalVisible(false); // Đóng modal xác nhận
     } catch (error) {
       toast.error("Lỗi khi xoá bảng điểm.");
       console.error(error);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalVisible(false); // Đóng modal nếu người dùng không xác nhận
+    setScoreToDelete(null);
   };
 
   const handleCancel = () => {
@@ -307,52 +324,39 @@ const ScoreManagement = () => {
       </TableWrapper>
 
       <Modal
-        title={<h3 style={{ margin: 0, fontWeight: 600 }}>📋 Danh sách học viên</h3>}
+        title={isEditMode ? "Cập nhật điểm" : "Nhập điểm học viên"}
         open={isModalVisible}
         onCancel={handleCancel}
-        footer={null}
-        width={900}
-        bodyStyle={{ padding: 24 }}
+        onOk={handleSubmitScores}
+        okText={isEditMode ? "Cập nhật" : "Gửi điểm"}
+        cancelText="Hủy"
+        width={700}
       >
-        <div
-          style={{
-            marginBottom: 16,
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <Search
-            placeholder="🔍 Tìm kiếm học viên..."
-            onSearch={(value) => setSearchText(value)}
-            style={{ width: 300 }}
-            allowClear
-          />
-        </div>
-
+        <Search
+          placeholder="Tìm kiếm học viên"
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ marginBottom: 16 }}
+          allowClear
+        />
         <Table
           dataSource={filteredData}
           columns={columns}
           rowKey="_id"
-          bordered
-          pagination={{ pageSize: 8 }}
-          locale={{ emptyText: "Chưa có dữ liệu học viên" }}
+          pagination={false}
+          locale={{ emptyText: "Không có học viên" }}
         />
+      </Modal>
 
-        <div style={{ textAlign: "center", marginTop: 30 }}>
-          <Button
-            type="primary"
-            size="large"
-            onClick={handleSubmitScores}
-            style={{
-              borderRadius: 8,
-              padding: "6px 24px",
-              fontWeight: 600,
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            {isEditMode ? "💾 Lưu chỉnh sửa" : "🚀 Gửi điểm"}
-          </Button>
-        </div>
+      {/* Modal xác nhận xóa bảng điểm */}
+      <Modal
+        title="Xác nhận xóa bảng điểm"
+        open={isDeleteModalVisible}
+        onCancel={handleCancelDelete}
+        onOk={handleConfirmDelete}
+        okText="Xoá"
+        cancelText="Hủy"
+      >
+        <p>Bạn có chắc chắn muốn xóa bảng điểm này không?</p>
       </Modal>
     </div>
   );
