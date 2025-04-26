@@ -56,3 +56,9 @@ export const deleteScore = async (id, token) => {
   );
   return res.data;
 };
+
+export const getScoreByExamIdandStudenId = async (examId,studentId) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/score/get-student-score/${examId}/${studentId}`)
+  return res.data;
+};

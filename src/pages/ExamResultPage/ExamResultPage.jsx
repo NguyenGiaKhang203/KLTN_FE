@@ -1,86 +1,180 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag } from "antd";
+import { Table, Button, Tag, Select, message, Modal } from "antd";
+import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import * as ScoreService from "../../services/ScoreService"; // ← Đổi sang ScoreService
+import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import * as ClassService from "../../services/ClassService";
+import * as ScoreService from "../../services/ScoreService";
+import * as ExamService from "../../services/ExamService";
 import {
   PageContainer,
-  PageTitle,
+  StyledHeader,
   StyledTableWrapper,
+  TopBar,
 } from "./style";
+import { FilterContainer } from "../Admin/AttendancePage/style";
 
-const ExamResultPage = () => {
-  const [results, setResults] = useState([]);
-  const { user } = useSelector((state) => state.user);
-  const token = user?.access_token;
+const { Option } = Select;
+
+const ExamListPage = () => {
+  const [exams, setExams] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedExam, setSelectedExam] = useState(null);
+  const [studentScore, setStudentScore] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchResults = async () => {
+    const fetchClasses = async () => {
       try {
-        const res = await ScoreService.getAllScores(token); // ← Gọi điểm từ ScoreService
-        const userResults = res?.filter((item) => item.student === user?.id); // Lọc điểm theo học viên hiện tại (nếu cần)
-        setResults(userResults || []);
-      } catch (err) {
-        console.error("Lỗi khi lấy kết quả bài thi:", err);
+        const response = await ClassService.getClassbyStudent(user?.user?._id);
+        const transformed = response.data.map((item) => ({
+          key: item._id,
+          className: item.name,
+        }));
+        setClasses(transformed);
+      } catch (error) {
+        toast.error("Lỗi khi lấy dữ liệu lớp học.");
       }
     };
-    if (token) fetchResults();
-  }, [token, user?.id]);
+
+    if (user?.user?._id) {
+      fetchClasses();
+    }
+  }, [user]);
+
+  const handleSelectClass = async (className) => {
+    const selected = classes.find((item) => item.className === className);
+    if (!selected) {
+      setSelectedClass(null);
+      setExams([]);
+      return;
+    }
+
+    setSelectedClass(className);
+    try {
+      const res = await ExamService.getExamsByClassId(selected.key);
+      if (res.status === "OK") {
+        setExams(res.data);
+      } else {
+        message.warning(res.message || "Không thể lấy danh sách bài thi.");
+      }
+    } catch (err) {
+      message.error("Không thể tải danh sách bài thi.");
+    }
+  };
+
+  const handleViewScore = async (exam) => {
+    setSelectedExam(exam);
+    try {
+      const scoreData = await ScoreService.getScoreByExamIdandStudenId(
+        exam._id,
+        user?.user?._id
+      );
+      if (scoreData && scoreData.status !== "ERROR") {
+        setStudentScore(scoreData.score);
+      } else {
+        setStudentScore(null);
+        message.error(scoreData?.message || "Không thể lấy điểm của bài thi.");
+      }
+    } catch (err) {
+      setStudentScore(null);
+      message.error("Không thể lấy điểm của bài thi.");
+    } finally {
+      setIsModalVisible(true);
+    }
+  };
 
   const columns = [
     {
-      title: "Bài thi",
-      dataIndex: "examTitle",
-      key: "examTitle",
-      render: (_, record) => record.exam?.title || "Không rõ",
+      title: "Tên bài thi",
+      dataIndex: "examName",
+      key: "examName",
     },
     {
-      title: "Thời gian nộp",
-      dataIndex: "submittedAt",
-      key: "submittedAt",
-      render: (text) =>
-        text ? dayjs(text).format("HH:mm DD/MM/YYYY") : "Chưa nộp",
+      title: "Link bài thi",
+      key: "examUrl",
+      render: (_, record) => <a href={record.examUrl} target="_blank" rel="noreferrer">{record.examUrl}</a>,
     },
     {
-      title: "Điểm số",
-      dataIndex: "score",
-      key: "score",
-      render: (score) =>
-        score >= 8 ? (
-          <Tag color="green">{score}</Tag>
-        ) : score >= 5 ? (
-          <Tag color="orange">{score}</Tag>
-        ) : (
-          <Tag color="red">{score}</Tag>
-        ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
+      title: "Hạn làm bài",
       key: "status",
-      render: (status) =>
-        status === "passed" ? (
-          <Tag color="blue">Đạt</Tag>
+      render: (_, record) => {
+        const now = dayjs();
+        const deadline = dayjs(record.examDeadline);
+        return now.isBefore(deadline) ? (
+          <Tag color="green">Còn hạn</Tag>
         ) : (
-          <Tag color="volcano">Chưa đạt</Tag>
-        ),
+          <Tag color="red">Hết hạn</Tag>
+        );
+      },
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Button type="primary" onClick={() => handleViewScore(record)}>
+          Xem điểm
+        </Button>
+      ),
     },
   ];
 
   return (
     <PageContainer>
-      <PageTitle>Kết quả bài thi của bạn</PageTitle>
+      <StyledHeader>
+        <h2>Kết quả bài thi:</h2>
+      </StyledHeader>
+
+      <FilterContainer>
+        <span><strong>Chọn lớp học:</strong></span>
+        <Select
+          style={{ width: 240 }}
+          placeholder="Chọn lớp học"
+          value={selectedClass}
+          onChange={handleSelectClass}
+          allowClear
+        >
+          {classes.map((item) => (
+            <Option key={item.key} value={item.className}>
+              {item.className}
+            </Option>
+          ))}
+        </Select>
+      </FilterContainer>
+
       <StyledTableWrapper>
         <Table
-          columns={columns}
-          dataSource={results}
-          rowKey="_id"
+          dataSource={exams}
+          rowKey={(record) => record._id}
+          pagination={false}
           bordered
-          pagination={{ pageSize: 5 }}
+          locale={{
+            emptyText: (
+              <span style={{ color: "#999" }}>
+                {selectedClass
+                  ? "Không có bài thi nào cho lớp này."
+                  : "Chưa chọn lớp học."}
+              </span>
+            ),
+          }}
+          columns={columns}
         />
       </StyledTableWrapper>
+
+      <Modal
+        title="Kết quả bài thi:" 
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+      >
+        <p><strong>Điểm: </strong>{studentScore !== null ? studentScore : 'Chưa có điểm cho bài thi này'}</p>
+      </Modal>
     </PageContainer>
   );
 };
 
-export default ExamResultPage;
+export default ExamListPage;

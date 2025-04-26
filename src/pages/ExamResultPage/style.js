@@ -33,3 +33,10 @@ export const StyledTableWrapper = styled.div`
     color: #000;
   }
 `;
+
+export const StyledHeader = styled.h2`
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #333;
+`;
