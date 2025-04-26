@@ -86,21 +86,22 @@ export const SidebarWrapper = styled.div`
 `;
   
 
-
 export const LogoSection = styled.div`
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 24px;
 
   img {
-    width: 100px;
-    height: 100px;
+    width: 80px; /* hoặc 100px nếu bạn muốn to hơn */
+    height: 80px;
     object-fit: contain;
-    transform: scale(1.5);
-    transform-origin: left center;
+    margin-bottom: 8px;
   }
 
   h3 {
-    margin: 10px 0 4px;
+    margin: 0;
     font-size: 16px;
     color: #ffffff;
   }
@@ -108,8 +109,10 @@ export const LogoSection = styled.div`
   .status {
     font-size: 12px;
     color: #4cd137;
+    margin-top: 4px;
   }
 `;
+
 
 export const StyledModal = styled(Modal)`
   top: 50% !important;
