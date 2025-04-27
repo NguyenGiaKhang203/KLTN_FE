@@ -12,8 +12,8 @@ import {
   StyledHeader,
   StyledTableWrapper,
   TopBar,
+  FilterContainer
 } from "./style";
-import { FilterContainer } from "../Admin/AttendancePage/style";
 
 const { Option } = Select;
 

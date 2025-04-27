@@ -74,3 +74,10 @@ export const getClassbyStudent = async (id) => {
   );
   return res.data;
 };
+
+export const getScheduleByClassId = async (id) => {
+  const res = await axios.get(
+    `${process.env.REACT_APP_API_URL}/class/get-schedule-by-classId/${id}`,
+  );
+  return res.data;
+};

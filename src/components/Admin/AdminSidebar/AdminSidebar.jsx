@@ -106,9 +106,6 @@ const Sidebar = () => {
               >
                 <Link to="/system/teacher/schedule">Lịch giảng dạy</Link>
               </Menu.Item>
-              <Menu.Item key="/system/teacher/attendance" icon={<FormOutlined />}>
-                <Link to="/system/teacher/attendance">Điểm danh</Link>
-              </Menu.Item>
               <Menu.Item key="/system/teacher/attendance-management" icon={<CarryOutOutlined />}>
                 <Link to="/system/teacher/attendance-management">Quản lý điểm danh</Link>
 

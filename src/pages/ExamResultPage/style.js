@@ -40,3 +40,15 @@ export const StyledHeader = styled.h2`
   margin-bottom: 16px;
   color: #333;
 `;
+
+export const FilterContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+
+  span {
+    font-weight: 500;
+    color: #333;
+  }
+`;
