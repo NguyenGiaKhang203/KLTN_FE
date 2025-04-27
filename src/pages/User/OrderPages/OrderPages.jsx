@@ -102,6 +102,9 @@ const OrderPage = () => {
     return selectedItems.reduce((sum, item) => sum + (item.price || 0), 0);
   }, [selectedItems]);
 
+  console.log('listChecked',listChecked);
+  
+
   const handleCheckout = () => {
     if (!user?.access_token) {
       toast.error("Vui lòng đăng nhập trước!");
@@ -128,7 +131,9 @@ const OrderPage = () => {
       amount: totalAmount,
     };
 
-    dispatch(selectedOrder({ listChecked }));
+
+    dispatch(selectedOrder({ listChecked  }));
+    localStorage.setItem("selectedItems", JSON.stringify(selectedItems));
     toast.success("Chuyển đến thanh toán...");
     navigate("/payment");
   };

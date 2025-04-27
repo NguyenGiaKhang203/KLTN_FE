@@ -11,18 +11,29 @@ import { WrapperOrderSuccess } from "./style";
 
 const OrderSuccessPage = () => {
   const user = useSelector((state) => state.user.user);
-  const selectedItems = useSelector((state) => state.order.orderItemsSlected);
+  const selectedItemsRedux = useSelector((state) => state.order.orderItemsSlected);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [orderStatus, setOrderStatus] = useState(null); // SUCCESS | ERR
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [orderStatus, setOrderStatus] = useState(null);
   const [orderMessage, setOrderMessage] = useState("");
 
   useEffect(() => {
+    // Nếu Redux còn dữ liệu thì dùng luôn, còn nếu Redux mất thì lấy từ localStorage
+    const localSelectedItems = localStorage.getItem("selectedItems");
+    if (selectedItemsRedux && selectedItemsRedux.length > 0) {
+      setSelectedItems(selectedItemsRedux);
+    } else if (localSelectedItems) {
+      setSelectedItems(JSON.parse(localSelectedItems));
+    }
+  }, [selectedItemsRedux]);
+
+  useEffect(() => {
     const createOrder = async () => {
-      if (!user || !selectedItems?.length) {
+      if (!user || selectedItems.length === 0) {
         toast.error("Thiếu thông tin người dùng hoặc sản phẩm.");
-        setOrderStatus("ERR");
+        setOrderStatus("error");
         setOrderMessage("Thiếu thông tin người dùng hoặc sản phẩm.");
         return;
       }
@@ -33,7 +44,7 @@ const OrderSuccessPage = () => {
         name: item.name,
         price: item.price,
         image: item.image,
-        schedule: item.schedule || "Chưa có lịch học", 
+        schedule: item.schedule || "Chưa có lịch học",
         amount: item.quantity,
       }));
 
@@ -59,7 +70,7 @@ const OrderSuccessPage = () => {
 
         if (response.status === "ERR") {
           toast.error(response.message || "Lỗi khi tạo đơn hàng.");
-          setOrderStatus("ERR");
+          setOrderStatus("error");
           setOrderMessage(response.message || "Có lỗi xảy ra khi đặt hàng.");
           return;
         }
@@ -67,27 +78,30 @@ const OrderSuccessPage = () => {
         toast.success("Đăng ký khóa học thành công!");
         const paidIds = mappedItems.map((item) => item.courseId);
         dispatch(removeAllOrderProduct({ listChecked: paidIds }));
-        setOrderStatus("SUCCESS");
+        setOrderStatus("success");
         setOrderMessage("Trung tâm đã xác nhận bạn đã đăng ký khóa học.");
+
+        // Sau khi thành công thì clear localStorage
+        localStorage.removeItem("selectedItems");
 
       } catch (err) {
         console.error("Lỗi tạo đơn hàng:", err);
         toast.error("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
-        setOrderStatus("ERR");
+        setOrderStatus("error");
         setOrderMessage("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.");
       }
     };
 
     createOrder();
-  }, [selectedItems, dispatch]);
+  }, [selectedItems, dispatch, user]);
 
   return (
     <WrapperOrderSuccess>
       {orderStatus && (
         <Result
-          status={orderStatus === "SUCCESS" ? "success" : "error"}
+          status={orderStatus}
           title={
-            orderStatus === "SUCCESS"
+            orderStatus === "success"
               ? "🎉 Thanh toán thành công!"
               : "❌ Thanh toán thất bại!"
           }

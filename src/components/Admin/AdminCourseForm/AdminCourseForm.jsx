@@ -24,6 +24,7 @@ export default function CourseFormModal({
 }) {
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
   const uploadKeyRef = useRef(Date.now());
 
   useEffect(() => {
@@ -49,31 +50,31 @@ export default function CourseFormModal({
       .catch(() => toast.error('Vui lòng kiểm tra lại thông tin!'));
   };
 
-  const handleUpload = async (info) => {
-    const file = info.file; // ✅ Dùng trực tiếp (vì là File object rồi)
-
-    console.log("👉 file info:", info);
-    console.log("👉 dùng trực tiếp file:", file);
-
-    if (!file) {
-      toast.error("Không thể đọc file ảnh. Vui lòng chọn lại.");
-      return;
-    }
-
-    if (!file.type?.startsWith("image/")) {
-      toast.error("Vui lòng chọn một file ảnh hợp lệ!");
-      return;
-    }
-
-    try {
-      const base64 = await getBase64(file);
-      setImageUrl(base64);
-      toast.success(`${file.name} đã được tải lên.`);
-    } catch (err) {
-      console.error("🔥 Lỗi khi đọc ảnh:", err);
-      toast.error("Tải ảnh thất bại!");
+  const handleUpload = async ({ fileList }) => {
+    const file = fileList[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file.originFileObj);
+      formData.append("upload_preset", "upload-uke86ro8");
+  
+      try {
+        setUploading(true);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/dhyuxajq1/image/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        setImageUrl(data.secure_url);
+        toast.success("Tải ảnh lên thành công!");
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error("Tải ảnh lên thất bại!");
+      } finally {
+        setUploading(false);
+      }
     }
   };
+  
 
   return (
     <ModalWrapper>
