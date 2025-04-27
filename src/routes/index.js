@@ -19,7 +19,6 @@ import ExamPage from "../pages/Admin/ExamPage/ExamPage";
 import PaymentManagement from "../pages/Admin/PaymentManagementPage/PaymentManagement";
 import ReportPage from "../pages/Admin/ReportPage/ReportPage";
 import AssessPage from "../pages/Admin/AssessPage/AssessPage";
-import AttendancePage from "../pages/Admin/AttendancePage/AttendancePage";
 import StudentschedulePage from "../pages/StudentschedulePage/StudentschedulePage";
 import AccessDeniedPage from "../pages/AccessDeniedPage/AccessDeniedPage";
 import PaymentPage from "../pages/PaymentPage/PaymentPage";
@@ -210,10 +209,6 @@ export const routes = [
       {
         path: "exams",
         page: ExamPage,
-      },
-      {
-        path: "attendance",
-        page: AttendancePage,
       },
       {
         path: "schedule",

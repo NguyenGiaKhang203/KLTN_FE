@@ -12,7 +12,7 @@ import {
   StyledTableWrapper,
   TopBar,
 } from "./style";
-import { FilterContainer } from "../Admin/AttendancePage/style";
+import { FilterContainer } from "./style";
 const { Option } = Select;
 
 const ExamListPage = () => {

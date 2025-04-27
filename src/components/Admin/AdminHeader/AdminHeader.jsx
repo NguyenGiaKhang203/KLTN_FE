@@ -14,7 +14,6 @@ const ClassPageHeader = () => {
     if (pathname.includes("schedule")) return "Thời khóa biểu";
     if (pathname.includes("teacher/schedule")) return "Lịch dạy";
     if (pathname.includes("courses")) return "Quản lý khóa học";
-    if (pathname.includes("attendance")) return "Điểm danh";
     if (pathname.includes("students")) return "Học sinh";
     if (pathname.includes("payment")) return "Quản lý thanh toán";
     if (pathname.includes("teachers")) return "Giảng viên";

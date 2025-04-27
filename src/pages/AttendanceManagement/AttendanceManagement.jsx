@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Select, DatePicker, Table, Button, message } from "antd";
+import { Select, Table, Button, message } from "antd";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
@@ -14,23 +14,39 @@ import {
 } from "./style";
 
 import * as ClassService from "../../services/ClassService";
-import * as ScheduleService from "../../services/ScheduleService";
-import { getStudentsInClass } from "../../services/ClassService";
+import * as AttendanceService from "../../services/AttendanceService";
 
 const { Option } = Select;
 
 const AttendanceManagementPage = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [validDates, setValidDates] = useState([]);
   const [studentList, setStudentList] = useState([]);
   const [classList, setClassList] = useState([]);
+  const [scheduleInfo, setScheduleInfo] = useState(null);
+  const [validDates, setValidDates] = useState([]);
+
   const user = useSelector((state) => state.user);
+  const token = user?.access_token;
+  const teacherId = user?.user?._id;
+
+  const convertNumberDayToText = (englishDay) => {
+    const map = {
+      Sunday: "Chủ nhật",
+      Monday: "Thứ 2",
+      Tuesday: "Thứ 3",
+      Wednesday: "Thứ 4",
+      Thursday: "Thứ 5",
+      Friday: "Thứ 6",
+      Saturday: "Thứ 7",
+    };
+    return map[englishDay] || englishDay;
+  };
 
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const response = await ClassService.getClassbyTeacher(user.user._id);
+        const response = await ClassService.getClassbyTeacher(teacherId);
         const transformed = response.data.map((item, index) => ({
           key: item._id || index.toString(),
           className: item.name,
@@ -41,44 +57,72 @@ const AttendanceManagementPage = () => {
       }
     };
 
-    if (user?.user?._id) {
+    if (teacherId) {
       fetchClasses();
     }
-  }, [user]);
+  }, [teacherId]);
 
   const handleSelectClass = async (classId) => {
     setSelectedClass(classId);
     setStudentList([]);
     setSelectedDate(null);
-    setValidDates([]);
+    setScheduleInfo(null);
 
     if (!classId) return;
 
     try {
-      const scheduleRes = await ScheduleService.getTeacherSchedule(user.user._id, user.access_token);
-      const classSchedules = scheduleRes?.data?.filter((item) => item.classId === classId);
-      const valid = classSchedules.map((item) => dayjs(item.date).format("YYYY-MM-DD"));
-      setValidDates(valid);
+      const res = await ClassService.getScheduleByClassId(classId);
+      const { startDate, endDate, schedule } = res;
+
+      if (schedule && startDate && endDate) {
+        const valid = generateValidDates(schedule, startDate, endDate);
+        setScheduleInfo({ schedule, startDate, endDate });
+        setValidDates(valid);
+      } else {
+        toast.error("Dữ liệu lịch học không hợp lệ.");
+      }
     } catch (error) {
-      toast.error("Lỗi khi tải lịch dạy.");
+      toast.error("Lỗi khi tải lịch học của lớp.");
     }
   };
 
-  const handleDateChange = async (date) => {
-    const formatted = date.format("YYYY-MM-DD");
+  const generateValidDates = (schedule, startDate, endDate) => {
+    const valid = [];
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
 
-    if (!validDates.includes(formatted)) {
-      toast.warning("Ngày này không nằm trong lịch dạy của lớp.");
+    if (!start.isValid() || !end.isValid()) return valid;
+
+    let current = start;
+    while (current.isSame(end, "day") || current.isBefore(end, "day")) {
+      const dayOfWeek = current.format("dddd");
+      const vietnameseDay = convertNumberDayToText(dayOfWeek);
+
+      if (schedule.some((item) => item.day === vietnameseDay)) {
+        valid.push(current.format("YYYY-MM-DD"));
+      }
+
+      current = current.add(1, "day");
+    }
+
+    return valid;
+  };
+
+  const handleDateChange = async (dateString) => {
+    if (!scheduleInfo || !validDates.length) return;
+
+    if (!validDates.includes(dateString)) {
+      toast.warning("Ngày này không nằm trong lịch học của lớp.");
       setSelectedDate(null);
       setStudentList([]);
       return;
     }
 
-    setSelectedDate(date);
+    setSelectedDate(dayjs(dateString));
 
     try {
-      const res = await getStudentsInClass(selectedClass);
-      const formattedStudents = res.data.map((stu) => ({
+      const res = await ClassService.getStudentsInClass(selectedClass);
+      const formattedStudents = res.students.map((stu) => ({
         _id: stu._id,
         name: stu.name,
         status: "present",
@@ -97,14 +141,44 @@ const AttendanceManagementPage = () => {
     );
   };
 
-  const handleSave = () => {
-    const payload = {
-      classId: selectedClass,
-      date: selectedDate.format("YYYY-MM-DD"),
-      attendance: studentList,
-    };
-    console.log("Lưu dữ liệu:", payload);
-    message.success("✅ Đã lưu thay đổi điểm danh!");
+  const handleSave = async () => {
+    if (!selectedDate) {
+      toast.error("Vui lòng chọn ngày hợp lệ trước khi lưu.");
+      return;
+    }
+  
+    const classroomId = selectedClass;
+    const attendances = studentList.map(student => ({
+      student: student._id,  // Chuyển `studentId` thành `student`
+      status: student.status,
+      date: selectedDate.format("YYYY-MM-DD")
+    }));
+  
+    // Kiểm tra hợp lệ trước khi gửi
+    const isValid = attendances.every(record =>
+      record.student &&
+      record.status &&
+      studentList.some(student => student._id.toString() === record.student.toString()) // Kiểm tra `student` thay vì `studentId`
+    );
+  
+    if (!isValid) {
+      toast.error("Có học viên không thuộc lớp học hoặc thiếu dữ liệu `student/status`");
+      return;
+    }
+  
+    try {
+      const res = await AttendanceService.bulkAttendance(classroomId, attendances, user.user._id, token);
+      console.log("Lưu dữ liệu:", { classroomId, attendances, teacherId: user.user._id });
+      message.success("✅ Đã lưu thay đổi điểm danh!");
+    } catch (error) {
+      console.error("Lỗi khi lưu điểm danh:", error);
+      message.error("❌ Lưu điểm danh thất bại. Vui lòng thử lại!");
+    }
+  };
+  
+
+  const handleDateSelectChange = (value) => {
+    handleDateChange(value);
   };
 
   const columns = [
@@ -156,15 +230,18 @@ const AttendanceManagementPage = () => {
         </Select>
 
         <span><strong>Ngày:</strong></span>
-        <DatePicker
-          format="DD/MM/YYYY"
-          value={selectedDate}
-          onChange={handleDateChange}
-          disabledDate={(current) => {
-            const formatted = current.format("YYYY-MM-DD");
-            return current > dayjs().endOf("day") || !validDates.includes(formatted);
-          }}
-        />
+        <Select
+          placeholder="Chọn ngày"
+          style={{ width: 200 }}
+          onChange={handleDateSelectChange}
+          value={selectedDate ? selectedDate.format("YYYY-MM-DD") : null}
+        >
+          {validDates.map((date) => (
+            <Option key={date} value={date}>
+              {dayjs(date).format("DD/MM/YYYY")}
+            </Option>
+          ))}
+        </Select>
       </FilterContainer>
 
       <StudentListWrapper>
