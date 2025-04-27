@@ -1,4 +1,3 @@
-// style.js
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import { Avatar } from "antd";
@@ -8,8 +7,8 @@ export const WrapperHeaderContainer = styled.div`
   background: #d1f8ef;
   display: flex;
   justify-content: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-`;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);`
+;
 
 export const WrapperHeader = styled.div`
   display: flex;
@@ -18,13 +17,43 @@ export const WrapperHeader = styled.div`
   width: 90%;
   max-width: 1200px;
   padding: 10px 0;
-`;
+  position: relative;`
+;
 
 export const WrapperLogo = styled.div`
   font-size: 20px;
   font-weight: bold;
-  flex: 1;
-`;
+  flex: none;
+  display: flex;
+  align-items: center;
+  z-index: 1001;
+
+  @media (max-width: 768px) {
+    margin-bottom: 10px;
+  }`
+;
+
+export const WrapperLogoLink = styled(NavLink)`
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  top: 10px;
+  z-index: 1001;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.active {
+    font-weight: 600;
+  }`
+;
+
+export const LogoImage = styled.img`
+  height: 25px;
+  object-fit: contain;
+  transform: scale(2.7);
+  transform-origin: left center;`
+;
 
 export const WrapperNavLinks = styled.div`
   display: flex;
@@ -32,14 +61,23 @@ export const WrapperNavLinks = styled.div`
   align-items: center;
   flex-grow: 1;
   justify-content: center;
-`;
+  margin-left:150px;
 
-export const LogoImage = styled.img`
-  height: 25px;
-  object-fit: contain;
-  transform: scale(2.7);
-  transform-origin: left center;
-`;
+  @media (max-width: 768px) {
+    display: none;
+  }`
+;
+
+export const WrapperMobileMenuButton = styled.div`
+  display: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 1002;
+
+  @media (max-width: 768px) {
+    display: block;
+  }`
+;
 
 export const WrapperTextHeader = styled(NavLink)`
   color: #1a1a1a;
@@ -47,7 +85,6 @@ export const WrapperTextHeader = styled(NavLink)`
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease-in-out;
-  position: relative;
 
   &:hover {
     color: rgb(230, 51, 51);
@@ -58,22 +95,8 @@ export const WrapperTextHeader = styled(NavLink)`
     color: rgb(230, 51, 51);
     font-weight: 600;
     border-bottom: 2px solid rgb(230, 51, 51);
-  }
-`;
-
-export const WrapperLogoLink = styled(NavLink)`
-  transition: all 0.3s ease-in-out;
-  position: relative;
-  top: 10px;
-
-  &:hover {
-    transform: scaleX(1.5);
-  }
-
-  &.active {
-    font-weight: 600;
-  }
-`;
+  }`
+;
 
 export const WrapperTextHeaderSmall = styled.div`
   color: #1a1a1a;
@@ -83,27 +106,27 @@ export const WrapperTextHeaderSmall = styled.div`
   &:hover {
     color: rgb(230, 51, 51);
     transform: scaleX(1.1);
-  }
-`;
+  }`
+;
 
 export const WrapperHeaderAccount = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  justify-content: flex-end;
-`;
+  justify-content: flex-end;`
+;
 
 export const WrapperAvatar = styled(Avatar)`
   height: 30px;
   width: 30px;
   border-radius: 50%;
-  object-fit: cover;
-`;
+  object-fit: cover;`
+;
 
 export const WrapperIcon = styled.div`
   font-size: 24px;
-  color: #1a1a1a;
-`;
+  color: #1a1a1a;`
+;
 
 export const WrapperUsername = styled.div`
   font-size: 14px;
@@ -113,8 +136,8 @@ export const WrapperUsername = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: pointer;
-`;
+  cursor: pointer;`
+;
 
 export const WrapperLoginSection = styled.div`
   display: flex;
@@ -122,8 +145,8 @@ export const WrapperLoginSection = styled.div`
   gap: 10px;
   cursor: pointer;
   flex-direction: row;
-  color: #000;
-`;
+  color: #000;`
+;
 
 export const WrapperCartIcon = styled.div`
   display: flex;
@@ -131,6 +154,7 @@ export const WrapperCartIcon = styled.div`
   cursor: pointer;
   flex-direction: row;
   gap: 10px;
+  margin-right:50px;
   transition: transform 0.3s ease-in-out;
 
   .icon {
@@ -140,8 +164,8 @@ export const WrapperCartIcon = styled.div`
 
   &:hover ${WrapperTextHeaderSmall} {
     transform: scaleX(1.1);
-  }
-`;
+  }`
+;
 
 export const WrapperContentPopup = styled.div`
   padding: 10px 16px;
@@ -162,29 +186,13 @@ export const WrapperContentPopup = styled.div`
 
   svg {
     font-size: 14px;
-  }
-`;
+  }`
+;
 
-
-// ✅ Modal style tách riêng
 export const customModalStyles = {
-  body: {
-    fontSize: 16,
-  },
-  header: {
-    fontSize: 18,
-  },
-  footer: {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: 10,
-  },
-  okButton: {
-    backgroundColor: "#ff4d4f",
-    borderColor: "#ff4d4f",
-    color: "white",
-  },
-  cancelButton: {
-    color: "#444",
-  },
+  body: { fontSize: 16 },
+  header: { fontSize: 18 },
+  footer: { display: "flex", justifyContent: "flex-end", gap: 10 },
+  okButton: { backgroundColor: "#ff4d4f", borderColor: "#ff4d4f", color: "white" },
+  cancelButton: { color: "#444" },
 };
