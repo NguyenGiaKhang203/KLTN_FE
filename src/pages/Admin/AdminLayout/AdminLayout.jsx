@@ -6,17 +6,17 @@ import { Wrapper, Content, Main } from "./style";
 
 import AdminDashboard from "../../../pages/Admin/AdminDashboard/AdminDashboard";
 import ClassPage from "../../Admin/ClassPage/ClassPage";
-import SchedulePage from "../SchedulePage/SchedulePage";
+import SchedulePage from "../../Teacher/SchedulePage/SchedulePage";
 import CoursePage from "../CoursePage/CoursePage";
 import StudentPage from "../StudentPage/StudentPage";
 import TeacherPage from "../TeacherPage/TeacherPage";
-import ExamPage from "../ExamPage/ExamPage";
+import ExamPage from "../../Teacher/ExamPage/ExamPage";
 import PaymentManagement from "../PaymentManagementPage/PaymentManagement";
 import ReportPage from "../ReportPage/ReportPage";
 import AssessPage from "../AssessPage/AssessPage";
-import AttendanceManagement from "../../AttendanceManagement/AttendanceManagement";
+import AttendanceManagement from "../../Teacher/AttendanceManagement/AttendanceManagement";
 import BlogManagementPage from "../BlogManagementPage/BlogManagementPage";
-import ScoreManagement from "../../ScoreManagementPage/ScoreManagementPage";
+import ScoreManagement from "../../Teacher/ScoreManagementPage/ScoreManagementPage";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
