@@ -21,3 +21,24 @@ export const bulkAttendance = async (classroomId, attendances, teacherId, token)
     throw error;
   }
 };
+
+export const getAttendanceByClassAndDate = async (classroomId, date,token) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/attendance/get-attendance`,
+      {
+        params: {
+          classroomId,
+          date,
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data
+  } catch (error) {
+    throw error.response?.data || { message: error.message };
+  }
+}
