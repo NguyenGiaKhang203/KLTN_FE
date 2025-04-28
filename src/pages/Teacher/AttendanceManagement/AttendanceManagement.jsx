@@ -25,6 +25,7 @@ const AttendanceManagementPage = () => {
   const [classList, setClassList] = useState([]);
   const [scheduleInfo, setScheduleInfo] = useState(null);
   const [validDates, setValidDates] = useState([]);
+  const [isAttendanceExist, setIsAttendanceExist] = useState(false);
 
   const user = useSelector((state) => state.user);
   const token = user?.access_token;
@@ -67,6 +68,7 @@ const AttendanceManagementPage = () => {
     setStudentList([]);
     setSelectedDate(null);
     setScheduleInfo(null);
+    setIsAttendanceExist(false);
 
     if (!classId) return;
 
@@ -115,21 +117,41 @@ const AttendanceManagementPage = () => {
       toast.warning("Ngày này không nằm trong lịch học của lớp.");
       setSelectedDate(null);
       setStudentList([]);
+      setIsAttendanceExist(false);
       return;
     }
 
     setSelectedDate(dayjs(dateString));
 
     try {
-      const res = await ClassService.getStudentsInClass(selectedClass);
-      const formattedStudents = res.students.map((stu) => ({
-        _id: stu._id,
-        name: stu.name,
-        status: "present",
-      }));
-      setStudentList(formattedStudents);
+      const attendanceRes = await AttendanceService.getAttendanceByClassAndDate(selectedClass, dateString, token);
+
+      if (attendanceRes.length > 0) {
+        const formattedStudents = attendanceRes.map((att) => ({
+          _id: att.student._id,
+          name: att.student.name,
+          status: att.status,
+        }));
+        setStudentList(formattedStudents);
+        setIsAttendanceExist(true);
+      } else {
+        throw new Error("Attendance not found");
+      }
     } catch (err) {
-      toast.error("Lỗi khi tải danh sách học viên.");
+      try {
+        const res = await ClassService.getStudentsInClass(selectedClass);
+        const formattedStudents = res.students.map((stu) => ({
+          _id: stu._id,
+          name: stu.name,
+          status: "", // Khoi tao rong
+        }));
+        setStudentList(formattedStudents);
+        setIsAttendanceExist(false);
+      } catch (innerErr) {
+        toast.error("Lỗi khi tải danh sách học viên.");
+        setStudentList([]);
+        setIsAttendanceExist(false);
+      }
     }
   };
 
@@ -146,37 +168,35 @@ const AttendanceManagementPage = () => {
       toast.error("Vui lòng chọn ngày hợp lệ trước khi lưu.");
       return;
     }
-  
+
     const classroomId = selectedClass;
     const attendances = studentList.map(student => ({
-      student: student._id,  // Chuyển `studentId` thành `student`
+      student: student._id,
       status: student.status,
       date: selectedDate.format("YYYY-MM-DD")
     }));
-  
-    // Kiểm tra hợp lệ trước khi gửi
+
     const isValid = attendances.every(record =>
       record.student &&
       record.status &&
-      studentList.some(student => student._id.toString() === record.student.toString()) // Kiểm tra `student` thay vì `studentId`
+      studentList.some(student => student._id.toString() === record.student.toString())
     );
-  
+
     if (!isValid) {
-      toast.error("Có học viên không thuộc lớp học hoặc thiếu dữ liệu `student/status`");
+      toast.error("Vui lòng chọn đầy đủ trạng thái cho tất cả học viên.");
       return;
     }
-  
+
     try {
       const res = await AttendanceService.bulkAttendance(classroomId, attendances, user.user._id, token);
       console.log("Lưu dữ liệu:", { classroomId, attendances, teacherId: user.user._id });
       message.success("✅ Đã lưu thay đổi điểm danh!");
       toast.success("Điểm danh đã được lưu thành công!");
+
     } catch (error) {
-      console.error("Lỗi khi lưu điểm danh:", error);
-      message.error("❌ Lưu điểm danh thất bại. Vui lòng thử lại!");
+      toast.error("\u274c Lưu điểm danh thất bại. Vui lòng thử lại!");
     }
   };
-  
 
   const handleDateSelectChange = (value) => {
     handleDateChange(value);
@@ -197,7 +217,8 @@ const AttendanceManagementPage = () => {
       dataIndex: "status",
       render: (_, record) => (
         <Select
-          value={record.status}
+          placeholder="Chọn trạng thái"
+          value={record.status || undefined}
           onChange={(val) => handleStatusChange(record._id, val)}
           style={{ width: 140 }}
         >
@@ -267,7 +288,7 @@ const AttendanceManagementPage = () => {
 
             <CenteredAction style={{ marginTop: 20 }}>
               <Button type="primary" onClick={handleSave}>
-                Lưu thay đổi
+                {isAttendanceExist ? "Lưu thay đổi" : "Điểm danh"}
               </Button>
             </CenteredAction>
           </>

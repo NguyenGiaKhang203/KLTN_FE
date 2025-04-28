@@ -13,6 +13,18 @@ export const WrapperGalleryTitle = styled.h2`
   margin-bottom: 20px;
   color: #588b2e;
   text-transform: uppercase;
+
+  @media (max-width: 1024px) {
+    font-size: 36px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 28px;
+  }
 `;
 
 export const WrapperGalleryGrid = styled.div`
@@ -23,12 +35,18 @@ export const WrapperGalleryGrid = styled.div`
   max-width: 1000px;
   margin: 0 auto;
 
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
   }
 
   @media (max-width: 480px) {
     grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
   }
 `;
 
@@ -70,5 +88,25 @@ export const WrapperImageCaption = styled.div`
     font-size: 14px;
     color: #666;
     margin: 5px 0 0;
+  }
+
+  @media (max-width: 768px) {
+    h3 {
+      font-size: 16px;
+    }
+
+    p {
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h3 {
+      font-size: 14px;
+    }
+
+    p {
+      font-size: 10px;
+    }
   }
 `;

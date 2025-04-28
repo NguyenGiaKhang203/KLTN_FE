@@ -5,55 +5,95 @@ export const SlideshowContainer = styled.div`
   width: 100%;
   height: 700px;
   overflow: hidden;
-  padding: 50px;
-  background-color: aquamarine;
+  background: linear-gradient(to right, #e0f7fa, #b2ebf2);
+  border-radius: 20px;
+  margin: auto;
+  max-width: 1400px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 1024px) {
+    height: 500px;
+  }
+
+  @media (max-width: 768px) {
+    height: 400px;
+  }
+
+  @media (max-width: 480px) {
+    height: 250px;
+  }
 `;
 
-export const SlideImage = styled.img`
+export const SlideImageWrapper = styled.div`
   position: absolute;
   top: 0;
-  left: 0;
+  left: 100%;
   width: 100%;
   height: 100%;
-  object-fit: contain;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
+  transition: all 1s ease-in-out;
   cursor: pointer;
-  padding: 20px 30px;
-  border-radius: 20px;
 
   ${({ active }) =>
     active &&
     css`
+      left: 0;
       opacity: 1;
     `}
+`;
+
+export const SlideImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
 `;
 
 export const NavButton = styled.button`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 8px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  z-index: 1;
+  z-index: 2;
+  transition: background-color 0.3s;
 
   ${({ position }) =>
     position === "left" &&
     css`
-      left: 100px;
+      left: 20px;
     `}
 
   ${({ position }) =>
     position === "right" &&
     css`
-      right: 100px;
+      right: 20px;
     `}
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+  }
+
+  @media (max-width: 480px) {
+    padding: 5px;
+  }
 `;
 
 export const IconWrapper = styled.div`
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    color: #00796b;
+  }
+
+  @media (max-width: 480px) {
+    width: 20px;
+    height: 20px;
+  }
 `;

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import {
   SlideshowContainer,
+  SlideImageWrapper,
   SlideImage,
   NavButton,
   IconWrapper,
@@ -23,23 +24,20 @@ const Slideshow = ({ featureImageList }) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 5000);
-
+    const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, [currentSlide]);
+  }, []); // chỉ chạy 1 lần khi mount
 
   return (
     <SlideshowContainer>
       {featureImageList.map((slide, index) => (
-        <SlideImage
+        <SlideImageWrapper
           key={index}
-          src={slide.image}
-          alt="Slide"
           active={index === currentSlide}
           onClick={() => navigate("/courses")}
-        />
+        >
+          <SlideImage src={slide.image} alt={`Slide ${index + 1}`} />
+        </SlideImageWrapper>
       ))}
 
       <NavButton onClick={prevSlide} position="left">

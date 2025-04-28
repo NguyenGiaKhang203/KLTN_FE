@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   orderItems: [],
-  orderItemsSlected: [],
+  orderItemsSlected: [], // <-- Chú ý tên này (selectedItems)
   shippingAddress: {},
   paymentMethod: '',
   itemsPrice: 0,
@@ -93,10 +93,8 @@ export const orderSlide = createSlice({
     },
 
     selectedOrder: (state, action) => {
-      const { listChecked } = action.payload;
-      state.orderItemsSlected = state.orderItems.filter((order) =>
-        listChecked.includes(order.courseId)
-      );
+      const { selectedItems } = action.payload;
+      state.orderItemsSlected = selectedItems;
     },
 
     resetOrderState: (state) => {

@@ -1,14 +1,13 @@
+// AttendanceService.js (FE)
 import axios from "axios";
+
+const API_URL = process.env.REACT_APP_API_URL + "/attendance";
 
 export const bulkAttendance = async (classroomId, attendances, teacherId, token) => {
   try {
     const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/attendance/bulk`,
-      {
-        classroomId,
-        attendances,
-        teacherId,
-      },
+      `${API_URL}/bulk`,
+      { classroomId, attendances, teacherId },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -22,23 +21,37 @@ export const bulkAttendance = async (classroomId, attendances, teacherId, token)
   }
 };
 
-export const getAttendanceByClassAndDate = async (classroomId, date,token) => {
+export const getAttendanceByClassAndDate = async (classroomId, date, token) => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/attendance/get-attendance`,
-      {
-        params: {
-          classroomId,
-          date,
-        }
+    const response = await axios.get(`${API_URL}/get-attendance`, {
+      params: {
+        classroomId,
+        date,
       },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: error.message };
+  }
+};
+
+export const updateAttendance = async (attendanceId, updatedAttendances, token) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/update`,
+      { attendanceId, updatedAttendances },
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-    return response.data
+    return response.data;
   } catch (error) {
-    throw error.response?.data || { message: error.message };
+    console.error("❌ Lỗi khi cập nhật điểm danh:", error.message);
+    throw error;
   }
-}
+};

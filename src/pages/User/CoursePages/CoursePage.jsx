@@ -18,7 +18,7 @@ import {
 import { Pagination } from "antd";
 import * as CourseService from "../../../services/CourseService";
 
-// ✅ Bổ sung mapping cho type từ BE → FE
+// ✅ Mapping Type
 const typeMapping = {
   "Cơ bản": "basic",
   "Trung cấp 1": "intermediate1",
@@ -27,6 +27,7 @@ const typeMapping = {
   "Nâng cao 2": "advanced2",
 };
 
+// ✅ Các lựa chọn sort
 const sortOptions = [
   { id: "price-lowtohigh", label: "Giá: Thấp đến Cao" },
   { id: "price-hightolow", label: "Giá: Cao đến Thấp" },
@@ -47,8 +48,7 @@ function CoursePage() {
   const [courseDetails, setCourseDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
-
-  const pageSize = 6;
+  const [pageSize, setPageSize] = useState(8); // Mặc định 8 khóa/trang
 
   useEffect(() => {
     const fetchCoursesFromDB = async () => {
@@ -61,15 +61,31 @@ function CoursePage() {
         console.error("Lỗi khi fetch khóa học:", error);
       }
     };
-
     fetchCoursesFromDB();
+  }, []);
+
+  // ✅ Update pageSize theo màn hình
+  useEffect(() => {
+    const updatePageSize = () => {
+      const width = window.innerWidth;
+      if (width <= 480) {
+        setPageSize(2);
+      } else if (width <= 768) {
+        setPageSize(4);
+      } else {
+        setPageSize(8);
+      }
+    };
+    updatePageSize();
+    window.addEventListener('resize', updatePageSize);
+    return () => window.removeEventListener('resize', updatePageSize);
   }, []);
 
   useEffect(() => {
     const applyFilterAndSort = () => {
       let filtered = [...allCourses];
 
-      // ✅ Lọc theo filter (bao gồm mapping type)
+      // ✅ Filter
       for (const key in filters) {
         if (filters[key].length > 0) {
           filtered = filtered.filter((course) => {
@@ -80,7 +96,7 @@ function CoursePage() {
         }
       }
 
-      // ✅ Tìm kiếm theo tên
+      // ✅ Search
       if (searchText.trim() !== "") {
         const keyword = searchText.toLowerCase();
         filtered = filtered.filter((course) =>
@@ -88,7 +104,7 @@ function CoursePage() {
         );
       }
 
-      // ✅ Sắp xếp
+      // ✅ Sort
       switch (sort) {
         case "price-lowtohigh":
           filtered.sort((a, b) => a.price - b.price);
@@ -113,14 +129,13 @@ function CoursePage() {
       setCourseList(filtered);
       setCurrentPage(1);
     };
-
     applyFilterAndSort();
   }, [filters, sort, allCourses, searchText]);
 
   const paginatedCourses = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return courseList.slice(start, start + pageSize);
-  }, [courseList, currentPage]);
+  }, [courseList, currentPage, pageSize]);
 
   const handleFilter = (sectionId, optionId) => {
     const updatedFilters = { ...filters };

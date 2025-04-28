@@ -2,38 +2,36 @@ import { useState, useEffect } from 'react';
 import { Table, Input, Select, Button, Tag, message } from 'antd';
 import { SortAscendingOutlined } from '@ant-design/icons';
 import { PageHeader, FilterContainer, HeaderActions } from './style';
-import * as OrderService from '../../../services/OrderService'; 
-import * as ClassService from '../../../services/ClassService';
+import * as OrderService from '../../../services/OrderService';
+import * as CourseService from '../../../services/CourseService'; // 👈 đổi từ ClassService thành CourseService
+
 const { Option } = Select;
 
 export default function PaymentPage() {
   const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
-  const [classList, setClassList] = useState([]);
-  const [filterClass, setFilterClass] = useState('');
+  const [filterCourse, setFilterCourse] = useState('');
+  const [courseList, setCourseList] = useState([]);
   const [sortOrder, setSortOrder] = useState('');
   const [rawData, setRawData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
 
-  // Gọi API
+  // Fetch đơn hàng
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await OrderService.getAllOrder();
         const data = response.data || [];
-        console.log('data', data);
 
         const formattedData = data.map((item, index) => ({
           key: index,
           orderId: item._id,
-          studentName: item.studentName || '', // hoặc fetch thêm từ user nếu có
-          email: item.email,       // hoặc fetch thêm từ user nếu có
-          className: item.orderItems?.map(i => i.name).join(', '),
+          studentName: item.studentName || '',
+          email: item.email,
+          courseName: item.orderItems?.map(i => i.name).join(', '), // 👈 đổi tên thành courseName
           amount: item.totalPrice,
           status: 'paid',
           date: new Date(item.createdAt).toLocaleDateString('vi-VN'),
         }));
-        console.log('formattedData', formattedData);
 
         setRawData(formattedData);
       } catch (error) {
@@ -45,6 +43,19 @@ export default function PaymentPage() {
     fetchData();
   }, []);
 
+  // Fetch danh sách khoá học
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await CourseService.getAllCourse();
+        setCourseList(res.data || []);
+      } catch (err) {
+        console.error('Lỗi khi lấy danh sách khoá học:', err);
+      }
+    };
+    fetchCourses();
+  }, []);
+
   // Lọc và sắp xếp
   useEffect(() => {
     let results = rawData.filter((p) => {
@@ -52,33 +63,20 @@ export default function PaymentPage() {
         p.studentName.toLowerCase().includes(search.toLowerCase()) ||
         p.email.toLowerCase().includes(search.toLowerCase()) ||
         p.orderId.toLowerCase().includes(search.toLowerCase());
-  
-      const matchClass = filterClass ? p.className.includes(filterClass) : true;
-  
-      return matchSearch && matchClass;
+
+      const matchCourse = filterCourse ? p.courseName.includes(filterCourse) : true;
+
+      return matchSearch && matchCourse;
     });
-  
+
     if (sortOrder === 'asc') {
       results.sort((a, b) => a.studentName.localeCompare(b.studentName));
     } else if (sortOrder === 'desc') {
       results.sort((a, b) => b.studentName.localeCompare(a.studentName));
     }
-  
+
     setFilteredData(results);
-  }, [search, filterClass, sortOrder, rawData]);
-  
-  //Lấy dah sách lớp
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const res = await ClassService.getAllClasses();
-        setClassList(res.data || []);
-      } catch (err) {
-        console.error('Lỗi khi lấy danh sách lớp:', err);
-      }
-    };
-    fetchClasses();
-  }, []);
+  }, [search, filterCourse, sortOrder, rawData]);
 
   const columns = [
     {
@@ -97,9 +95,9 @@ export default function PaymentPage() {
       key: 'email',
     },
     {
-      title: 'Khóa học',
-      dataIndex: 'className',
-      key: 'className',
+      title: 'Khoá học',
+      dataIndex: 'courseName',
+      key: 'courseName',
     },
     {
       title: 'Số tiền',
@@ -140,21 +138,25 @@ export default function PaymentPage() {
           style={{ width: 250 }}
         />
         <Select
-          value={filterClass || undefined} 
-          placeholder="Lọc theo lớp học"
+          value={filterCourse || undefined}
+          placeholder="Lọc theo khoá học"
           allowClear
           style={{ width: 200 }}
-          onChange={(value) => setFilterClass(value)}
+          onChange={(value) => setFilterCourse(value)}
         >
-          {classList.map((cls) => (
-            <Option key={cls._id} value={cls.name}>
-              {cls.name}
+          {courseList.map((course) => (
+            <Option key={course._id} value={course.name}>
+              {course.name}
             </Option>
           ))}
         </Select>
-        <Button icon={<SortAscendingOutlined />} ghost onClick={() =>
-          setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-        }>
+        <Button
+          icon={<SortAscendingOutlined />}
+          ghost
+          onClick={() =>
+            setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+          }
+        >
           Sắp xếp tên
         </Button>
       </FilterContainer>
