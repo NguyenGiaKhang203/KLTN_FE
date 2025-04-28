@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetUser, updateUser } from "./redux/slices/userSlice";
 import Loading from "./components/LoadingComponent/LoadingComponent";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
-import AccessDeniedPage from "./pages/AccessDeniedPage/AccessDeniedPage";
+import AccessDeniedPage from "./pages/User/AccessDeniedPage/AccessDeniedPage";
 
 
 function App() {

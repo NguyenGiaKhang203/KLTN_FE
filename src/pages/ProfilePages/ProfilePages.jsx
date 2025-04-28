@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button } from "antd";
-import InputForm from "../../../components/InputForm/InputForm";
-import ButtonComponent from "../../../components/ButtonComponent/ButtonComponent";
-import * as UserService from "../../../services/UserService";
-import { updateUser } from "../../../redux/slices/userSlice";
-import { useMutationHooks } from "../../../hooks/useMutationHooks";
-import { getBase64 } from "../../../utils";
+import InputForm from "../../components/InputForm/InputForm";
+import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import * as UserService from "../../services/UserService";
+import { updateUser } from "../../redux/slices/userSlice";
+import { useMutationHooks } from "../../hooks/useMutationHooks";
+import { getBase64 } from "../../utils";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -166,26 +166,26 @@ const ProfilePage = () => {
   };
 
   const handleChangeAvatar = async ({ fileList }) => {
-    const file = fileList[0];
-    if (file) {
+    const file = fileList[0];  // Lấy tệp đầu tiên trong danh sách tệp
+    if (file && file.originFileObj && avatar !== file.originFileObj.name) {
       const formData = new FormData();
       formData.append("file", file.originFileObj);
       formData.append("upload_preset", "upload-uke86ro8");
-
+  
       try {
         const res = await fetch(`https://api.cloudinary.com/v1_1/dhyuxajq1/image/upload`, {
           method: "POST",
           body: formData,
         });
         const data = await res.json();
-        setAvatar(data.secure_url);
+        setAvatar(data.secure_url); 
       } catch (error) {
         console.error("Upload error:", error);
       }
     }
   };
-
-
+  
+  
 
   return (
     <div>

@@ -74,12 +74,13 @@ const ExamListPage = () => {
     }
   };
 
+  
   const handleStartExam = () => {
     if (selectedExam) {
       if (selectedExam.examUrl?.startsWith("http")) {
-        window.location.href = selectedExam.examUrl;
+        window.open(selectedExam.examUrl, "_blank");
       } else {
-        navigate(`/exam/do/${selectedExam._id}`);
+        navigate(`/exam/do/${selectedExam._id}`, { replace: true });
       }
     }
   };

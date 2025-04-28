@@ -170,6 +170,7 @@ const AttendanceManagementPage = () => {
       const res = await AttendanceService.bulkAttendance(classroomId, attendances, user.user._id, token);
       console.log("Lưu dữ liệu:", { classroomId, attendances, teacherId: user.user._id });
       message.success("✅ Đã lưu thay đổi điểm danh!");
+      toast.success("Điểm danh đã được lưu thành công!");
     } catch (error) {
       console.error("Lỗi khi lưu điểm danh:", error);
       message.error("❌ Lưu điểm danh thất bại. Vui lòng thử lại!");
