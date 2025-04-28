@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // thêm dòng này
 import Heroimg from "../../assets/Hero-img.jpg";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
 import {
@@ -14,6 +15,11 @@ import {
 
 const Hero = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate(); // thêm dòng này
+
+  const handleClickRegister = () => {
+    navigate("/sign-up"); // link đến trang đăng ký
+  };
 
   return (
     <WrapperHeroSection>
@@ -29,9 +35,10 @@ const Hero = () => {
         </HeroDescription>
         <ButtonComponent
           size="large"
-          textbutton="HỌC THỬ NGAY"
+          textbutton="ĐĂNG KÝ NGAY"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onClick={handleClickRegister} // thêm onClick
           styleButton={{
             background:
               "linear-gradient(90deg, rgba(148,255,158,1) 0%, rgba(60,162,231,1) 100%, rgba(0,95,160,1) 100%)",
@@ -41,6 +48,7 @@ const Hero = () => {
             padding: "20px 20px",
             transition: "all 1s ease-in-out",
             transform: isHovered ? "scale(1.1)" : "",
+            cursor: "pointer",
           }}
           styleTextButton={{
             fontSize: "20px",

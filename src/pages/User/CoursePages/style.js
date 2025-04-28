@@ -40,9 +40,17 @@ export const WrapperCourseHeader = styled.div`
 
 export const WrapperCourseGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
   padding: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const SortSelect = styled.select`
@@ -51,8 +59,10 @@ export const SortSelect = styled.select`
   border-radius: 4px;
   border: 1px solid #ccc;
 `;
+
 export const CenteredPagination = styled.div`
   display: flex;
   justify-content: center;
-  margin: 7px 0px 0px 850px;
+  margin: 16px 0;
+  margin-left:850px;
 `;

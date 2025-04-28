@@ -12,15 +12,35 @@ export const WrapperTitle = styled.h2`
   color: #004d40;
   font-weight: bold;
   margin-bottom: 10px;
+
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 26px;
+  }
 `;
 
 export const WrapperParagraph = styled.p`
-  font-size: 16px;
+  font-size: 18px;
   color: #444;
   margin-bottom: 30px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 
   strong {
-    display: block;
+    display: inline;
+    font-weight: bold;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
   }
 `;
 
@@ -29,6 +49,7 @@ export const WrapperCardContainer1 = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
+  margin-top: 40px;
 
   .chess-card {
     background: linear-gradient(
@@ -38,12 +59,16 @@ export const WrapperCardContainer1 = styled.div`
       rgba(0, 95, 160, 1) 100%
     );
     padding: 20px;
-    width: 350px;
-    height: 550px;
+    width: 320px;
+    height: 500px;
     border-radius: 12px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 
     &:hover {
       transform: translateY(-8px);
@@ -51,9 +76,9 @@ export const WrapperCardContainer1 = styled.div`
     }
 
     img {
-      width: 150px;
+      width: 130px;
       height: auto;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       transition: transform 0.3s ease-out;
 
       &:hover {
@@ -62,30 +87,69 @@ export const WrapperCardContainer1 = styled.div`
     }
 
     h3 {
-      font-size: 20px;
+      font-size: 22px;
       color: #004d40;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     p {
-      padding: 25px;
+      padding: 0 15px;
       font-size: 16px;
       color: #222;
+      flex-grow: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .chess-card {
+      width: 280px;
+      height: 480px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: center;
+
+    .chess-card {
+      width: 90%;
+      max-width: 350px;
+      height: auto;
+      padding: 20px 15px;
     }
   }
 `;
 
 export const WrapperCardContainer2 = styled(WrapperCardContainer1)`
-  margin-top: 30px;
+  margin-top: 50px;
 
   .chess-card {
-    width: 400px;
-    height: 550px;
+    width: 350px;
+    height: 500px;
     background: linear-gradient(
       0deg,
       rgba(148, 255, 158, 1) 0%,
       rgba(60, 162, 231, 1) 100%,
       rgba(0, 95, 160, 1) 100%
     );
+  }
+
+  @media (max-width: 768px) {
+    .chess-card {
+      width: 300px;
+      height: 480px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: center;
+
+    .chess-card {
+      width: 90%;
+      max-width: 350px;
+      height: auto;
+      padding: 20px 15px;
+    }
   }
 `;

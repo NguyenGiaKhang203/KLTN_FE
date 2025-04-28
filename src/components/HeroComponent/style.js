@@ -6,10 +6,16 @@ export const WrapperHeroSection = styled.section`
   justify-content: space-between;
   padding: 100px 190px;
   background: white;
+  gap: 50px;
 
   @media (max-width: 1024px) {
     flex-direction: column;
     padding: 60px 40px;
+    gap: 30px;
+  }
+
+  @media (max-width: 600px) {
+    padding: 40px 20px;
   }
 `;
 
@@ -29,6 +35,14 @@ export const HeroTitle = styled.h1`
   font-weight: bold;
   color: #588b2e;
   margin-bottom: 30px;
+
+  @media (max-width: 768px) {
+    font-size: 40px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 32px;
+  }
 `;
 
 export const HighlightText = styled.span`
@@ -49,6 +63,14 @@ export const SubText1 = styled.p`
   color: #333;
   font-weight: 500;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 22px;
+  }
 `;
 
 export const SubText = styled.p`
@@ -58,6 +80,14 @@ export const SubText = styled.p`
     font-size: 20px;
     margin-bottom: 25px;
     display: inline-block;
+
+    @media (max-width: 768px) {
+      font-size: 18px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 16px;
+    }
   }
 `;
 
@@ -72,5 +102,9 @@ export const WrapperHeroImage = styled.div`
     height: auto;
     border-radius: 15px;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+
+    @media (max-width: 1024px) {
+      max-width: 100%;
+    }
   }
 `;

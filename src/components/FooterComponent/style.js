@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { Divider } from "antd";
+
 // Footer chính
 export const WrapperFooter = styled.footer`
   background-color: #111;
@@ -19,6 +20,10 @@ export const WrapperFooterContainer = styled.div`
   flex-wrap: wrap;
   gap: 40px;
 
+  @media (max-width: 1024px) {
+    gap: 30px;
+  }
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
@@ -29,8 +34,10 @@ export const WrapperFooterContainer = styled.div`
 export const WrapperLeft = styled.div`
   flex: 1;
   text-align: center;
+
   @media (max-width: 768px) {
     text-align: center;
+    flex: 1 1 100%; /* Chiếm toàn bộ chiều rộng trên màn hình nhỏ */
   }
 `;
 
@@ -45,14 +52,18 @@ export const WrapperCenter = styled.div`
 
   @media (max-width: 768px) {
     text-align: center;
+    flex: 1 1 100%; /* Chiếm toàn bộ chiều rộng trên màn hình nhỏ */
   }
 `;
 
 export const WrapperRight = styled.div`
   flex: 0.8;
   margin-left: 25px;
+
   @media (max-width: 768px) {
     text-align: center;
+    margin-left: 0;
+    flex: 1 1 100%; /* Chiếm toàn bộ chiều rộng trên màn hình nhỏ */
   }
 `;
 
@@ -94,6 +105,10 @@ export const WrapperSocialIcons = styled.div`
   .youtube {
     color: #ff0000;
   }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 `;
 
 export const WrapperTextFooter = styled(Link)`
@@ -113,6 +128,10 @@ export const WrapperLinkGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
+
+  @media (max-width: 768px) {
+    align-items: center;
+  }
 `;
 
 export const WrapperCopyright = styled.p`
@@ -121,17 +140,29 @@ export const WrapperCopyright = styled.p`
   font-size: 13px;
   margin-top: 20px;
 `;
+
 export const CustomDivider = styled.div`
   width: 300px;
   height: 3px;
   background-color: #444;
   margin: 12px auto;
   border-radius: 2px;
+
+  @media (max-width: 768px) {
+    width: 200px;
+  }
 `;
+
 export const LogoImage = styled.img`
-  height: 40px; // ✅ chỉnh to lên theo header
+  height: 40px;
   object-fit: contain;
-  transform: scale(3.5);
-  transformorigin: left center;
   margin-bottom: 10px;
+
+  @media (max-width: 768px) {
+    height: 35px;
+  }
+
+  @media (max-width: 480px) {
+    height: 30px;
+  }
 `;

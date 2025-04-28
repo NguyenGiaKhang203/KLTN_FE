@@ -21,6 +21,16 @@ export const MessBoxWrapper = styled.div`
   bottom: 24px;
   right: 24px;
   z-index: 1000;
+
+  @media (max-width: 768px) {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  @media (max-width: 480px) {
+    bottom: 12px;
+    right: 12px;
+  }
 `;
 
 export const CircleButton = styled.button`
@@ -43,5 +53,23 @@ export const CircleButton = styled.button`
   svg {
     font-size: 24px;
     color: white;
+  }
+
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+
+    svg {
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 45px;
+    height: 45px;
+
+    svg {
+      font-size: 18px;
+    }
   }
 `;

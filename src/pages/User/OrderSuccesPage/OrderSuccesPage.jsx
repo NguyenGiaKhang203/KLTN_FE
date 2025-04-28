@@ -14,7 +14,6 @@ const OrderSuccessPage = () => {
   const selectedItemsRedux = useSelector((state) => state.order.orderItemsSlected);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [orderStatus, setOrderStatus] = useState(null); // "success" | "error" | null
   const [orderMessage, setOrderMessage] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
