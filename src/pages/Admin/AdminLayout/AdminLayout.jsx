@@ -17,6 +17,7 @@ import AssessPage from "../AssessPage/AssessPage";
 import AttendanceManagement from "../../Teacher/AttendanceManagement/AttendanceManagement";
 import BlogManagementPage from "../BlogManagementPage/BlogManagementPage";
 import ScoreManagement from "../../Teacher/ScoreManagementPage/ScoreManagementPage";
+import SuggettionManagement from "../SuggestionManagement/SuggestionManagement";
 
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -55,14 +56,17 @@ const AdminLayout = ({ children }) => {
     if (location.pathname === "/system/admin/blog") {
       return <BlogManagementPage />;
     }
+    if (location.pathname === "/system/admin/suggest-management") {
+      return <SuggettionManagement />;
+    }
     if (location.pathname === "/system/admin/report") {
       return <ReportPage />;
     }
     if (location.pathname === "/system/teacher/attendance-management") {
-      return <AttendanceManagement/>
+      return <AttendanceManagement />
     }
     if (location.pathname === "/system/teacher/score-management") {
-      return <ScoreManagement/>
+      return <ScoreManagement />
     }
 
     return <AdminDashboard />;
