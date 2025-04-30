@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Select, message } from "antd";
-import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
-import { toast } from "react-toastify";
+import { Table, Button, Tag, Select, Radio, message } from "antd";
 import { useSelector } from "react-redux";
-import { getExamsByClassId } from "../../../services/ExamService";
-import * as ClassService from "../../../services/ClassService";
+import dayjs from "dayjs";
 import {
   PageContainer,
   StyledHeader,
   StyledTableWrapper,
-  TopBar,
   FilterContainer
 } from "./style";
+
+import { toast } from "react-toastify";
+import { getExamsByClassId } from "../../../services/ExamService";
+import * as ClassService from "../../../services/ClassService";
+import axios from "axios";
 const { Option } = Select;
 
 const ExamListPage = () => {
@@ -21,8 +21,9 @@ const ExamListPage = () => {
   const [selectedClassRecord, setSelectedClassRecord] = useState(null);
   const [data, setData] = useState([]);
   const [selectedExam, setSelectedExam] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false); // Thêm trạng thái để theo dõi việc đã nộp bài
   const user = useSelector((state) => state.user);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -48,17 +49,16 @@ const ExamListPage = () => {
     if (!selected) {
       setSelectedClass(undefined);
       setSelectedClassRecord(null);
-      setExams([]); 
+      setExams([]);
       return;
     }
-  
+
     setSelectedClass(selected.className);
     setSelectedClassRecord(selected);
-    setExams([]); 
-  
+    setExams([]);
+
     await fetchExams(selected.key);
   };
-  
 
   const fetchExams = async (classId) => {
     try {
@@ -70,21 +70,44 @@ const ExamListPage = () => {
       }
     } catch (err) {
       message.error("Không thể tải danh sách bài thi.");
-
     }
   };
 
-  
-  const handleStartExam = () => {
-    if (selectedExam) {
-      if (selectedExam.examUrl?.startsWith("http")) {
-        window.open(selectedExam.examUrl, "_blank");
-      } else {
-        navigate(`/exam/do/${selectedExam._id}`, { replace: true });
-      }
+  const handleStartExam = (record) => {
+    setSelectedExam(record);
+    setAnswers({}); // reset lại bài làm
+    setIsSubmitted(false); // Reset trạng thái nộp bài khi bắt đầu làm bài mới
+  };
+
+  const handleAnswerChange = (questionId, answer) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: answer,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitted) {
+      toast.warning("Bạn đã nộp bài trước đó.");
+      return; // Nếu đã nộp bài rồi, không cho nộp lại
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3001/api/exam/submit', {
+        examId: selectedExam._id,
+        answers: answers,
+        studentId: user?.user._id
+      });
+
+      const { score } = response.data;
+      toast.success(`Đã nộp bài thành công`);
+      setIsSubmitted(true); 
+      setSelectedExam(null); 
+    } catch (error) {
+      console.error(error);
+      toast.error("Có lỗi khi nộp bài. Vui lòng thử lại!");
     }
   };
-  
 
   const columns = [
     {
@@ -119,13 +142,10 @@ const ExamListPage = () => {
         return (
           <Button
             type="primary"
-            disabled={!canDo}
-            onClick={() => {
-              setSelectedExam(record);
-              handleStartExam();
-            }}
+            disabled={!canDo || isSubmitted}
+            onClick={() => handleStartExam(record)}
           >
-            Làm bài
+            {isSubmitted ? "Đã nộp bài" : "Làm bài"}
           </Button>
         );
       },
@@ -134,10 +154,10 @@ const ExamListPage = () => {
 
   return (
     <PageContainer>
-
       <StyledHeader>
         <h2>Danh sách bài thi</h2>
       </StyledHeader>
+
       <FilterContainer>
         <span><strong>Chọn lớp học:</strong></span>
         <Select
@@ -173,6 +193,32 @@ const ExamListPage = () => {
           columns={columns}
         />
       </StyledTableWrapper>
+
+      {/* PHẦN HIỂN THỊ BÀI THI */}
+      {selectedExam && (
+        <div style={{ marginTop: "32px", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" }}>
+          <h3>Bài thi: {selectedExam.examName}</h3>
+          {selectedExam.questions.map((q, index) => (
+            <div key={q._id} style={{ marginBottom: "16px" }}>
+              <strong>Câu {index + 1}: {q.questionText}</strong>
+              <Radio.Group
+                onChange={(e) => handleAnswerChange(q.questionId, e.target.value)}
+                value={answers[q.questionId]}
+                style={{ display: "flex", flexDirection: "column", marginTop: "8px" }}
+              >
+                {q.options.map((opt, idx) => (
+                  <Radio key={idx} value={String.fromCharCode(65 + idx)}>
+                    {String.fromCharCode(65 + idx)}. {opt}
+                  </Radio>
+                ))}
+              </Radio.Group>
+            </div>
+          ))}
+          <Button type="primary" onClick={handleSubmit} disabled={isSubmitted}>
+            {isSubmitted ? "Đã nộp bài" : "Nộp bài"}
+          </Button>
+        </div>
+      )}
     </PageContainer>
   );
 };

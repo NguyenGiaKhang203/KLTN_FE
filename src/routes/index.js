@@ -30,6 +30,8 @@ import BlogDetailPage from "../pages/User/BlogDetailsPage/BlogDetailPage";
 import OrderSuccessPage from "../pages/User/OrderSuccesPage/OrderSuccesPage";
 import MyOrderPage from "../pages/User/MyOrderPage/MyOrderPage";
 import ScoreManagement from "../pages/Teacher/ScoreManagementPage/ScoreManagementPage";
+import CourseSuggestion from "../pages/User/CourseSuggestionPage/CourseSuggestionPage";
+import SuggettionManagement from "../pages/Admin/SuggestionManagement/SuggestionManagement";
 
 export const routes = [
   // Public Pages
@@ -75,7 +77,7 @@ export const routes = [
     isShowHeader: true,
     isShowFooter: true,
   },
-  
+
   {
     path: "/order-success",
     page: OrderSuccessPage,
@@ -147,6 +149,13 @@ export const routes = [
     isShowHeader: true,
     isShowFooter: false,
   },
+  {
+    path: "/suggest-course",
+    page: CourseSuggestion,
+    isShowHeader: true,
+    isShowFooter: false,
+  },
+  
 
   //  Admin Routes
   {
@@ -195,6 +204,10 @@ export const routes = [
       {
         path: "blog",
         page: BlogManagementPage,
+      },
+      {
+        path: "suggest-management",
+        page: SuggettionManagement,
       },
     ],
   },

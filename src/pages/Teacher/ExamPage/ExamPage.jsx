@@ -8,25 +8,24 @@ import {
   Form,
   DatePicker,
   Select,
+  Upload,
+  InputNumber,
+  Space
 } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
-  SortAscendingOutlined,
   PlusOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import {
-  PageHeader,
-  FilterContainer,
-  HeaderActions,
-  CenteredAction,
-} from "./style";
 import * as ExamService from "../../../services/ExamService";
 import * as ClassService from "../../../services/ClassService";
 import { useSelector } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import * as XLSX from 'xlsx';
+import mammoth from 'mammoth';
 
 const { Option } = Select;
 
@@ -42,6 +41,9 @@ export default function ExamPage() {
   const [classList, setClassList] = useState([]);
   const [deleteExamId, setDeleteExamId] = useState(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const [fileType, setFileType] = useState("");
+  const [questions, setQuestions] = useState([]);
 
   const user = useSelector((state) => state.user);
   const token = user?.access_token;
@@ -61,25 +63,73 @@ export default function ExamPage() {
 
   const fetchExams = async () => {
     try {
-      const res = await ExamService.getExamsByTeacherId(user?.user._id,token);
+      const res = await ExamService.getExamsByTeacherId(user?.user._id, token);
       const examList = Array.isArray(res) ? res : res.data;
-
       const mapped = examList.map((exam) => ({
         _id: exam._id,
         title: exam.examName,
-        class: exam.class,
+        className: exam.class?.name,
         date: dayjs(exam.examDeadline).format("YYYY-MM-DD HH:mm"),
-        examUrl: exam.examUrl,
+        questions: exam.questions || [],
+        duration: exam.duration || 0,
       }));
       setExams(mapped);
     } catch {
-      toast.error("Lỗi khi tải danh sách bài thi.");
+      toast.error("Lỗi khi tải danh sách bài thi");
     }
   };
 
+
+  const handleFileChange = (info) => {
+    const selectedFile = info.fileList[0]?.originFileObj;
+    if (!selectedFile) return;
+
+    setFile(selectedFile);
+
+    if (selectedFile.name.endsWith(".xlsx")) {
+      setFileType("excel");
+      extractExcelData(selectedFile);
+    } else if (selectedFile.name.endsWith(".docx")) {
+      setFileType("word");
+      extractWordData(selectedFile);
+    } else {
+      toast.error("Chỉ chấp nhận file .xlsx hoặc .docx");
+      setFile(null);
+      setFileType("");
+    }
+  };
+
+  const extractExcelData = async (file) => {
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, { type: "array" });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(worksheet);
+    const extractedQuestions = rows.map((row, index) => ({
+      questionId: index + 1,
+      questionText: row["Câu hỏi"],
+      options: [row["A"], row["B"], row["C"], row["D"]],
+      correctAnswer: row["Đáp án"],
+    }));
+    setQuestions(extractedQuestions);
+  };
+
+  const extractWordData = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const text = result.value;
+    const extractedQuestions = text.split("Câu hỏi:").slice(1).map((q, index) => {
+      const parts = q.trim().split(/A:|B:|C:|D:|Đáp án:/).map(s => s.trim());
+      return {
+        questionId: index + 1,
+        questionText: parts[0],
+        options: parts.slice(1, 5),
+        correctAnswer: parts[5],
+      };
+    });
+    setQuestions(extractedQuestions);
+  };
+
   useEffect(() => {
-    console.log("🔍 classList", classList);
-    console.log("🔍 exams", exams);
     if (user && token) {
       fetchClasses();
       fetchExams();
@@ -89,8 +139,7 @@ export default function ExamPage() {
   useEffect(() => {
     let results = exams.filter((exam) => {
       const title = exam.title || "";
-      const className =
-        classList.find((c) => c._id === exam.class)?.name || "";
+      const className = classList.find((c) => c._id === exam.class)?.name || "";
       return (
         title.toLowerCase().includes(search.toLowerCase()) ||
         className.toLowerCase().includes(search.toLowerCase())
@@ -128,33 +177,23 @@ export default function ExamPage() {
     setIsEditMode(true);
     setEditingExam(record);
     setIsModalOpen(true);
-
-    await new Promise((resolve) => {
-      const interval = setInterval(() => {
-        if (classList.length) {
-          clearInterval(interval);
-          resolve();
-        }
-      }, 100);
-    });
-
     form.setFieldsValue({
       ...record,
       class: record.class,
       date: dayjs(record.date, "YYYY-MM-DD HH:mm"),
     });
   };
- 
+
   const handleAddOrUpdate = async (values) => {
     const payload = {
       examName: values.title,
       examDeadline: values.date.toDate(),
-      examUrl: values.examUrl,
       class: values.class,
       teacher: user?.user?._id,
       status: values.status,
+      duration: values.duration,
+      ...(file ? { questions } : {}),
     };
-     
 
     try {
       if (isEditMode) {
@@ -182,135 +221,80 @@ export default function ExamPage() {
       dataIndex: "title",
     },
     {
+      title: "Lớp",
+      dataIndex: "className",
+      render: (text) => text || "Chưa có"
+    },
+    {
       title: "Ngày thi",
       dataIndex: "date",
     },
     {
-      title: "Lớp áp dụng",
-      dataIndex: "class",
-      render: (cls) => {
-        if (typeof cls === "object" && cls?.name) return cls.name;
-    
-        const found = classList.find((c) => c._id === cls);
-        return found ? found.name : "Không rõ";
-      },
+      title: "Số câu hỏi",
+      dataIndex: "questions",
+      render: (questions) => questions?.length || 0,
     },
-    
     {
-      title: "Link bài thi",
-      dataIndex: "examUrl",
-      render: (text) => (
-        <a href={text} target="_blank" rel="noopener noreferrer">
-          {text}
-        </a>
-      ),
+      title: "Thời gian (phút)",
+      dataIndex: "duration",
     },
     {
       title: "Hành động",
-      key: "action",
       render: (_, record) => (
-        <CenteredAction>
-          <Tooltip title="Sửa">
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-            />
-          </Tooltip>
-          <Tooltip title="Xóa">
-            <Button
-              danger
-              type="link"
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record)}
-            />
-          </Tooltip>
-        </CenteredAction>
+        <Space>
+          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+            Sửa
+          </Button>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record)}
+          >
+            Xóa
+          </Button>
+        </Space>
       ),
     },
   ];
 
+
+
   return (
-    <div style={{ padding: 24 }}>
-      <PageHeader>
-        <h2>Quản lý bài thi</h2>
-        <HeaderActions>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setIsModalOpen(true);
-              setIsEditMode(false);
-              form.resetFields();
-            }}
-          >
-            Thêm bài thi
-          </Button>
-        </HeaderActions>
-      </PageHeader>
-
-      <FilterContainer>
-        <Input
-          placeholder="Tìm theo tên hoặc lớp"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 250 }}
-        />
+    <div>
+      <h2>Quản lý bài thi</h2>
+      <Space style={{ marginBottom: 16 }}>
         <Button
-          icon={<SortAscendingOutlined />}
-          ghost
-          onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+          icon={<PlusOutlined />}
+          onClick={() => {
+            setIsModalOpen(true);
+            setIsEditMode(false);
+            form.resetFields();
+          }}
         >
-          Sắp xếp {sortOrder === "asc" ? "↓ Z-A" : "↑ A-Z"}
+          Thêm bài thi
         </Button>
-      </FilterContainer>
-
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        pagination={{ pageSize: 5 }}
-        rowKey="_id"
-        bordered
-      />
-
+      </Space>
+      <Table columns={columns} dataSource={filteredData} rowKey="_id" />
       <Modal
-        title={isEditMode ? "Cập nhật bài thi" : "Thêm bài thi"}
-        open={isModalOpen}
-        onCancel={() => {
-          setIsModalOpen(false);
-          setIsEditMode(false);
-          form.resetFields();
-        }}
+        title={isEditMode ? "Sửa bài thi" : "Thêm bài thi"}
+        visible={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
         onOk={() => form.submit()}
-        okText={isEditMode ? "Cập nhật" : "Thêm"}
-        cancelText="Hủy"
       >
-        <Form layout="vertical" form={form} onFinish={handleAddOrUpdate}>
+        <Form form={form} onFinish={handleAddOrUpdate} layout="vertical">
           <Form.Item
             label="Tên bài thi"
             name="title"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Vui lòng nhập tên bài thi!" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            label="Ngày và giờ thi"
-            name="date"
-            rules={[{ required: true }]}
-          >
-            <DatePicker
-              showTime
-              format="YYYY-MM-DD HH:mm"
-              style={{ width: "100%" }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Lớp áp dụng"
+            label="Lớp học"
             name="class"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Vui lòng chọn lớp học!" }]}
           >
-            <Select placeholder="Chọn lớp">
+            <Select>
               {classList.map((cls) => (
                 <Option key={cls._id} value={cls._id}>
                   {cls.name}
@@ -318,39 +302,34 @@ export default function ExamPage() {
               ))}
             </Select>
           </Form.Item>
-
           <Form.Item
-            label="Link bài thi"
-            name="examUrl"
-            rules={[
-              {
-                required: true,
-                type: "url",
-                message: "Vui lòng nhập đúng URL",
-              },
-            ]}
+            label="Ngày thi"
+            name="date"
+            rules={[{ required: true, message: "Vui lòng chọn ngày thi!" }]}
           >
-            <Input placeholder="https://..." />
+            <DatePicker showTime format="YYYY-MM-DD HH:mm" />
+          </Form.Item>
+          <Form.Item label="Thời gian làm bài" name="duration">
+            <InputNumber min={1} />
+          </Form.Item>
+          <Form.Item label="Tải file câu hỏi" name="file">
+            <Upload beforeUpload={() => false} onChange={handleFileChange}>
+              <Button icon={<UploadOutlined />}>Tải lên</Button>
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
-
       <Modal
-        title="Xác nhận xóa bài thi"
-        open={isConfirmDeleteOpen}
+        title="Xác nhận xóa"
+        visible={isConfirmDeleteOpen}
+        onCancel={() => setIsConfirmDeleteOpen(false)}
         onOk={confirmDelete}
-        onCancel={() => {
-          setIsConfirmDeleteOpen(false);
-          setDeleteExamId(null);
-        }}
         okText="Xóa"
         cancelText="Hủy"
-        okType="danger"
       >
         <p>Bạn có chắc chắn muốn xóa bài thi này không?</p>
       </Modal>
-
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer />
     </div>
   );
 }
