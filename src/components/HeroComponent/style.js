@@ -1,4 +1,42 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+// Pulse animation
+const pulse = keyframes`
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(60, 162, 231, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(60, 162, 231, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(60, 162, 231, 0.3);
+  }
+`;
+
+// Shine animation
+const shine = keyframes`
+  0% {
+    background-position: -100px;
+  }
+  100% {
+    background-position: 300px;
+  }
+`;
+
+// Fade-in up animation
+const fadeInUp = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 export const WrapperHeroSection = styled.section`
   display: flex;
@@ -22,6 +60,7 @@ export const WrapperHeroSection = styled.section`
 export const WrapperHeroContent = styled.div`
   flex: 1;
   max-width: 500px;
+  animation: ${fadeInUp} 1s ease-in-out;
 
   @media (max-width: 1024px) {
     text-align: center;
@@ -106,5 +145,47 @@ export const WrapperHeroImage = styled.div`
     @media (max-width: 1024px) {
       max-width: 100%;
     }
+  }
+`;
+
+export const StyledPulseButton = styled.button`
+  position: relative;
+  background: linear-gradient(90deg, #94ff9e 0%, #3ca2e7 100%);
+  border: none;
+  border-radius: 12px;
+  color: #1c1c1c;
+  padding: 18px 28px;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+
+  /* 👇 Thời gian chuyển đổi dài hơn, mượt hơn */
+  transition: 
+    transform 0.6s ease-in-out,
+    background 0.6s ease-in-out,
+    color 0.6s ease-in-out,
+    box-shadow 0.6s ease-in-out;
+
+  animation: ${pulse} 4s ease-in-out infinite;
+  box-shadow: 0 4px 12px rgba(60, 162, 231, 0.25);
+
+  &:hover {
+    transform: scale(1.03); /* nhẹ nhàng */
+    background: linear-gradient(90deg, #3ca2e7, #94ff9e);
+    color: white;
+    box-shadow: 0 6px 18px rgba(60, 162, 231, 0.35);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75px;
+    width: 50px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: skewX(-20deg);
+    animation: ${shine} 2.5s ease-in-out infinite;
   }
 `;
