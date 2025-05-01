@@ -28,7 +28,6 @@ import teacherIcon from "../../../assets/teacher.png";
 import timeIcon from "../../../assets/clock.png";
 import trophyIcon from "../../../assets/trophy.png";
 
-// Lý do chọn Daisy Chess
 const reasons = [
   {
     title: "Tầm nhìn",
