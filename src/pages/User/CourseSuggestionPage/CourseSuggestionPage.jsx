@@ -1,4 +1,19 @@
 import React, { useState, useEffect } from "react";
+import {
+  Container,
+  TestListContainer,
+  QuestionContainer,
+  OptionLabel,
+  StyledButton,
+  ResultContainer,
+  CustomTitle,
+  StyledList,
+  CourseItemLink,
+} from "./style";
+import { Typography } from "antd";
+import { Link } from "react-router-dom";
+
+const { Paragraph } = Typography;
 
 const QuizPage = () => {
   const [tests, setTests] = useState([]);
@@ -46,8 +61,6 @@ const QuizPage = () => {
       });
 
       const resultData = await response.json();
-      console.log("Quiz submitted:", resultData);
-
       setResult(resultData);
       setQuizSubmitted(true);
     } catch (error) {
@@ -56,73 +69,71 @@ const QuizPage = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Chọn Bài Thi</h1>
+    <Container>
+      <CustomTitle level={2}>Chọn Bài Thi</CustomTitle>
 
-      {/* Danh sách bài thi */}
       {!quizStarted && (
-        <div>
-          <h2 style={{ marginBottom: 12 }}>Danh sách bài thi</h2>
+        <TestListContainer>
           <ul>
             {tests.map((test) => (
-              <li key={test._id} style={{ marginBottom: 8 }}>
-                <button onClick={() => startQuiz(test)}>
+              <li key={test._id}>
+                <StyledButton onClick={() => startQuiz(test)} type="primary">
                   {test.testName || test.courseType}
-                </button>
+                </StyledButton>
               </li>
             ))}
           </ul>
-        </div>
+        </TestListContainer>
       )}
 
-      {/* Giao diện làm bài */}
       {quizStarted && !quizSubmitted && (
         <div>
-          <h2>Bài thi: {currentTest.testName || currentTest.courseType}</h2>
+          <CustomTitle level={4}>Bài thi: {currentTest.testName || currentTest.courseType}</CustomTitle>
           {currentTest.questions.map((question) => (
-            <div key={question._id} style={{ marginBottom: "16px" }}>
-              <p><strong>{question.questionText}</strong></p>
+            <QuestionContainer key={question._id}>
+              <Paragraph strong>{question.questionText}</Paragraph>
               {question.options.map((option, index) => (
-                <label key={index} style={{ display: "block", marginBottom: 4 }}>
+                <OptionLabel key={index}>
                   <input
                     type="radio"
                     name={`question-${question.questionId}`}
                     value={option}
                     onChange={() => handleAnswerChange(question.questionId, option)}
                   />
-                  {" "}{option}
-                </label>
+                  {option}
+                </OptionLabel>
               ))}
-            </div>
+            </QuestionContainer>
           ))}
-          <button onClick={submitQuiz}>Nộp bài</button>
+          <StyledButton type="primary" onClick={submitQuiz}>
+            Nộp bài
+          </StyledButton>
         </div>
       )}
 
-      {/* Kết quả bài thi */}
       {quizSubmitted && result && (
-        <div style={{ marginTop: 20 }}>
-          <h2>🎉 Bài thi đã nộp thành công!</h2>
+        <ResultContainer>
+          <CustomTitle level={3}>🎉 Bài thi đã nộp thành công!</CustomTitle>
 
-          {/* Nếu bạn muốn hiển thị độ chính xác hoặc điểm */}
-          {/* <p><strong>Độ chính xác:</strong> {result.accuracy}</p>
-          <p><strong>Trình độ:</strong> {result.level}</p> */}
-
-          <h3>📚 Khóa học gợi ý:</h3>
+          <Typography.Title level={4}>📚 Khóa học gợi ý:</Typography.Title>
           {result.courses && result.courses.length > 0 ? (
-            <ul>
-              {result.courses.map((course, index) => (
-                <li key={index}>
-                  <strong>{course.name}</strong> (Mã: {course.courseCode})
-                </li>
-              ))}
-            </ul>
+            <StyledList
+              bordered
+              dataSource={result.courses}
+              renderItem={(course) => (
+                <CourseItemLink>
+                  <Link to={`/course-details/${course._id}`}>
+                    {course.name} (Mã: {course.courseCode})
+                  </Link>
+                </CourseItemLink>
+              )}
+            />
           ) : (
-            <p>Không có khóa học gợi ý.</p>
+            <Paragraph>Không có khóa học gợi ý.</Paragraph>
           )}
-        </div>
+        </ResultContainer>
       )}
-    </div>
+    </Container>
   );
 };
 
