@@ -8,7 +8,6 @@ import ChessInforComponent from "../../../components/ChessInforComponent/ChessIn
 import Slideshow from "../../../components/SlideShowComponent/SlideShowComponent";
 import FlexibleLearningProgram from "../../../components/FlexibleProgramComponent/FlexibleProgramComponent";
 import GalleryComponent from "../../../components/GallaryComponents/GallaryComponents";
-import MessBox from "../../../components/MessBox/MessBox"
 import BlogPage from "../BlogPages/BlogPage";
 
 import banner1 from "../../../assets/banner.png";
@@ -39,7 +38,6 @@ const HomePage = () => {
       <Slideshow featureImageList={featureImageList} />
       <FlexibleLearningProgram />
       <GalleryComponent />
-      <MessBox/>
     </div>
   );
 };
