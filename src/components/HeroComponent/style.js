@@ -150,7 +150,9 @@ export const WrapperHeroImage = styled.div`
 
 export const StyledPulseButton = styled.button`
   position: relative;
-  background: linear-gradient(90deg, #94ff9e 0%, #3ca2e7 100%);
+  background: linear-gradient(90deg, #94ff9e, #3ca2e7);
+  background-size: 200%;
+  background-position: left;
   border: none;
   border-radius: 12px;
   color: #1c1c1c;
@@ -160,19 +162,18 @@ export const StyledPulseButton = styled.button`
   cursor: pointer;
   overflow: hidden;
 
-  /* 👇 Thời gian chuyển đổi dài hơn, mượt hơn */
-  transition: 
-    transform 0.6s ease-in-out,
-    background 0.6s ease-in-out,
-    color 0.6s ease-in-out,
-    box-shadow 0.6s ease-in-out;
+  transition:
+    background-position 0.6s ease-in-out,
+    color 0.4s ease-in-out,
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
 
   animation: ${pulse} 4s ease-in-out infinite;
   box-shadow: 0 4px 12px rgba(60, 162, 231, 0.25);
 
   &:hover {
-    transform: scale(1.03); /* nhẹ nhàng */
-    background: linear-gradient(90deg, #3ca2e7, #94ff9e);
+    background-position: right; /* trượt màu */
+    transform: scale(1.03);
     color: white;
     box-shadow: 0 6px 18px rgba(60, 162, 231, 0.35);
   }
@@ -187,5 +188,6 @@ export const StyledPulseButton = styled.button`
     background: rgba(255, 255, 255, 0.3);
     transform: skewX(-20deg);
     animation: ${shine} 2.5s ease-in-out infinite;
+    pointer-events: none;
   }
 `;

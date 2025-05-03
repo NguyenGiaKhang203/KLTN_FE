@@ -7,6 +7,11 @@ export const WrapperHeader = styled.h1`
   font-weight: bold;
   margin: 30px auto 20px;
   text-align: center;
+
+  @media (max-width: 576px) {
+    font-size: 22px;
+    margin: 20px auto 16px;
+  }
 `;
 
 export const WrapperProfileContainer = styled.div`
@@ -18,6 +23,13 @@ export const WrapperProfileContainer = styled.div`
   background-color: #fefefe;
   width: fit-content;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px;
+    width: 90%;
+  }
 `;
 
 export const WrapperAvatarSection = styled.div`
@@ -33,6 +45,11 @@ export const AvatarImage = styled.img`
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #ccc;
+
+  @media (max-width: 576px) {
+    width: 100px;
+    height: 100px;
+  }
 `;
 
 export const DefaultAvatar = styled.div`
@@ -46,6 +63,12 @@ export const DefaultAvatar = styled.div`
   font-size: 48px;
   color: #999;
   border: 2px solid #ccc;
+
+  @media (max-width: 576px) {
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
+  }
 `;
 
 export const WrapperUploadFile = styled(Upload)`
@@ -64,6 +87,10 @@ export const WrapperInfoSection = styled.div`
   flex-direction: column;
   gap: 16px;
   width: 400px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 export const WrapperLabel = styled.label`
@@ -95,6 +122,12 @@ export const WrapperInput = styled.div`
     outline: none;
     border-color: #1890ff;
     box-shadow: 0 0 3px #1890ff55;
+  }
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 `;
 

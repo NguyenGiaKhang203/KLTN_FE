@@ -68,6 +68,8 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
     localStorage.removeItem("persist:root");
     localStorage.removeItem("user");
     localStorage.removeItem("cart");
+    setUserName(""); 
+    setUserAvatar(""); 
     navigate("/");
   };
 

@@ -11,7 +11,7 @@ import {
   BarChartOutlined,
   CommentOutlined,
   LogoutOutlined,
-  FormOutlined,
+  ReadOutlined,
   CarryOutOutlined,
   TrophyOutlined,
   FileTextOutlined,
@@ -91,8 +91,8 @@ const Sidebar = () => {
               <Menu.Item key="/system/admin/assess" icon={<CommentOutlined />}>
                 <Link to="/system/admin/assess">Quản lý đánh giá</Link>
               </Menu.Item>
-              <Menu.Item key="/system/admin/suggest-management" icon={<CommentOutlined />}>
-                <Link to="/system/admin/suggest-management">Quản lý gợi ý</Link>
+              <Menu.Item key="/system/admin/suggest-management" icon={<ReadOutlined />}>
+                <Link to="/system/admin/suggest-management">Bài khảo sát</Link>
               </Menu.Item>
               <Menu.Item key="/system/admin/report" icon={<BarChartOutlined />}>
                 <Link to="/system/admin/report">Báo cáo & Thống kê</Link>

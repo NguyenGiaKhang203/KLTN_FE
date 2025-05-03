@@ -61,7 +61,18 @@ const QuizPage = () => {
       });
 
       const resultData = await response.json();
-      setResult(resultData);
+
+      // Tính số câu đúng nếu có correctAnswer từ currentTest
+      let correctCount = 0;
+      if (currentTest && currentTest.questions) {
+        correctCount = currentTest.questions.reduce((count, question) => {
+          const userAnswer = answers.find((a) => a.questionId === question.questionId)?.answer;
+          if (userAnswer === question.correctAnswer) count += 1;
+          return count;
+        }, 0);
+      }
+
+      setResult({ ...resultData, correctCount });
       setQuizSubmitted(true);
     } catch (error) {
       console.error("Error submitting quiz:", error);
@@ -86,7 +97,7 @@ const QuizPage = () => {
         </TestListContainer>
       )}
 
-      {quizStarted && !quizSubmitted && (
+      {quizStarted && !quizSubmitted && currentTest && (
         <div>
           <CustomTitle level={4}>Bài thi: {currentTest.testName || currentTest.courseType}</CustomTitle>
           {currentTest.questions.map((question) => (
@@ -114,6 +125,10 @@ const QuizPage = () => {
       {quizSubmitted && result && (
         <ResultContainer>
           <CustomTitle level={3}>🎉 Bài thi đã nộp thành công!</CustomTitle>
+
+          <Typography.Title level={4}>
+            ✅ Bạn trả lời đúng {result.correctCount} / {currentTest.questions.length} câu hỏi
+          </Typography.Title>
 
           <Typography.Title level={4}>📚 Khóa học gợi ý:</Typography.Title>
           {result.courses && result.courses.length > 0 ? (

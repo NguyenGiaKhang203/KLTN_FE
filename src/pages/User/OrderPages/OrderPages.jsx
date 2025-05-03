@@ -129,7 +129,7 @@ const OrderPage = () => {
       orderInfo: `Thanh toán ${selectedItems.length} khóa học - Email: ${user?.email} - Redirect: http://localhost:3000/orderSuccess`,
       amount: totalAmount,
     };
-    dispatch(selectedOrder({ listChecked  }));
+    dispatch(selectedOrder({ selectedItems }));
     localStorage.setItem("selectedItems", JSON.stringify(selectedItems));
 
     toast.success("Chuyển đến thanh toán...");

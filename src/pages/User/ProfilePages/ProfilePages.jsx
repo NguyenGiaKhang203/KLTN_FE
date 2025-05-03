@@ -7,7 +7,6 @@ import ButtonComponent from "../../../components/ButtonComponent/ButtonComponent
 import * as UserService from "../../../services/UserService";
 import { updateUser } from "../../../redux/slices/userSlice";
 import { useMutationHooks } from "../../../hooks/useMutationHooks";
-import { getBase64 } from "../../../utils";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -27,6 +26,8 @@ import {
 const ProfilePage = () => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
+
+  const isAdminOrTeacher = user?.role === "admin" || user?.role === "teacher";
 
   const [studentName, setStudentName] = useState("");
   const [birthday, setBirthday] = useState("");
@@ -185,8 +186,6 @@ const ProfilePage = () => {
     }
   };
 
-
-
   return (
     <div>
       <WrapperHeader>Hồ sơ</WrapperHeader>
@@ -210,7 +209,7 @@ const ProfilePage = () => {
 
         <WrapperInfoSection>
           <WrapperInput>
-            <WrapperLabel>Học viên</WrapperLabel>
+            <WrapperLabel>{isAdminOrTeacher ? "Họ tên" : "Học viên"}</WrapperLabel>
             <InputForm value={studentName} onChange={setStudentName} />
           </WrapperInput>
 
@@ -219,29 +218,40 @@ const ProfilePage = () => {
             <InputForm type="date" value={birthday} onChange={setBirthday} />
           </WrapperInput>
 
-          <WrapperInput>
-            <WrapperLabel>Phụ huynh</WrapperLabel>
-            <InputForm
-              value={parentName}
-              onChange={setParentName}
-              placeholder="Nhập tên phụ huynh"
-            />
-          </WrapperInput>
+          {!isAdminOrTeacher && (
+            <>
+              <WrapperInput>
+                <WrapperLabel>Phụ huynh</WrapperLabel>
+                <InputForm
+                  value={parentName}
+                  onChange={setParentName}
+                  placeholder="Nhập tên phụ huynh"
+                />
+              </WrapperInput>
 
-          <WrapperInput>
-            <WrapperLabel>SĐT PH</WrapperLabel>
-            <InputForm
-              value={parentPhone}
-              onChange={setParentPhone}
-              placeholder="Nhập SĐT phụ huynh"
-            />
-          </WrapperInput>
+              <WrapperInput>
+                <WrapperLabel>SĐT PH</WrapperLabel>
+                <InputForm
+                  value={parentPhone}
+                  onChange={setParentPhone}
+                  placeholder="Nhập SĐT phụ huynh"
+                />
+              </WrapperInput>
+            </>
+          )}
 
           <WrapperInput>
             <WrapperLabel>Email</WrapperLabel>
             <InputForm value={email} disabled />
           </WrapperInput>
-
+          <WrapperInput>
+          <WrapperLabel>Số điện thoại</WrapperLabel>
+            <InputForm
+              value={parentPhone}
+              onChange={setParentPhone}
+              placeholder="Nhập số điện thoại"
+            />
+          </WrapperInput>
           <WrapperInput>
             <WrapperLabel>Đường</WrapperLabel>
             <InputForm

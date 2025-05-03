@@ -15,18 +15,31 @@ export const CardContainer = styled.div`
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 export const Title = styled.h2`
   text-align: center;
   font-weight: bold;
   margin-bottom: 20px;
+  font-size: 24px;
+
+  @media (max-width: 576px) {
+    font-size: 20px;
+  }
 `;
 
 export const ContentWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 30px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const LeftSection = styled.div`
@@ -39,6 +52,10 @@ export const RightSection = styled.div`
   padding: 20px;
   border-radius: 8px;
   height: fit-content;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 export const HeaderRow = styled.div`
@@ -47,8 +64,11 @@ export const HeaderRow = styled.div`
   font-weight: 600;
   padding: 10px 0;
   align-items: center;
-`;
 
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 export const ListOrder = styled.div`
   display: flex;
@@ -59,23 +79,36 @@ export const ListOrder = styled.div`
 export const ItemOrder = styled.div`
   display: grid;
   grid-template-columns: 1.5fr 0.8fr 1fr 0.8fr auto;
-  align-items: center; 
+  align-items: center;
   padding: 12px;
   background: #fdfdfd;
   border: 1px solid #ddd;
   border-radius: 8px;
   gap: 10px;
-`;
 
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+  }
+`;
 
 export const CourseInfo = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  width: 100%;
 
   > div {
     display: flex;
     flex-direction: column;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 `;
 
@@ -86,12 +119,33 @@ export const CourseImage = styled.img`
   height: 80px;
   object-fit: cover;
   border-radius: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+  }
 `;
 
 export const CourseName = styled.div`
   font-weight: 600;
   font-size: 14px;
-  width: 150px;
+  margin-top: 6px;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+`;
+
+export const ClassNameText = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    margin-top: 8px;
+  }
 `;
 
 export const CourseSchedule = styled.div`
@@ -101,18 +155,33 @@ export const CourseSchedule = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    margin-top: 6px;
+  }
 `;
 
 export const CoursePrice = styled.div`
   font-weight: 700;
   color: #ff4040;
   font-size: 18px;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+    margin-top: 6px;
+  }
 `;
 
 export const DeleteIcon = styled(DeleteOutlined)`
   color: #ff4040;
   font-size: 20px;
   cursor: pointer;
+  justify-self: center;
+
+  @media (max-width: 768px) {
+    margin-top: 10px;
+  }
 `;
 
 export const TotalWrapper = styled.div`
@@ -121,11 +190,21 @@ export const TotalWrapper = styled.div`
   font-weight: bold;
   font-size: 18px;
   margin-bottom: 20px;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
 `;
 
 export const TotalPrice = styled.div`
   font-size: 24px;
   color: #ff4040;
+
+  @media (max-width: 576px) {
+    font-size: 20px;
+  }
 `;
 
 export const CheckoutButton = styled.button`
@@ -143,12 +222,4 @@ export const CheckoutButton = styled.button`
   &:hover {
     opacity: 0.95;
   }
-`;
-export const ClassNameText = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  text-align: center;
-  display: flex;
-  align-items: center;
 `;
