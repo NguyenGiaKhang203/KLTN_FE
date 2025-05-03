@@ -7,6 +7,11 @@ export const ScheduleContainer = styled.div`
   height: 85vh;
   width: 100%;
   margin-bottom: 50px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    height: auto;
+  }
 `;
 
 export const HeaderSection = styled.div`
@@ -14,11 +19,14 @@ export const HeaderSection = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
 
   .left {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 
     .nav-btn,
     .today-btn {
@@ -73,8 +81,20 @@ export const HeaderSection = styled.div`
   }
 `;
 
+export const ScheduleTableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+
+  @media (max-width: 768px) {
+    padding-bottom: 10px;
+  }
+`;
+
 export const ScheduleTable = styled.table`
   width: 100%;
+  min-width: 768px;
   border-collapse: collapse;
   text-align: center;
   border-radius: 8px;
@@ -84,7 +104,7 @@ export const ScheduleTable = styled.table`
   th,
   td {
     border: 1px solid #d0d7de;
-    padding: 14px 10px;
+    padding: 12px 8px;
     vertical-align: top;
     background-color: #fff;
   }
@@ -93,7 +113,23 @@ export const ScheduleTable = styled.table`
     background-color: #e3f2fd;
     color: #0d47a1;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    th,
+    td {
+      font-size: 12px;
+      padding: 8px 6px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    th,
+    td {
+      font-size: 11px;
+      padding: 6px 4px;
+    }
   }
 `;
 
@@ -110,6 +146,20 @@ export const TimeCell = styled.td`
     font-size: 12px;
     margin-top: 4px;
   }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    .session {
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+    .session {
+      font-size: 10px;
+    }
+  }
 `;
 
 export const ClassCell = styled.td`
@@ -118,36 +168,90 @@ export const ClassCell = styled.td`
 `;
 
 export const ClassCard = styled.div`
-  background: #e6f2ff;
-  border-left: 4px solid #1e88e5;
-  border-radius: 6px;
-  padding: 6px 8px;
-  text-align: left;
-  font-size: 12px;
+  position: relative;
+  background: #e3f2fd;
+  border-left: 3px solid #1976d2;
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 11px;
   color: #0d47a1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  margin-bottom: 4px;
-  line-height: 1.4;
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #bbdefb;
+  }
 
   .class-name {
     font-weight: 600;
-    font-size: 13px;
-    margin-bottom: 2px;
+    font-size: 11.5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
-  .level {
-    font-style: italic;
-    margin-bottom: 2px;
-    color: #555;
-    font-size: 11.5px;
+  .tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background: #ffffff;
+    border: 1px solid #90caf9;
+    border-radius: 5px;
+    padding: 6px;
+    color: #0d47a1;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    width: max-content;
+    min-width: 160px;
+    max-width: 220px;
+    white-space: normal;
+    font-size: 11px;
+
+    .line {
+      margin-bottom: 3px;
+      color: #333;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #0d47a1;
+      margin-right: 4px;
+    }
   }
 
-  .teacher,
-  .room {
-    font-size: 11.5px;
-    color: #444;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  &:hover .tooltip {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 10px;
+
+    .tooltip {
+      font-size: 10px;
+      min-width: 140px;
+    }
+
+    .class-name {
+      font-size: 10.5px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 9.5px;
+
+    .tooltip {
+      font-size: 9px;
+      min-width: 120px;
+    }
+
+    .class-name {
+      font-size: 10px;
+    }
   }
 `;

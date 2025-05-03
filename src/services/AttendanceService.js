@@ -38,11 +38,14 @@ export const getAttendanceByClassAndDate = async (classroomId, date, token) => {
   }
 };
 
-export const updateAttendance = async (attendanceId, updatedAttendances, token) => {
+export const updateAttendance = async (attendanceId, attendances, token) => {
   try {
     const response = await axios.put(
       `${API_URL}/update`,
-      { attendanceId, updatedAttendances },
+      {
+        attendanceId,
+        attendances, // ✅ SỬA TÊN ĐÚNG
+      },
       {
         headers: {
           Authorization: `Bearer ${token}`,

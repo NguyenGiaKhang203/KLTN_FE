@@ -11,6 +11,16 @@ export const Container = styled.div`
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    padding: 24px;
+    margin: 24px 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    margin: 16px 8px;
+  }
 `;
 
 export const TestListContainer = styled.div`
@@ -25,6 +35,10 @@ export const TestListContainer = styled.div`
 
     li {
       flex: 1 1 45%;
+
+      @media (max-width: 768px) {
+        flex: 1 1 100%;
+      }
     }
   }
 `;
@@ -39,6 +53,14 @@ export const QuestionContainer = styled(Card)`
 
   &:hover {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
   }
 `;
 
@@ -62,6 +84,11 @@ export const OptionLabel = styled.label`
     margin-right: 12px;
     transform: scale(1.2);
   }
+
+  @media (max-width: 480px) {
+    font-size: 15px;
+    padding: 10px 14px;
+  }
 `;
 
 export const StyledButton = styled(Button)`
@@ -71,6 +98,11 @@ export const StyledButton = styled(Button)`
   font-weight: 600;
   font-size: 16px;
   border-radius: 10px;
+
+  @media (max-width: 480px) {
+    width: 100%;
+    font-size: 15px;
+  }
 `;
 
 export const ResultContainer = styled.div`
@@ -79,6 +111,14 @@ export const ResultContainer = styled.div`
   background-color: #f0f4f8;
   border-radius: 16px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 768px) {
+    padding: 24px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px;
+  }
 `;
 
 export const CustomTitle = styled(Title)`
@@ -86,6 +126,11 @@ export const CustomTitle = styled(Title)`
     margin-bottom: 24px;
     color: #141414;
     font-weight: 700;
+    font-size: 28px;
+
+    @media (max-width: 480px) {
+      font-size: 22px;
+    }
   }
 `;
 
@@ -115,5 +160,9 @@ export const CourseItemLink = styled(List.Item)`
       text-decoration: underline;
     }
   }
+
+  @media (max-width: 480px) {
+    font-size: 15px;
+    padding: 12px 16px;
+  }
 `;
-  

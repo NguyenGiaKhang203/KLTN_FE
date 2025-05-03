@@ -11,19 +11,40 @@ import {
   Input,
   InputNumber,
   Upload,
-  Space
+  Space,
+  Tooltip,
+  Select,
 } from 'antd';
-import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import {
+  PlusOutlined,
+  UploadOutlined,
+  EditFilled,
+  DeleteFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {
+  Container,
+  Header,
+  ButtonWrapper,
+  FileName,
+  StyledModal,
+  StyledTable,
+  ControlBar,
+  SearchInput,
+  FilterSelect,
+} from './style';
 
-const SuggettionManagement = () => {
+const SuggestionManagement = () => {
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTest, setEditingTest] = useState(null);
   const [form] = Form.useForm();
   const [tests, setTests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [courseFilter, setCourseFilter] = useState(null);
 
   useEffect(() => {
     fetchTests();
@@ -137,6 +158,10 @@ const SuggettionManagement = () => {
     setModalVisible(true);
   };
 
+  const filteredTests = tests.filter(test =>
+    test.testName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const columns = [
     {
       title: 'Tên bài thi',
@@ -156,21 +181,41 @@ const SuggettionManagement = () => {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space>
-          <Button type="primary" onClick={() => handleEdit(record)}>Sửa</Button>
-          <Popconfirm title="Xác nhận xóa bài thi này?" onConfirm={() => handleDelete(record._id)}>
-            <Button danger>Xóa</Button>
-          </Popconfirm>
+        <Space size="middle">
+          <Tooltip title="Sửa">
+            <Button
+              type="text"
+              icon={<EditFilled style={{ color: '#1890ff' }} />}
+              onClick={() => handleEdit(record)}
+            />
+          </Tooltip>
+          <Tooltip title="Xóa">
+            <Popconfirm title="Xác nhận xóa bài thi này?" onConfirm={() => handleDelete(record._id)}>
+              <Button
+                type="text"
+                danger
+                icon={<DeleteFilled style={{ color: '#ff4d4f' }} />}
+              />
+            </Popconfirm>
+          </Tooltip>
         </Space>
       ),
     },
   ];
 
   return (
-    <div>
-      <h2>Quản lý bài thi gợi ý</h2>
-      <Space>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+    <Container>
+      <Header>Quản lý bài thi gợi ý</Header>
+
+      <ControlBar>
+        <SearchInput
+          placeholder="Tìm kiếm bài thi"
+          prefix={<SearchOutlined />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <ButtonWrapper>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -182,62 +227,67 @@ const SuggettionManagement = () => {
           >
             Thêm bài thi
           </Button>
-        </div>
-      </Space>
-      <Table
-        columns={columns}
-        dataSource={tests}
-        rowKey="_id"
-        style={{ marginTop: 20 }}
-      />
+        </ButtonWrapper>
+      </ControlBar>
 
-      <Modal
-        title={editingTest ? "Cập nhật bài thi" : "Thêm bài thi"}
-        open={modalVisible}
-        onOk={handleModalSubmit}
-        onCancel={() => {
-          setModalVisible(false);
-          setEditingTest(null);
-          form.resetFields();
-          setFile(null);
-        }}
-        okText="Lưu"
-        cancelText="Hủy"
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Tên bài thi"
-            name="testName"
-            rules={[{ required: true, message: 'Vui lòng nhập tên bài thi' }]}
-          >
-            <Input placeholder="VD: Bài kiểm tra Toán" />
-          </Form.Item>
+      <StyledTable>
+        <Table
+          columns={columns}
+          dataSource={filteredTests}
+          rowKey="_id"
+          pagination={{ pageSize: 5 }}
+        />
+      </StyledTable>
 
-          <Form.Item
-            label="Thời gian (phút)"
-            name="duration"
-            rules={[{ required: true, message: 'Vui lòng nhập thời gian làm bài' }]}
-          >
-            <InputNumber min={1} max={180} style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item label="Tải file Excel/Word">
-            <Upload
-              beforeUpload={() => false}
-              maxCount={1}
-              accept=".xlsx,.docx"
-              onChange={handleFileChange}
+      <StyledModal>
+        <Modal
+          title={editingTest ? "Cập nhật bài thi" : "Thêm bài thi"}
+          open={modalVisible}
+          onOk={handleModalSubmit}
+          onCancel={() => {
+            setModalVisible(false);
+            setEditingTest(null);
+            form.resetFields();
+            setFile(null);
+          }}
+          okText="Lưu"
+          cancelText="Hủy"
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item
+              label="Tên bài thi"
+              name="testName"
+              rules={[{ required: true, message: 'Vui lòng nhập tên bài thi' }]}
             >
-              <Button icon={<UploadOutlined />}>Chọn file</Button>
-            </Upload>
-            {file && <p style={{ marginTop: 10 }}>Đã chọn: {file.name}</p>}
-          </Form.Item>
-        </Form>
-      </Modal>
+              <Input placeholder="VD: Bài kiểm tra Toán" />
+            </Form.Item>
+
+            <Form.Item
+              label="Thời gian (phút)"
+              name="duration"
+              rules={[{ required: true, message: 'Vui lòng nhập thời gian làm bài' }]}
+            >
+              <InputNumber min={1} max={180} style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item label="Tải file Excel/Word">
+              <Upload
+                beforeUpload={() => false}
+                maxCount={1}
+                accept=".xlsx,.docx"
+                onChange={handleFileChange}
+              >
+                <Button icon={<UploadOutlined />}>Chọn file</Button>
+              </Upload>
+              {file && <FileName>Đã chọn: {file.name}</FileName>}
+            </Form.Item>
+          </Form>
+        </Modal>
+      </StyledModal>
 
       <ToastContainer position="top-right" autoClose={3000} />
-    </div>
+    </Container>
   );
 };
 
-export default SuggettionManagement;
+export default SuggestionManagement;
