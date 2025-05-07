@@ -112,7 +112,7 @@ export const WrapperTextHeaderSmall = styled.div`
 export const WrapperHeaderAccount = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   justify-content: flex-end;`
 ;
 
@@ -153,7 +153,7 @@ export const WrapperCartIcon = styled.div`
   align-items: center;
   cursor: pointer;
   flex-direction: row;
-  gap: 10px;
+  gap: 5px;
   margin-right:50px;
   transition: transform 0.3s ease-in-out;
 
@@ -164,7 +164,21 @@ export const WrapperCartIcon = styled.div`
 
   &:hover ${WrapperTextHeaderSmall} {
     transform: scaleX(1.1);
-  }`
+  }
+  .notification-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 0 1px #d9d9d9;
+  }
+  
+  `
+  
 ;
 
 export const WrapperContentPopup = styled.div`

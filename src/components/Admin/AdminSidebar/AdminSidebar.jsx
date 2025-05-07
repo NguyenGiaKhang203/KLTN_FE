@@ -15,6 +15,7 @@ import {
   CarryOutOutlined,
   TrophyOutlined,
   FileTextOutlined,
+  BellOutlined
 
 } from "@ant-design/icons";
 import { SidebarWrapper, LogoSection, StyledModal } from "./style";
@@ -97,6 +98,9 @@ const Sidebar = () => {
               <Menu.Item key="/system/admin/report" icon={<BarChartOutlined />}>
                 <Link to="/system/admin/report">Báo cáo & Thống kê</Link>
               </Menu.Item>
+              <Menu.Item key="/system/admin/notification-management" icon={<BellOutlined />}>
+                <Link to="/system/admin/notification-management">Quản lý thông báo</Link>
+              </Menu.Item>
             </>
           )}
 
@@ -118,6 +122,9 @@ const Sidebar = () => {
               </Menu.Item>
               <Menu.Item key="/system/teacher/score-management" icon={<TrophyOutlined />}>
                 <Link to="/system/teacher/score-management">Quản lý điểm</Link>
+              </Menu.Item>
+              <Menu.Item key="/system/teacher/notification-management" icon={<BellOutlined />}>
+                <Link to="/system/teacher/notification-management">Quản lý thông báo</Link>
               </Menu.Item>
             </>
           )}

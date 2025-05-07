@@ -3,8 +3,8 @@ import { Col, Badge, Popover, Modal, Dropdown, Menu, Drawer } from "antd";
 import {
   UserOutlined,
   ShoppingCartOutlined,
+  BellOutlined,
   ExclamationCircleOutlined,
-  DownOutlined,
   MenuOutlined,
   FileTextOutlined,
   SolutionOutlined,
@@ -15,6 +15,7 @@ import { resetUser } from "../../redux/slices/userSlice";
 import { resetOrderState } from "../../redux/slices/orderSlice";
 import Logo from "../../assets/Logo1.png";
 import Loading from "../LoadingComponent/LoadingComponent";
+import NotificationList from "../NotificationList/NotificationList";
 import {
   WrapperHeaderContainer,
   WrapperHeader,
@@ -50,6 +51,25 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
+
+  //Cứng dữ liệu chưa sửa 
+  const notifications = [
+    {
+      id: 1,
+      content: "Bạn có bài thi mới được giao",
+      time: "10 phút trước",
+      unread: true,
+      detail: "Bài thi: Cờ vua cơ bản\nThời hạn nộp: 12/05/2025",
+    },
+    {
+      id: 2,
+      content: "Lớp học 'Cờ vua nâng cao' đã được cập nhật",
+      time: "1 giờ trước",
+      unread: false,
+      detail: "Buổi học bổ sung: Chủ nhật 14h ngày 12/05.",
+    },
+  ];
+  
   useEffect(() => {
     if (user) {
       setUserName(user.name || user.email);
@@ -154,10 +174,8 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY) {
-        // Scroll xuống
         setShowHeader(false);
       } else {
-        // Scroll lên
         setShowHeader(true);
       }
       setLastScrollY(window.scrollY);
@@ -199,6 +217,21 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
               <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
             </WrapperCartIcon>
           )}
+
+          <Popover
+            content={<NotificationList notifications={notifications} />}
+            trigger="click"
+            placement="bottomRight"
+          >
+            <WrapperCartIcon>
+              <Badge count={notifications.filter(n => n.unread).length} size="small">
+                <BellOutlined className="icon" />
+              </Badge>
+            </WrapperCartIcon>
+          </Popover>
+
+
+
           <Col>
             <Loading isLoading={loading}>
               <WrapperHeaderAccount>

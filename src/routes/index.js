@@ -32,6 +32,8 @@ import MyOrderPage from "../pages/User/MyOrderPage/MyOrderPage";
 import ScoreManagement from "../pages/Teacher/ScoreManagementPage/ScoreManagementPage";
 import CourseSuggestion from "../pages/User/CourseSuggestionPage/CourseSuggestionPage";
 import SuggettionManagement from "../pages/Admin/SuggestionManagement/SuggestionManagement";
+import NotificationManagement from "../pages/Teacher/NotificationManagement/NotificationManagement";
+import NotificationManagementAD from "../pages/Admin/NotificationManagementAD/NotificationManagementAD";
 
 export const routes = [
   // Public Pages
@@ -155,7 +157,6 @@ export const routes = [
     isShowHeader: true,
     isShowFooter: false,
   },
-  
 
   //  Admin Routes
   {
@@ -209,6 +210,11 @@ export const routes = [
         path: "suggest-management",
         page: SuggettionManagement,
       },
+      {
+        path: "notification-management",
+        page: NotificationManagementAD,
+      },
+
     ],
   },
   // Teacher Routes
@@ -234,6 +240,10 @@ export const routes = [
       {
         path: "score-management",
         page: ScoreManagement,
+      },
+      {
+        path: "notification-management",
+        page: NotificationManagement,
       },
 
     ],
