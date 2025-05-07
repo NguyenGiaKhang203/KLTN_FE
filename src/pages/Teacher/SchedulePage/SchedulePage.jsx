@@ -13,6 +13,7 @@ import {
   TimeCell,
   ClassCell,
   ClassCard,
+  ScheduleTableWrapper
 } from "./style";
 
 const getWeekDays = (startDate = new Date()) => {
@@ -149,7 +150,7 @@ const SchedulePage = () => {
           <Button className="tab active">Tuần</Button>
         </div>
       </HeaderSection>
-
+      <ScheduleTableWrapper> 
       <ScheduleTable>
         <thead>
           <tr>
@@ -199,6 +200,8 @@ const SchedulePage = () => {
           ))}
         </tbody>
       </ScheduleTable>
+      </ScheduleTableWrapper>
+
     </ScheduleContainer>
   );
 };

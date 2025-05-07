@@ -6,10 +6,14 @@ export const Container = styled.div`
   background-color: #b8c7d0;
   min-height: 100vh;
   border-radius: 12px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 export const Header = styled.h2`
-  font-size: 28px;
+  font-size: clamp(22px, 5vw, 28px);
   font-weight: 600;
   color: #000 !important;
   margin-bottom: 24px;
@@ -29,6 +33,11 @@ export const ButtonWrapper = styled.div`
     &:hover {
       background-color: #40a9ff;
     }
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    width: 100%;
   }
 `;
 
@@ -87,23 +96,34 @@ export const StyledTable = styled.div`
   .ant-btn > .anticon {
     font-size: 16px;
   }
+
+  @media (max-width: 768px) {
+    overflow-x: auto;
+    .ant-table {
+      min-width: 600px;
+    }
+  }
 `;
 
 export const ControlBar = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 16px;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
-  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const SearchInput = styled(Input)`
-  width: 280px;
+  width: 100%;
   border-radius: 10px;
 `;
 
 export const FilterSelect = styled(Select)`
-  width: 200px;
+  width: 100%;
   border-radius: 10px;
 `;

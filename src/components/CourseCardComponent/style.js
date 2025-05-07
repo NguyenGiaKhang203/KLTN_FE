@@ -7,16 +7,19 @@ export const WrapperCourseCard = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  width: 100%; /* hoặc đặt max-width nếu bạn muốn */
-  max-width: 400px; /* tăng từ 350px lên 400px */
-  height: 450px; /* tăng chiều cao thêm một chút */
+  width: 100%;
+  max-width: 400px; /* Giới hạn chiều rộng tối đa */
+  height: 450px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s;
-  cursor:pointer;
+  margin: auto; /* Canh giữa khi chỉ có 1 phần tử */
+  cursor: pointer;
+
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 `;
+
 
 export const WrapperThumbnail = styled.div`
   position: relative;

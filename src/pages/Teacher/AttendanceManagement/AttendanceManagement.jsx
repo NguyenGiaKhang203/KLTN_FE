@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Select, Table, Button } from "antd";
+import { Select, Table, Button, Radio } from "antd";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
@@ -218,7 +218,7 @@ const AttendanceManagementPage = () => {
           attendances,
           token
         );
-        toast.success("✅ Cập nhật điểm danh thành công!");
+        toast.success(" Cập nhật điểm danh thành công!");
       } else {
         await AttendanceService.bulkAttendance(
           classroomId,
@@ -226,11 +226,11 @@ const AttendanceManagementPage = () => {
           teacherId,
           token
         );
-        toast.success("✅ Điểm danh thành công!");
+        toast.success(" Điểm danh thành công!");
         setIsAttendanceExist(true);
       }
     } catch (error) {
-      toast.error("❌ Lưu điểm danh thất bại. Vui lòng thử lại!");
+      toast.error(" Lưu điểm danh thất bại. Vui lòng thử lại!");
     }
   };
   
@@ -252,18 +252,17 @@ const AttendanceManagementPage = () => {
       title: "Trạng thái điểm danh",
       dataIndex: "status",
       render: (_, record) => (
-        <Select
-          placeholder="Chọn trạng thái"
+        <Radio.Group
+          onChange={(e) => handleStatusChange(record._id, e.target.value)}
           value={record.status || undefined}
-          onChange={(val) => handleStatusChange(record._id, val)}
-          style={{ width: 140 }}
         >
-          <Option value="present">✅ Có mặt</Option>
-          <Option value="absent">❌ Vắng</Option>
-        </Select>
+          <Radio value="present">✅ Có mặt</Radio>
+          <Radio value="absent">❌ Vắng</Radio>
+        </Radio.Group>
       ),
     },
   ];
+  
 
   return (
     <div style={{ padding: 24 }}>
