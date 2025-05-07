@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Button,
@@ -16,6 +16,8 @@ import {
   TableWrapper,
   TitleText,
 } from "./style";
+import * as NotificationService from "../../../services/NotificationService";
+import { useSelector } from "react-redux";
 
 const { Option } = Select;
 
@@ -25,6 +27,23 @@ const NotificationManagement = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const user = useSelector((state) => state.user);
+  const token = user?.access_token;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await NotificationService.getAllNotification();
+        if (response.status === 'OK') {
+          setData(response.data); 
+        } else {
+          message.error("Không thể tải danh sách thông báo");
+        }
+      } catch (error) {
+        message.error("Có lỗi xảy ra khi tải thông báo");
+      }
+    };
+  });
 
   const handleAdd = () => {
     setEditingItem(null);
@@ -38,39 +57,61 @@ const NotificationManagement = () => {
     setModalOpen(true);
   };
 
-  const handleDelete = (id) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
-    message.success("Xóa thông báo thành công");
+  const handleDelete = async (id) => {
+    try {
+      await NotificationService.deleteNotification(id, token); // Sửa lại từ `editingItem._id` thành `id`
+      setData((prev) => prev.filter((item) => item._id !== id));
+      message.success("Xóa thông báo thành công");
+    } catch (error) {
+      message.error("Xóa thất bại");
+    }
   };
 
-  const handleSubmit = () => {
-    form.validateFields().then((values) => {
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
       const now = new Date().toLocaleDateString();
+
       if (editingItem) {
+        // Cập nhật thông báo
+        const updated = await NotificationService.updateNotification(
+          editingItem._id,
+          values,
+          token
+        );
+
         setData((prev) =>
           prev.map((item) =>
-            item.id === editingItem.id ? { ...item, ...values } : item
+            item._id === editingItem._id ? { ...item, ...updated } : item
           )
         );
         message.success("Cập nhật thông báo thành công");
       } else {
+        // Tạo mới thông báo
         const newItem = {
           ...values,
-          id: Date.now(),
           date: now,
         };
-        setData((prev) => [...prev, newItem]);
+
+        const created = await NotificationService.createNotification(newItem, token);
+
+        setData((prev) => [...prev, created]);
         message.success("Thêm thông báo thành công");
       }
+
       setModalOpen(false);
-    });
+    } catch (error) {
+      message.error(error.message || "Có lỗi xảy ra");
+    }
   };
 
-  const filteredData = data.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.content.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = Array.isArray(data)
+    ? data.filter(
+      (item) =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.message.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    : [];
 
   const columns = [
     {
@@ -86,11 +127,7 @@ const NotificationManagement = () => {
     },
     {
       title: "Nội dung",
-      dataIndex: "content",
-    },
-    {
-      title: "Người nhận",
-      dataIndex: "receiver",
+      dataIndex: "message",
     },
     {
       title: "Ngày",
@@ -107,7 +144,7 @@ const NotificationManagement = () => {
           <Button
             icon={<DeleteOutlined />}
             danger
-            onClick={() => handleDelete(record.id)}
+            onClick={() => handleDelete(record._id)} // Sửa từ `record.id` thành `record._id`
           />
         </Space>
       ),
@@ -141,7 +178,7 @@ const NotificationManagement = () => {
         <Table
           dataSource={filteredData}
           columns={columns}
-          rowKey="id"
+          rowKey="_id" // Chắc chắn rằng bạn sử dụng đúng key (thường là _id hoặc id từ backend)
           pagination={{ pageSize: 5 }}
         />
       </TableWrapper>
@@ -164,20 +201,10 @@ const NotificationManagement = () => {
           </Form.Item>
           <Form.Item
             label="Nội dung"
-            name="content"
+            name="message"
             rules={[{ required: true, message: "Nhập nội dung!" }]}
           >
             <Input.TextArea rows={4} />
-          </Form.Item>
-          <Form.Item
-            label="Người nhận"
-            name="receiver"
-            rules={[{ required: true, message: "Chọn người nhận!" }]}
-          >
-            <Select placeholder="Chọn người nhận">
-              <Option value="Giảng viên">Giảng viên</Option>
-              <Option value="Toàn bộ trung tâm">Toàn bộ trung tâm</Option>
-            </Select>
           </Form.Item>
         </Form>
       </Modal>

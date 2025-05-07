@@ -109,9 +109,9 @@ const SignUpPage = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
-      toast.warning("Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ và số.");
+      toast.warning("Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.");
       return;
     }
 
@@ -171,9 +171,8 @@ const SignUpPage = () => {
           </StyledInputWrapper>
 
           <ButtonComponent
-            textbutton={`${buttonText} ${
-              isResend && timer > 0 ? `(${timer})` : ""
-            }`}
+            textbutton={`${buttonText} ${isResend && timer > 0 ? `(${timer})` : ""
+              }`}
             onClick={handleClickSendOtp}
             styleButton={{
               background: "rgb(255,57,69)",

@@ -30,8 +30,8 @@ const NotificationList = ({ notifications = [] }) => {
             onClick={() => handleItemClick(item)}
           >
             <NotificationContent>
-              {item.content}
-              {item.unread && (
+              {item.message}
+              {!item.read && (
                 <Badge dot color="blue" style={{ marginLeft: 8 }} />
               )}
               <NotificationTime>{item.time}</NotificationTime>
@@ -49,7 +49,7 @@ const NotificationList = ({ notifications = [] }) => {
         width={600} // Tăng kích thước modal
       >
         <NotificationModalContent>
-          <div className="content">{selectedNotification?.detail || "Không có thêm thông tin chi tiết."}</div>
+          <div className="content">{selectedNotification?.message || "Không có thêm thông tin chi tiết."}</div>
           <div className="time">{selectedNotification?.time}</div>
         </NotificationModalContent>
       </Modal>
