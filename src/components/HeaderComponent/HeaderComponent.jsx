@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Col, Badge, Popover, Modal, Dropdown, Menu, Drawer } from "antd";
+import { Col, Badge, Popover, Modal, Dropdown, Menu, Drawer, message } from "antd";
 import {
   UserOutlined,
   ShoppingCartOutlined,
@@ -35,6 +35,7 @@ import {
   customModalStyles,
   WrapperMobileMenuButton,
 } from "./style";
+import * as NotificationService from "../../services/NotificationService";
 
 const HeaderComponent = ({ isHiddenCart = false }) => {
   const dispatch = useDispatch();
@@ -50,26 +51,26 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [notifications, setNotifications] = useState("");
 
 
-  //Cứng dữ liệu chưa sửa 
-  const notifications = [
-    {
-      id: 1,
-      content: "Bạn có bài thi mới được giao",
-      time: "10 phút trước",
-      unread: true,
-      detail: "Bài thi: Cờ vua cơ bản\nThời hạn nộp: 12/05/2025",
-    },
-    {
-      id: 2,
-      content: "Lớp học 'Cờ vua nâng cao' đã được cập nhật",
-      time: "1 giờ trước",
-      unread: false,
-      detail: "Buổi học bổ sung: Chủ nhật 14h ngày 12/05.",
-    },
-  ];
-  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await NotificationService.getAllNotification();
+        if (response.status === 'OK') {
+          setNotifications(response.data);
+        } else {
+          message.error("Không thể tải danh sách thông báo");
+        }
+      } catch (error) {
+        message.error("Có lỗi xảy ra khi tải thông báo");
+      }
+    };
+
+    fetchData();
+  }, []);
+
   useEffect(() => {
     if (user) {
       setUserName(user.name || user.email);
@@ -88,8 +89,8 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
     localStorage.removeItem("persist:root");
     localStorage.removeItem("user");
     localStorage.removeItem("cart");
-    setUserName(""); 
-    setUserAvatar(""); 
+    setUserName("");
+    setUserAvatar("");
     navigate("/");
   };
 
@@ -224,12 +225,14 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
             placement="bottomRight"
           >
             <WrapperCartIcon>
-              <Badge count={notifications.filter(n => n.unread).length} size="small">
+              <Badge
+                count={Array.isArray(notifications) ? notifications.filter(n => !n.read).length : 0}
+                size="small"
+              >
                 <BellOutlined className="icon" />
               </Badge>
             </WrapperCartIcon>
           </Popover>
-
 
 
           <Col>

@@ -86,9 +86,10 @@ export default function ReportPage() {
 
   const courseData = [
     { name: "Cơ bản", value: 40 },
-    { name: "Nâng cao", value: 30 },
-    { name: "Chiến thuật", value: 20 },
-    { name: "Giải đấu", value: 10 },
+    { name: "Trung cấp 1", value: 30 },
+    { name: "Trung cấp 2", value: 20 },
+    { name: "Nâng cao 1", value: 10 },
+    { name: "Nâng cao 2", value: 10 }
   ];
 
   const studentGrowth = [
