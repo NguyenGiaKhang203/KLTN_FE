@@ -55,7 +55,7 @@ export const ClassCell = styled.td`
 
 
 export const ClassCard = styled.div`
-  width: 70px;
+  width: 170px;
   height: 100%; // full chiều cao của cell
   background: #e6f2ff;
   border-left: 3px solid #1e88e5;
