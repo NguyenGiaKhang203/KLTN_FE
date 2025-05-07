@@ -17,6 +17,7 @@ import {
   EditOutlined,
   PlusOutlined,
   UploadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import * as ExamService from "../../../services/ExamService";
@@ -26,6 +27,14 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
+import {
+  PageHeader,
+  EditIconButton,
+  DeleteIconButton,
+  SearchInput,
+  StyledAddButton,
+  ActionButton,
+} from "./style";
 
 const { Option } = Select;
 
@@ -78,7 +87,6 @@ export default function ExamPage() {
       toast.error("Lỗi khi tải danh sách bài thi");
     }
   };
-
 
   const handleFileChange = (info) => {
     const selectedFile = info.fileList[0]?.originFileObj;
@@ -242,28 +250,24 @@ export default function ExamPage() {
       title: "Hành động",
       render: (_, record) => (
         <Space>
-          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>
-            Sửa
-          </Button>
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
-          >
-            Xóa
-          </Button>
+          <EditIconButton type="primary" onClick={() => handleEdit(record)} icon={<EditOutlined />} />
+          <DeleteIconButton danger onClick={() => handleDelete(record)} icon={<DeleteOutlined />} />
         </Space>
       ),
     },
   ];
 
-
-
   return (
     <div>
-      <h2>Quản lý bài thi</h2>
-      <Space style={{ marginBottom: 16 }}>
-        <Button
+      <h2 style={{color:"#333",margin:"10px"}}>Quản lý bài thi </h2>
+      <PageHeader>
+        <SearchInput
+          placeholder="Tìm kiếm bài thi..."
+          prefix={<SearchOutlined />}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <StyledAddButton
           icon={<PlusOutlined />}
           onClick={() => {
             setIsModalOpen(true);
@@ -272,12 +276,14 @@ export default function ExamPage() {
           }}
         >
           Thêm bài thi
-        </Button>
-      </Space>
+        </StyledAddButton>
+      </PageHeader>
+
       <Table columns={columns} dataSource={filteredData} rowKey="_id" />
+
       <Modal
         title={isEditMode ? "Sửa bài thi" : "Thêm bài thi"}
-        visible={isModalOpen}
+        open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onOk={() => form.submit()}
       >
@@ -319,9 +325,10 @@ export default function ExamPage() {
           </Form.Item>
         </Form>
       </Modal>
+
       <Modal
         title="Xác nhận xóa"
-        visible={isConfirmDeleteOpen}
+        open={isConfirmDeleteOpen}
         onCancel={() => setIsConfirmDeleteOpen(false)}
         onOk={confirmDelete}
         okText="Xóa"

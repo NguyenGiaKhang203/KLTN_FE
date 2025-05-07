@@ -35,7 +35,7 @@ const ScoreManagement = () => {
         const res = await ClassService.getClassbyTeacher(userId);
         setClassList(res?.data || []);
       } catch (err) {
-        console.error("Lỗi khi lấy danh sách lớp:", err);
+        toast.error("Lỗi khi lấy danh sách lớp:", err);
       }
     };
     if (token) fetchClasses();
@@ -48,7 +48,7 @@ const ScoreManagement = () => {
           const res = await ExamService.getExamsByClassId(selectedClass, token);
           setExamList(res?.data || []);
         } catch (err) {
-          console.error("Lỗi khi lấy danh sách bài thi:", err);
+          toast.error("Lỗi khi lấy danh sách bài thi:", err);
           setExamList([]);
         }
       } else setExamList([]);
@@ -64,7 +64,7 @@ const ScoreManagement = () => {
           const data = res?.data || [];
           setScoreList(Array.isArray(data.scores) ? data.scores : data);
         } catch (err) {
-          console.error("Lỗi khi lấy bảng điểm:", err);
+          toast.error("Lỗi khi lấy bảng điểm:", err);
           setScoreList([]);
         }
       }
@@ -78,7 +78,7 @@ const ScoreManagement = () => {
       const data = res?.data || [];
       setScoreList(Array.isArray(data.scores) ? data.scores : data);
     } catch (err) {
-      console.error("Lỗi khi làm mới bảng điểm:", err);
+      toast.error("Lỗi khi làm mới bảng điểm:", err);
       setScoreList([]);
     }
   };
@@ -97,7 +97,7 @@ const ScoreManagement = () => {
       toast.success("Đã chọn bài thi, hãy nhập điểm cho học viên.");
       setIsModalVisible(true);
     } catch (err) {
-      console.error("Lỗi khi lấy danh sách học viên:", err);
+      toast.error("Lỗi khi lấy danh sách học viên:", err);
     }
   };
 

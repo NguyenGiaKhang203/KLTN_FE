@@ -51,7 +51,13 @@ export const WrapperCourseGrid = styled.div`
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
+
+  & > *:only-child {
+    justify-self: center;
+    max-width: 400px; /* Giới hạn kích thước tối đa */
+  }
 `;
+
 
 export const SortSelect = styled.select`
   padding: 6px 10px;
