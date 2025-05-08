@@ -5,7 +5,6 @@ import {
   Modal,
   Form,
   Input,
-  Select,
   Space,
   message,
 } from "antd";
@@ -19,8 +18,6 @@ import {
 import * as NotificationService from "../../../services/NotificationService";
 import { useSelector } from "react-redux";
 
-const { Option } = Select;
-
 const NotificationManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -30,20 +27,24 @@ const NotificationManagement = () => {
   const user = useSelector((state) => state.user);
   const token = user?.access_token;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await NotificationService.getAllNotification();
-        if (response.status === 'OK') {
-          setData(response.data); 
-        } else {
-          message.error("Không thể tải danh sách thông báo");
-        }
-      } catch (error) {
-        message.error("Có lỗi xảy ra khi tải thông báo");
+  
+  const fetchData = async () => {
+    try {
+      const response = await NotificationService.getAllNotification();
+      if (response.status === 'OK') {
+        setData(response.data); 
+      } else {
+        message.error("Không thể tải danh sách thông báo");
       }
-    };
-  });
+    } catch (error) {
+      message.error("Có lỗi xảy ra khi tải thông báo");
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
 
   const handleAdd = () => {
     setEditingItem(null);
@@ -59,7 +60,7 @@ const NotificationManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await NotificationService.deleteNotification(id, token); // Sửa lại từ `editingItem._id` thành `id`
+      await NotificationService.deleteNotification(id, token);
       setData((prev) => prev.filter((item) => item._id !== id));
       message.success("Xóa thông báo thành công");
     } catch (error) {
@@ -99,7 +100,9 @@ const NotificationManagement = () => {
         message.success("Thêm thông báo thành công");
       }
 
-      setModalOpen(false);
+      // Sau khi thêm hoặc chỉnh sửa thành công, gọi lại fetchData để tải lại danh sách thông báo
+      fetchData();
+      setModalOpen(false); // Đóng modal sau khi lưu
     } catch (error) {
       message.error(error.message || "Có lỗi xảy ra");
     }
@@ -107,10 +110,10 @@ const NotificationManagement = () => {
 
   const filteredData = Array.isArray(data)
     ? data.filter(
-      (item) =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.message.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+        (item) =>
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.message.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     : [];
 
   const columns = [
@@ -178,7 +181,7 @@ const NotificationManagement = () => {
         <Table
           dataSource={filteredData}
           columns={columns}
-          rowKey="_id" // Chắc chắn rằng bạn sử dụng đúng key (thường là _id hoặc id từ backend)
+          rowKey="_id"
           pagination={{ pageSize: 5 }}
         />
       </TableWrapper>
