@@ -26,12 +26,27 @@ export const FilterContainer = styled.div`
 `;
 
 export const FilterLeft = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+
+  input {
+    border-radius: 8px;
+    padding: 4px 12px;
+  }
+
+  button {
+    border-radius: 8px;
+  }
+
+  .ant-select {
+    border-radius: 8px;
+    min-width: 180px;
+  }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 8px;
   }
 `;
 

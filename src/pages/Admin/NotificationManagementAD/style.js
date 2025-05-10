@@ -54,8 +54,6 @@ export const TitleText = styled.h2`
   font-weight: bold;
   margin-bottom: 16px;
   color: #333 !important;
-  text-align: center;
-
   @media (max-width: 768px) {
     font-size: 22px;
   }

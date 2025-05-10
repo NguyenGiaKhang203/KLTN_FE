@@ -93,7 +93,14 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
     setUserAvatar("");
     navigate("/");
   };
-
+  const handleNotificationRead = (notificationId) => {
+    setNotifications((prev) =>
+      prev.map((item) =>
+        item.id === notificationId ? { ...item, read: true } : item
+      )
+    );
+  };
+  
   const examMenu = (
     <Menu
       items={[
@@ -220,7 +227,12 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
           )}
 
           <Popover
-            content={<NotificationList notifications={notifications} />}
+            content={
+              <NotificationList
+                notifications={notifications}
+                onNotificationClick={handleNotificationRead}
+              />
+            }
             trigger="click"
             placement="bottomRight"
           >
@@ -233,6 +245,7 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
               </Badge>
             </WrapperCartIcon>
           </Popover>
+
 
 
           <Col>

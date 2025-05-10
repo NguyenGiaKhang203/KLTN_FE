@@ -123,9 +123,6 @@ const Sidebar = () => {
               <Menu.Item key="/system/teacher/score-management" icon={<TrophyOutlined />}>
                 <Link to="/system/teacher/score-management">Quản lý điểm</Link>
               </Menu.Item>
-              <Menu.Item key="/system/teacher/notification-management" icon={<BellOutlined />}>
-                <Link to="/system/teacher/notification-management">Quản lý thông báo</Link>
-              </Menu.Item>
             </>
           )}
 
