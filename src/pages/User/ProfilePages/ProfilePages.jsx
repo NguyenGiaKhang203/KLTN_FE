@@ -245,14 +245,6 @@ const ProfilePage = () => {
             <InputForm value={email} disabled />
           </WrapperInput>
           <WrapperInput>
-          <WrapperLabel>Số điện thoại</WrapperLabel>
-            <InputForm
-              value={parentPhone}
-              onChange={setParentPhone}
-              placeholder="Nhập số điện thoại"
-            />
-          </WrapperInput>
-          <WrapperInput>
             <WrapperLabel>Đường</WrapperLabel>
             <InputForm
               value={street}
