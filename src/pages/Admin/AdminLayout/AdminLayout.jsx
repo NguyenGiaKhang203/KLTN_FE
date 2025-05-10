@@ -18,7 +18,6 @@ import AttendanceManagement from "../../Teacher/AttendanceManagement/AttendanceM
 import BlogManagementPage from "../BlogManagementPage/BlogManagementPage";
 import ScoreManagement from "../../Teacher/ScoreManagementPage/ScoreManagementPage";
 import SuggettionManagement from "../SuggestionManagement/SuggestionManagement";
-import NotificationManagement from "../../Teacher/NotificationManagement/NotificationManagement";
 import NotificationManagementAD from "../NotificationManagementAD/NotificationManagementAD";
 const AdminLayout = ({ children }) => {
   const location = useLocation();
@@ -68,9 +67,6 @@ const AdminLayout = ({ children }) => {
     }
     if (location.pathname === "/system/teacher/score-management") {
       return <ScoreManagement />
-    }
-    if (location.pathname === "/system/teacher/notification-management") {
-      return <NotificationManagement/>
     }
     if (location.pathname === "/system/admin/notification-management") {
       return <NotificationManagementAD />

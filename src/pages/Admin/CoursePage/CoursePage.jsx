@@ -205,7 +205,7 @@ const CoursePage = () => {
             placeholder="Lọc theo loại"
             allowClear
             style={{ width: 200 }}
-            value={filterType}
+            value={filterType ||null}
             onChange={(value) => setFilterType(value)}
           >
             {typeOptions.map((type) => (
@@ -214,20 +214,20 @@ const CoursePage = () => {
               </Option>
             ))}
           </Select>
-          <Button
-            ghost
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-          >
-            Sắp xếp {sortOrder === 'asc' ? '↓ Z-A' : '↑ A-Z'}
-          </Button>
-        </FilterLeft>
+          </FilterLeft>
+          <HeaderActions>
+            <Button
+              ghost
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            >
+              Sắp xếp {sortOrder === 'asc' ? '↓ Z-A' : '↑ A-Z'}
+            </Button>
+            <Button type="primary" onClick={handleAdd}>
+              + Thêm khóa học
+            </Button>
+          </HeaderActions>
+        </FilterContainer>
 
-        <HeaderActions>
-          <Button type="primary" onClick={handleAdd}>
-            + Thêm khóa học
-          </Button>
-        </HeaderActions>
-      </FilterContainer>
 
       <Table
         columns={columns}

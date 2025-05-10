@@ -32,7 +32,6 @@ import MyOrderPage from "../pages/User/MyOrderPage/MyOrderPage";
 import ScoreManagement from "../pages/Teacher/ScoreManagementPage/ScoreManagementPage";
 import CourseSuggestion from "../pages/User/CourseSuggestionPage/CourseSuggestionPage";
 import SuggettionManagement from "../pages/Admin/SuggestionManagement/SuggestionManagement";
-import NotificationManagement from "../pages/Teacher/NotificationManagement/NotificationManagement";
 import NotificationManagementAD from "../pages/Admin/NotificationManagementAD/NotificationManagementAD";
 
 export const routes = [
@@ -240,10 +239,6 @@ export const routes = [
       {
         path: "score-management",
         page: ScoreManagement,
-      },
-      {
-        path: "notification-management",
-        page: NotificationManagement,
       },
 
     ],

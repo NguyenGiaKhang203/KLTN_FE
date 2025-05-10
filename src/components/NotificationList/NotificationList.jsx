@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { List, Badge, Modal } from "antd";
+import { List, Badge, Modal, message } from "antd";
 import {
   NotificationItem,
   NotificationContent,
@@ -7,11 +7,16 @@ import {
   NotificationModalContent
 } from "./style";
 
-const NotificationList = ({ notifications = [] }) => {
+const NotificationList = ({ notifications = [], onNotificationClick }) => {
   const [selectedNotification, setSelectedNotification] = useState(null);
 
   const handleItemClick = (item) => {
     setSelectedNotification(item);
+
+    // Cập nhật trạng thái đã đọc cho UI
+    if (!item.read) {
+      onNotificationClick(item.id); // Gọi callback để cập nhật danh sách
+    }
   };
 
   const handleCloseModal = () => {
@@ -26,7 +31,7 @@ const NotificationList = ({ notifications = [] }) => {
         renderItem={(item) => (
           <NotificationItem
             key={item.id}
-            unread={item.unread}
+            unread={!item.read}
             onClick={() => handleItemClick(item)}
           >
             <NotificationContent>
@@ -46,14 +51,15 @@ const NotificationList = ({ notifications = [] }) => {
         onCancel={handleCloseModal}
         footer={null}
         centered
-        width={600} // Tăng kích thước modal
+        width={600}
       >
         <NotificationModalContent>
-          <div className="content">{selectedNotification?.message || "Không có thêm thông tin chi tiết."}</div>
+          <div className="content">
+            {selectedNotification?.message || "Không có thêm thông tin chi tiết."}
+          </div>
           <div className="time">{selectedNotification?.time}</div>
         </NotificationModalContent>
       </Modal>
-
     </>
   );
 };
