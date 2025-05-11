@@ -24,7 +24,7 @@ export const getAllExams = async (token) => {
 
 // Lấy bài kiểm tra theo ID
 export const getExamById = async (id, token) => {
-    const res = await axios.get(`${process.env.REACT_APP_API_URL}/exam/get-exam-by-teacherid/${id}`, {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/exam/get-exam-by-id/${id}`, {
         headers: {
             authorization: `Bearer ${token}`,
         },

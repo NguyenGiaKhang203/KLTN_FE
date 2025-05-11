@@ -208,13 +208,35 @@ export default function ReportPage() {
         <Card title="Học viên theo khóa học">
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
-              <Pie data={courseData} cx="50%" cy="50%" outerRadius={80} label dataKey="value">
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div style={{ backgroundColor: '#fff', padding: '5px', borderRadius: '5px', boxShadow: '0 0 5px rgba(0,0,0,0.3)' }}>
+                        <p style={{ margin: 0 }}>{`Khóa học: ${payload[0].name}`}</p>
+                        <p style={{ margin: 0 }}>{`Số lượng: ${payload[0].value}`}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Pie 
+                data={courseData} 
+                cx="50%" 
+                cy="50%" 
+                outerRadius={80} 
+                label 
+                dataKey="value"
+                nameKey="name" // Thêm dòng này để hiển thị tên của khóa học
+              >
                 {courseData.map((entry, index) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
             </PieChart>
           </ResponsiveContainer>
+
         </Card>
 
         <Card title="Tăng trưởng học viên">
