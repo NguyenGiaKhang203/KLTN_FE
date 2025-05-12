@@ -37,7 +37,7 @@ const ClassPage = () => {
   const [search, setSearch] = useState('');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const fetchTeachers = async () => {
     if (!token) return;
     try {
@@ -289,7 +289,14 @@ const ClassPage = () => {
           columns={columns}
           dataSource={filteredClasses}
           rowKey="_id"
-          pagination={false}
+          pagination={{
+            current: currentPage,          // Trang hiện tại
+            pageSize: 5,                   // Số lượng hiển thị trên mỗi trang
+            total: filteredClasses.length, // Tổng số dòng dữ liệu
+            showSizeChanger: false,       
+            showQuickJumper: true,        
+            onChange: (page) => setCurrentPage(page), 
+          }}
           rowClassName="table-row"
           loading={loading}
           size="middle"

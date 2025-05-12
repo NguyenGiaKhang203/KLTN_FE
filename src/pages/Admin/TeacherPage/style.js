@@ -37,7 +37,7 @@ export const HeaderActions = styled.div`
 
 export const FilterContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: 1fr 2fr 1fr 7fr;
   gap: 16px;
   margin-bottom: 16px;
   align-items: center;

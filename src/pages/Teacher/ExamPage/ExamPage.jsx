@@ -35,6 +35,12 @@ import {
   SearchInput,
   StyledAddButton,
   ActionButton,
+  UploadGuideContainer,
+  GuideTitle,
+  GuideList,
+  GuideItem,
+  GuideCodeBlock
+  
 } from "./style";
 
 const { Option } = Select;
@@ -342,7 +348,35 @@ export default function ExamPage() {
             <Upload beforeUpload={() => false} onChange={handleFileChange}>
               <Button icon={<UploadOutlined />}>Tải lên</Button>
             </Upload>
+
+            <UploadGuideContainer>
+              <GuideTitle>📌 Hướng dẫn định dạng file:</GuideTitle>
+              <GuideList>
+                <GuideItem>
+                  <b>Word (.docx):</b> Theo format:
+                  <GuideCodeBlock>
+            Câu hỏi: Nội dung câu hỏi <hr/>
+            A: Đáp án A<hr/>
+            B: Đáp án B<hr/>
+            C: Đáp án C<hr/>
+            D: Đáp án D<hr/>
+            Đáp án: [Ký tự đáp án đúng]
+                  </GuideCodeBlock>
+                </GuideItem>
+                <GuideItem>
+                  <b>Excel (.xlsx):</b> Cấu trúc bảng:
+                  <GuideCodeBlock>
+            | Câu hỏi  | A | B | C | D |<hr/>
+            | Đáp án   |---|---|---|- -|<hr/>
+            | Câu hỏi  |ĐA1|ĐA2|ĐA3|ĐA4|
+                  </GuideCodeBlock>
+                </GuideItem>
+              </GuideList>
+            </UploadGuideContainer>
+
           </Form.Item>
+
+
         </Form>
       </Modal>
 
