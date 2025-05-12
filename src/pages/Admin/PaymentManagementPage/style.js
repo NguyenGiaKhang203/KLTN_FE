@@ -32,11 +32,17 @@ export const HeaderActions = styled.div`
 
 export const FilterContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: 1fr 2fr 1fr 7fr;
   gap: 16px;
   margin-bottom: 24px;
   align-items: center;
+    .ant-input {
+    margin-right: 8px;
+  }
 
+  .ant-select {
+    margin-right: 8px;
+  }
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
   }

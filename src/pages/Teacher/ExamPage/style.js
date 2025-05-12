@@ -82,3 +82,34 @@ export const DeleteIconButton = styled(Button)`
     font-size: 14px;
   }
 `;
+export const UploadGuideContainer = styled.div`
+  margin-top: 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background-color: #fafafa;
+  padding: 12px;
+`;
+
+export const GuideTitle = styled.p`
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #1890ff;
+`;
+
+export const GuideList = styled.ul`
+  margin-left: 16px;
+`;
+
+export const GuideItem = styled.li`
+  margin-bottom: 8px;
+`;
+
+export const GuideCodeBlock = styled.pre`
+  background-color: #f0f2f5;
+  font-size:15px;
+  padding: 8px;
+  border-radius: 4px;
+  white-space: pre;
+  font-family: monospace;
+  white-space: pre-wrap;
+`;
