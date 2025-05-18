@@ -74,7 +74,7 @@ const Sidebar = () => {
                 key="/system/admin/classes"
                 icon={<AppstoreOutlined />}
               >
-                <Link to="/system/admin/classes">Danh sách lớp</Link>
+                <Link to="/system/admin/classes">Quản lý lớp</Link>
               </Menu.Item>
 
               <Menu.Item key="/system/admin/students" icon={<TeamOutlined />}>

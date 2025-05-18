@@ -44,7 +44,7 @@ export const ClassOption = styled.label`
   padding: 16px;
   border: 2px solid
     ${({ disabled, selected }) =>
-      disabled ? "#ddd" : selected ? "#1890ff" : "#e0e0e0"};
+    disabled ? "#ddd" : selected ? "#1890ff" : "#e0e0e0"};
   border-radius: 12px;
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   background-color: ${({ disabled }) => (disabled ? "#f8f8f8" : "#ffffff")};
@@ -54,7 +54,7 @@ export const ClassOption = styled.label`
 
   &:hover {
     box-shadow: ${({ disabled }) =>
-      disabled ? "none" : "0 0 10px rgba(24, 144, 255, 0.15)"};
+    disabled ? "none" : "0 0 10px rgba(24, 144, 255, 0.15)"};
     transform: ${({ disabled }) => (disabled ? "none" : "scale(1.01)")};
   }
 
@@ -62,6 +62,14 @@ export const ClassOption = styled.label`
     transform: scale(1.3);
     margin-top: 4px;
     accent-color: #1890ff;
+  }
+     opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
+  pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
+  transition: 0.3s;
+
+  &.expired {
+    opacity: 0.5;
+    pointer-events: none;
   }
 `;
 

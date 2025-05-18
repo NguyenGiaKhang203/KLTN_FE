@@ -140,53 +140,6 @@ export default function ReportPage() {
       </Row>
 
       <SectionTitle>Biểu đồ thống kê</SectionTitle>
-
-      <FilterRow>
-        <Space size="large">
-          <FilterLabel>Lọc theo:</FilterLabel>
-          <Select value={filterType} onChange={setFilterType} style={{ width: 160 }}>
-            <Option value="month">Tháng</Option>
-            <Option value="quarter">Quý</Option>
-            <Option value="year">Năm</Option>
-          </Select>
-
-          {(filterType === "month" || filterType === "quarter") && (
-            <>
-              {filterType === "month" && (
-                <Select value={selectedMonth} onChange={setSelectedMonth} style={{ width: 100 }}>
-                  {[...Array(12).keys()].map((i) => (
-                    <Option key={i + 1} value={i + 1}>
-                      Tháng {i + 1}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-              {filterType === "quarter" && (
-                <Select value={selectedQuarter} onChange={setSelectedQuarter} style={{ width: 120 }}>
-                  <Option value={1}>Quý 1</Option>
-                  <Option value={2}>Quý 2</Option>
-                  <Option value={3}>Quý 3</Option>
-                  <Option value={4}>Quý 4</Option>
-                </Select>
-              )}
-              <DatePicker
-                picker="year"
-                value={dayjs(`${selectedYear}`)}
-                onChange={(date) => setSelectedYear(date.year())}
-              />
-            </>
-          )}
-
-          {filterType === "year" && (
-            <DatePicker
-              picker="year"
-              value={dayjs(`${selectedYear}`)}
-              onChange={(date) => setSelectedYear(date.year())}
-            />
-          )}
-        </Space>
-      </FilterRow>
-
       <ChartGrid>
         <Card title="Doanh thu theo tháng">
           <ResponsiveContainer width="100%" height={250}>

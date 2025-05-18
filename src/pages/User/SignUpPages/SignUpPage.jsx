@@ -22,6 +22,7 @@ const SignUpPage = () => {
   const [buttonText, setButtonText] = useState("Send OTP");
   const [isResend, setIsResend] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [showOtpButton, setShowOtpButton] = useState(true); // kiểm soát hiển thị nút
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false);
 
@@ -38,7 +39,7 @@ const SignUpPage = () => {
       toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
       navigate("/sign-in");
     } else if (isError) {
-      const errorMessage = error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
+      const errorMessage = error?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
       toast.error(errorMessage);
     }
   }, [isSuccess, isError, error]);
@@ -57,23 +58,25 @@ const SignUpPage = () => {
 
     if (!isResend) {
       handleSendOtp();
-      setButtonText("Resend OTP");
       setIsResend(true);
-      setTimer(60);
-
-      const interval = setInterval(() => {
-        setTimer((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            setButtonText("Resend OTP");
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
     } else {
       handleReSendOtp();
     }
+
+    // Ẩn nút và bắt đầu đếm ngược
+    setShowOtpButton(false);
+    setTimer(60);
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setShowOtpButton(true);
+          setButtonText("Resend OTP");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   const handleSendOtp = async () => {
@@ -89,16 +92,18 @@ const SignUpPage = () => {
 
   const handleReSendOtp = async () => {
     try {
-      await UserService.resendOtp({ email });
-      toast.success("Mã OTP đã được gửi lại!");
+      const res = await UserService.resendOtp({ email });
+      res?.status === "OK"
+        ? toast.success(res.message)
+        : toast.error(res.message);
     } catch {
       toast.error("Không thể gửi lại mã OTP.");
     }
   };
 
   const handleSignUp = () => {
-    // validate
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!email || !password || !confirmPassword || !otp) {
       toast.warning("Vui lòng điền đầy đủ thông tin.");
       return;
@@ -153,9 +158,7 @@ const SignUpPage = () => {
           </StyledInputWrapper>
 
           <StyledInputWrapper style={{ position: "relative" }}>
-            <EyeIcon
-              onClick={() => setIsShowConfirmPassword(!isShowConfirmPassword)}
-            >
+            <EyeIcon onClick={() => setIsShowConfirmPassword(!isShowConfirmPassword)}>
               {isShowConfirmPassword ? <EyeFilled /> : <EyeInvisibleFilled />}
             </EyeIcon>
             <InputForm
@@ -167,20 +170,31 @@ const SignUpPage = () => {
           </StyledInputWrapper>
 
           <StyledInputWrapper>
-            <InputForm placeholder="Enter OTP" value={otp} onChange={setOtp} />
+            <InputForm
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={setOtp}
+            />
           </StyledInputWrapper>
 
-          <ButtonComponent
-            textbutton={`${buttonText} ${isResend && timer > 0 ? `(${timer})` : ""
-              }`}
-            onClick={handleClickSendOtp}
-            styleButton={{
-              background: "rgb(255,57,69)",
-              border: "none",
-              marginBottom: "10px",
-            }}
-            styleTextButton={{ color: "#fff", fontSize: "15px" }}
-          />
+          {showOtpButton && (
+            <ButtonComponent
+              textbutton={`${buttonText}`}
+              onClick={handleClickSendOtp}
+              styleButton={{
+                background: "rgb(255,57,69)",
+                border: "none",
+                marginBottom: "10px",
+              }}
+              styleTextButton={{ color: "#fff", fontSize: "15px" }}
+            />
+          )}
+
+          {!showOtpButton && timer > 0 && (
+            <p style={{ marginBottom: "10px", color: "white", fontSize: "14px" }}>
+              Vui lòng chờ {timer}s để gửi lại mã OTP.
+            </p>
+          )}
 
           <ButtonComponent
             disabled={!email || !password || !confirmPassword || !otp}

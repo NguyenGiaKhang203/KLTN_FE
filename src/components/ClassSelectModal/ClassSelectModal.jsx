@@ -64,6 +64,10 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
     onClose();
   };
   
+  const isClassExpired = (startDate) => {
+  return new Date(startDate) < new Date();
+};
+
 
   // Filter lớp học thuộc khóa học hiện tại
   const filteredClasses = allClasses.filter(
@@ -83,48 +87,62 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
           <p>Hiện tại chưa có lớp học nào cho khóa này.</p>
         ) : (
           <ClassList>
-            {filteredClasses.map((cls) => (
-              <ClassOption
-                key={cls._id}
-                disabled={cls.students?.length >= cls.studentCount && cls.studentCount > 0}
-                selected={selectedClassId === cls._id}
-              >
-                <input
-                  type="radio"
-                  name="selectedClass"
-                  value={cls._id}
-                  disabled={cls.students?.length >= cls.studentCount && cls.studentCount > 0}
-                  onChange={() => setSelectedClassId(cls._id)}
-                  checked={selectedClassId === cls._id}
-                />
-                <ClassInfoContainer>
-                  <strong>{cls.name}</strong>
-                  <ClassDetail>
-                    Đã đăng ký:{" "}
-                    <span>{cls.students?.length || 0}/20 học viên</span>
-                  </ClassDetail>
-                  <ClassDetail>
-                    Giảng viên: <span>{cls.teacher?.name}</span>
-                  </ClassDetail>
-                  <ClassDetail>
-                    Phòng học: <span>{cls.address}</span>
-                  </ClassDetail>
-                  <ClassDetail>
-                    Thời gian:
-                    <span>
-                      {cls.schedule.map((item, index) => (
-                        <div key={index}>
-                          {item.day}, {item.startTime} - {item.endTime}
-                        </div>
-                      ))}
-                    </span>
-                  </ClassDetail>
-                  <ClassDetail>
-                    Từ {formatDate(cls.startDate)} đến {formatDate(cls.endDate)}
-                  </ClassDetail>
-                </ClassInfoContainer>
-              </ClassOption>
+            {filteredClasses.map((cls) => {
+  const isFull = cls.students?.length >= cls.studentCount && cls.studentCount > 0;
+  const isExpired = isClassExpired(cls.startDate);
+  const disabled = isFull || isExpired;
+
+  return (
+    <ClassOption
+      key={cls._id}
+      disabled={disabled}
+      selected={selectedClassId === cls._id}
+      className={isExpired ? "expired" : ""}
+    >
+      <input
+        type="radio"
+        name="selectedClass"
+        value={cls._id}
+        disabled={disabled}
+        onChange={() => setSelectedClassId(cls._id)}
+        checked={selectedClassId === cls._id}
+      />
+      <ClassInfoContainer>
+        <strong>{cls.name}</strong>
+        <ClassDetail>
+          Đã đăng ký: <span>{cls.students?.length || 0}/{cls.studentCount}</span>
+        </ClassDetail>
+        <ClassDetail>
+          Giảng viên: <span>{cls.teacher?.name}</span>
+        </ClassDetail>
+        <ClassDetail>
+          Phòng học: <span>{cls.address}</span>
+        </ClassDetail>
+        <ClassDetail>
+          Thời gian:
+          <span>
+            {cls.schedule.map((item, index) => (
+              <div key={index}>
+                {item.day}, {item.startTime} - {item.endTime}
+              </div>
             ))}
+          </span>
+        </ClassDetail>
+        <ClassDetail>
+          Từ {formatDate(cls.startDate)} đến {formatDate(cls.endDate)}
+        </ClassDetail>
+        {isExpired && (
+          <ClassDetail>
+            <span style={{ color: "red", fontStyle: "italic" }}>
+              (Lớp học đã bắt đầu)
+            </span>
+          </ClassDetail>
+        )}
+      </ClassInfoContainer>
+    </ClassOption>
+  );
+})}
+
           </ClassList>
         )}
         <ConfirmButton
