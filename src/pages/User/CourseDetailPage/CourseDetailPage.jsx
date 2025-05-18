@@ -147,7 +147,7 @@ const CourseDetailPage = () => {
           <BuyButton onClick={() => setIsModalOpen(true)}>Mua khóa học</BuyButton>
 
           <InfoItem>📚 Loại: {course.type || "Không rõ"}</InfoItem>
-          <InfoItem>⏱ 2.5 tháng • 2 buổi/tuần</InfoItem>
+          <InfoItem>⏱ 2 tháng • 2 buổi/tuần</InfoItem>
           <InfoItem>🔁 {course.updatedAt?.slice(0, 10)} Cập nhật mới nhất</InfoItem>
 
           {course.hasCertificate && <InfoItem>🎖 Có chứng chỉ hoàn thành</InfoItem>}

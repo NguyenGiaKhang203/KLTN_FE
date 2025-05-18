@@ -107,13 +107,14 @@ const ExamListPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (isSubmitted) {
-      toast.warning("Bạn đã nộp bài trước đó.");
+    const unansweredQuestions = selectedExam.questions.filter(
+      (q) => !answers[q.questionId]
+    );
+
+    if (unansweredQuestions.length > 0) {
+      toast.warning(`Bạn còn ${unansweredQuestions.length} câu chưa trả lời.`);
       return;
     }
-
-    console.log("answers before submit:", answers); // ✅ Đảm bảo đang gửi 'A', 'B', 'C', ...
-
     try {
       const response = await axios.post("http://localhost:3001/api/exam/submit", {
         examId: selectedExam._id,
@@ -181,8 +182,6 @@ const ExamListPage = () => {
 
   return (
     <PageContainer>
-      <StyledHeader>Danh sách bài thi</StyledHeader>
-
       {!selectedExam && (
         <>
           <FilterContainer>

@@ -41,12 +41,12 @@ const ClassForm = ({
       const scheduleDays = Array.isArray(initialValues.schedule)
         ? initialValues.schedule.map((s) => s.day)
         : [];
-  
+
       const firstSlot = initialValues.schedule?.[0] || {};
-  
+
       const startTime = firstSlot.startTime || initialValues.startTime;
       const endTime = firstSlot.endTime || initialValues.endTime;
-  
+
       form.setFieldsValue({
         ...initialValues,
         schedule: scheduleDays,
@@ -60,14 +60,14 @@ const ClassForm = ({
       form.resetFields();
     }
   }, [initialValues, form]);
-  
-  
+
+
   const handleFinish = (values) => {
     const {
       students, // chỉ là số lượng
       ...restValues // các field khác
     } = values;
-  
+
     const payload = {
       ...restValues,
       teacher: values.teacher,
@@ -82,11 +82,11 @@ const ClassForm = ({
         endTime: values.endTime.format("HH:mm"),
       })),
     };
-  
+
     onSubmit(payload);
   };
-  
-  
+
+
   return (
     <Modal
       centered
@@ -166,10 +166,24 @@ const ClassForm = ({
               <Form.Item
                 name="endTime"
                 label="Giờ kết thúc"
-                rules={[{ required: true, message: "Chọn giờ kết thúc" }]}
+                dependencies={['startTime']}
+                rules={[
+                  { required: true, message: "Chọn giờ kết thúc" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const startTime = getFieldValue('startTime');
+                      if (!startTime || !value) return Promise.resolve();
+
+                      return value.isAfter(startTime)
+                        ? Promise.resolve()
+                        : Promise.reject(new Error("Giờ kết thúc phải lớn hơn giờ bắt đầu"));
+                    },
+                  }),
+                ]}
               >
                 <TimePicker format="HH:mm" style={{ width: "100%" }} />
               </Form.Item>
+
             </Col>
           </Row>
 
@@ -209,10 +223,23 @@ const ClassForm = ({
               <Form.Item
                 name="endDate"
                 label="Ngày kết thúc"
-                rules={[{ required: true, message: "Chọn ngày kết thúc" }]}
+                dependencies={['startDate']}
+                rules={[
+                  { required: true, message: "Chọn ngày kết thúc" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const startDate = getFieldValue('startDate');
+                      if (!startDate || !value) return Promise.resolve();
+                      return value.isAfter(startDate, 'day')
+                        ? Promise.resolve()
+                        : Promise.reject(new Error("Ngày kết thúc phải lớn hơn ngày bắt đầu"));
+                    },
+                  }),
+                ]}
               >
                 <DatePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
               </Form.Item>
+
             </Col>
           </Row>
         </Form>

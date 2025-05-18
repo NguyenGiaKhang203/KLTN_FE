@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Input, InputNumber, Select, Table, Modal, Button, Tooltip } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined,EyeOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import * as ScoreService from "../../../services/ScoreService";
 import * as ClassService from "../../../services/ClassService";
@@ -24,6 +24,8 @@ const ScoreManagement = () => {
   const [editingScoreId, setEditingScoreId] = useState(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // Modal xác nhận xóa
   const [scoreToDelete, setScoreToDelete] = useState(null); // Dữ liệu bảng điểm cần xóa
+    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+  const [viewScoreList, setViewScoreList] = useState([]);
 
   const { user } = useSelector((state) => state.user);
   const userId = user?._id;
@@ -85,6 +87,41 @@ const ScoreManagement = () => {
 
   const checkScoreExists = (examId) => {
     return scoreList.some((score) => score.examId === examId);
+  };
+  const handleViewScore = async (examId) => {
+    try {
+      const res = await ScoreService.getScoreById(examId, token);
+      if (res?.data?.scores) {
+        // Gọi API lấy danh sách điểm học viên
+        const scores = res.data.scores;
+        const studentRes = await ClassService.getStudentsInClass(selectedClass, token);
+        const studentsInThisClass = studentRes?.students || [];
+
+        // Gộp thông tin điểm với thông tin học viên
+        const mergedStudents = scores.map((scoreObj) => {
+          const studentInfo = studentsInThisClass.find(
+            (student) => student._id === scoreObj.studentId
+          );
+          return {
+            _id: scoreObj.studentId,
+            name: studentInfo?.name || "Không rõ",
+            email: studentInfo?.email || "Không rõ",
+            score: scoreObj.score,
+          };
+        });
+
+        // Đổ dữ liệu vào state
+        setStudentsInClass(mergedStudents);
+        setSelectedExam(examId);
+        setIsEditMode(false); // Không phải chế độ Edit
+        setIsModalVisible(true); // Mở Modal
+      } else {
+        toast.error("Không tìm thấy bảng điểm!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy bảng điểm:", error);
+      toast.error("Không thể lấy dữ liệu bảng điểm.");
+    }
   };
 
   const handleExamSelect = async (examId) => {
@@ -234,18 +271,22 @@ const ScoreManagement = () => {
     },
     {
       title: "Điểm",
-      render: (_, record) => (
-        <InputNumber
-          min={0}
-          max={10}
-          step={0.1}
-          value={record.score || null}
-          onChange={(value) => handleScoreChange(value, record._id)}
-          style={{ width: 100 }}
-        />
-      ),
+      render: (_, record) =>
+        isEditMode ? (
+          <InputNumber
+            min={0}
+            max={10}
+            step={0.1}
+            value={record.score || null}
+            onChange={(value) => handleScoreChange(value, record._id)}
+            style={{ width: 100 }}
+          />
+        ) : (
+          <span>{record.score}</span>
+        ),
     },
   ];
+
 
   return (
     <div style={{ padding: 24 }}>
@@ -293,6 +334,13 @@ const ScoreManagement = () => {
                 }
                 return hasScore ? (
                   <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+                    <Tooltip title="Xem bảng điểm">
+                      <Button
+                        type="text"
+                        icon={<EyeOutlined style={{ color: "#1677ff" }} />}
+                        onClick={() => handleViewScore(record._id)}
+                      />
+                    </Tooltip>
                     <Tooltip title="Sửa bảng điểm">
                       <Button
                         type="text"
@@ -324,13 +372,27 @@ const ScoreManagement = () => {
       </TableWrapper>
 
       <Modal
-        title={isEditMode ? "Cập nhật điểm" : "Nhập điểm học viên"}
+        title={isEditMode ? "Cập nhật điểm" : "Xem điểm học viên"}
         open={isModalVisible}
         onCancel={handleCancel}
-        onOk={handleSubmitScores}
-        okText={isEditMode ? "Cập nhật" : "Gửi điểm"}
+        onOk={isEditMode ? handleSubmitScores : () => setIsModalVisible(false)}
+        okText={isEditMode ? "Cập nhật" : "Đóng"}
         cancelText="Hủy"
         width={700}
+        footer={
+          isEditMode ? (
+            <>
+              <Button onClick={handleCancel}>Hủy</Button>
+              <Button type="primary" onClick={handleSubmitScores}>
+                Cập nhật
+              </Button>
+            </>
+          ) : (
+            <Button type="primary" onClick={() => setIsModalVisible(false)}>
+              Đóng
+            </Button>
+          )
+        }
       >
         <Search
           placeholder="Tìm kiếm học viên"
@@ -346,6 +408,7 @@ const ScoreManagement = () => {
           locale={{ emptyText: "Không có học viên" }}
         />
       </Modal>
+
 
       {/* Modal xác nhận xóa bảng điểm */}
       <Modal

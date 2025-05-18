@@ -18,6 +18,7 @@ import {
   PlusOutlined,
   UploadOutlined,
   SearchOutlined,
+  EyeOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import * as ExamService from "../../../services/ExamService";
@@ -53,7 +54,8 @@ export default function ExamPage() {
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState("");
   const [questions, setQuestions] = useState([]);
-
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [examDetails, setExamDetails] = useState([]);
   const user = useSelector((state) => state.user);
   const token = user?.access_token;
 
@@ -180,14 +182,30 @@ export default function ExamPage() {
       setDeleteExamId(null);
     }
   };
+  const handleViewExam = async (record) => {
+  try {
+    console.log("ID gửi lên: ", record._id);
+    const res = await ExamService.getExamById(record._id, token);
+    if (res?.data?.questions) {
+      setExamDetails(res.data.questions);
+      setIsViewModalOpen(true);
+    } else {
+      toast.error("Không tìm thấy chi tiết bài thi!");
+    }
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết bài thi:", error);
+    toast.error("Không thể lấy dữ liệu bài thi.");
+  }
+};
 
   const handleEdit = async (record) => {
     setIsEditMode(true);
     setEditingExam(record);
     setIsModalOpen(true);
+    const classId = classList.find((cls) => cls.name === record.className)?._id;
     form.setFieldsValue({
       ...record,
-      class: record.class,
+      class: classId,
       date: dayjs(record.date, "YYYY-MM-DD HH:mm"),
     });
   };
@@ -252,6 +270,8 @@ export default function ExamPage() {
         <Space>
           <EditIconButton type="primary" onClick={() => handleEdit(record)} icon={<EditOutlined />} />
           <DeleteIconButton danger onClick={() => handleDelete(record)} icon={<DeleteOutlined />} />
+          <Button type="primary" onClick={() => handleViewExam(record)} icon={<EyeOutlined />}>
+          </Button>
         </Space>
       ),
     },
@@ -337,6 +357,49 @@ export default function ExamPage() {
         <p>Bạn có chắc chắn muốn xóa bài thi này không?</p>
       </Modal>
       <ToastContainer />
+      <Modal
+        title="Chi tiết bài thi"
+        open={isViewModalOpen}
+        onCancel={() => setIsViewModalOpen(false)}
+        footer={<Button onClick={() => setIsViewModalOpen(false)}>Đóng</Button>}
+        width={800}
+      >
+        <Table
+          dataSource={examDetails}
+          rowKey="questionId"
+          columns={[
+            {
+              title: "Câu hỏi",
+              dataIndex: "questionText",
+              key: "questionText",
+            },
+            {
+              title: "Đáp án A",
+              render: (_, record) => record.options[0] || "",
+            },
+            {
+              title: "Đáp án B",
+              render: (_, record) => record.options[1] || "",
+            },
+            {
+              title: "Đáp án C",
+              render: (_, record) => record.options[2] || "",
+            },
+            {
+              title: "Đáp án D",
+              render: (_, record) => record.options[3] || "",
+            },
+            {
+              title: "Đáp án đúng",
+              dataIndex: "correctAnswer",
+              key: "correctAnswer",
+              render: (text) => <b style={{ color: "green" }}>{text}</b>,
+            },
+          ]}
+          pagination={false}
+        />
+      </Modal>
+
     </div>
   );
 }

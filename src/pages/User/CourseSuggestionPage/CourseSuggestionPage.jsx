@@ -12,6 +12,7 @@ import {
 } from "./style";
 import { Typography } from "antd";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 const { Paragraph } = Typography;
 
@@ -53,6 +54,11 @@ const QuizPage = () => {
   };
 
   const submitQuiz = async () => {
+    if (!currentTest || answers.length < currentTest.questions.length) {
+      toast.warning("⚠️ Bạn chưa trả lời hết tất cả câu hỏi!");
+      return;
+    }
+
     try {
       const response = await fetch("http://localhost:3001/api/suggest-course/submit", {
         method: "POST",
@@ -79,10 +85,9 @@ const QuizPage = () => {
     }
   };
 
+
   return (
     <Container>
-      <CustomTitle level={2}>Chọn Bài Thi</CustomTitle>
-
       {!quizStarted && (
         <TestListContainer>
           <ul>
@@ -149,6 +154,7 @@ const QuizPage = () => {
         </ResultContainer>
       )}
     </Container>
+
   );
 };
 

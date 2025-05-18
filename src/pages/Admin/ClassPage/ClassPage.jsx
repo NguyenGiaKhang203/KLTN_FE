@@ -289,10 +289,11 @@ const ClassPage = () => {
           columns={columns}
           dataSource={filteredClasses}
           rowKey="_id"
-          pagination={false}
+          pagination={{ pageSize: 5 }}
           rowClassName="table-row"
           loading={loading}
           size="middle"
+          bordered
         />
 
         <div className="table-footer">
