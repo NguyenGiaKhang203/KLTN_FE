@@ -138,7 +138,7 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
                         </span>
                       </ClassDetail>
                     )}
-                    <h4> Địa chỉ: 209 Phan Thanh, Thạc Gián, Thanh Khê, Đà Nẵng</h4>
+                    <h4> Địa chỉ: 50 Trường chinh 1, Thanh Khê, Đà Nẵng</h4>
                   </ClassInfoContainer>
                 </ClassOption>
               );
