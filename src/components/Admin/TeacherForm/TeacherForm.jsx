@@ -70,13 +70,6 @@ const TeacherForm = ({
               setNewTeacherData({ ...newTeacherData, address: e.target.value })
             }
           />
-          <Input
-            placeholder="Thành phố"
-            value={newTeacherData.city}
-            onChange={(e) =>
-              setNewTeacherData({ ...newTeacherData, city: e.target.value })
-            }
-          />
         </>
       )}
     </StyledModal>
