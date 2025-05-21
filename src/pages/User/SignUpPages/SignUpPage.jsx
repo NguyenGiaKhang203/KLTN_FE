@@ -132,7 +132,7 @@ const SignUpPage = () => {
     <SignupContainer>
       <SignupForm>
         <SignupContent>
-          <h1 style={{ textAlign: "center" }}>Hello Chess</h1>
+          <h1 style={{ textAlign: "center" }}>King Chess</h1>
           <p style={{ marginBottom: "15px", fontSize: "18px" }}>
             Tạo tài khoản
           </p>

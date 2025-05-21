@@ -114,7 +114,7 @@ const SignInPages = () => {
     <SigninContainer>
       <SigninForm>
         <SigninContent>
-          <h1 style={{ textAlign: "center" }}>Hello Chess</h1>
+          <h1 style={{ textAlign: "center" }}>King Chess</h1>
           <p style={{ marginBottom: "15px", fontSize: "18px" }}>Đăng nhập</p>
 
           <StyledInputWrapper>
