@@ -193,7 +193,7 @@ const ClassForm = ({
             rules={[{ required: true, message: "Chọn phòng học" }]}
           >
             <Select placeholder="Chọn phòng">
-              {(rooms.length ? rooms : ["Phòng 1", "Phòng 2", "Phòng 3"]).map((room) => (
+              {(rooms.length ? rooms : ["Phòng 1, 50 Trường Chinh , P.Cẩm Lệ , Đà Nẵng", "Phòng 2, 50 Trường Chinh , P.Cẩm Lệ , Đà Nẵng", "Phòng 3, 50 Trường Chinh , P.Cẩm Lệ , Đà Nẵng"]).map((room) => (
                 <Option key={room} value={room}>
                   {room}
                 </Option>

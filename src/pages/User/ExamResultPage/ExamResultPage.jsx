@@ -95,11 +95,6 @@ const ExamListPage = () => {
       key: "examName",
     },
     {
-      title: "Link bài thi",
-      key: "examUrl",
-      render: (_, record) => <a href={record.examUrl} target="_blank" rel="noreferrer">{record.examUrl}</a>,
-    },
-    {
       title: "Hạn làm bài",
       key: "status",
       render: (_, record) => {
