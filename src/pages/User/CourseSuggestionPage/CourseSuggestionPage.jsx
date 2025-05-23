@@ -68,7 +68,6 @@ const QuizPage = () => {
 
       const resultData = await response.json();
 
-      // Tính số câu đúng nếu có correctAnswer từ currentTest
       let correctCount = 0;
       if (currentTest && currentTest.questions) {
         correctCount = currentTest.questions.reduce((count, question) => {
@@ -78,7 +77,8 @@ const QuizPage = () => {
         }, 0);
       }
 
-      setResult({ ...resultData, correctCount });
+
+      setResult(resultData);
       setQuizSubmitted(true);
     } catch (error) {
       console.error("Error submitting quiz:", error);
@@ -90,15 +90,22 @@ const QuizPage = () => {
     <Container>
       {!quizStarted && (
         <TestListContainer>
-          <ul>
-            {tests.map((test) => (
-              <li key={test._id}>
-                <StyledButton onClick={() => startQuiz(test)} type="primary">
-                  {test.testName || test.courseType}
-                </StyledButton>
-              </li>
-            ))}
-          </ul>
+           <Typography.Title level={3} style={{ textAlign: "center", marginBottom: 16 }}>
+              📋 Khảo sát trình độ cờ vua của bạn
+            </Typography.Title>
+            <Paragraph style={{ textAlign: "center", fontSize: 16, color: "#555", maxWidth: 600, margin: "0 auto 24px" }}>
+              Hãy thực hiện bài khảo sát nhanh gồm 10 câu hỏi để hệ thống có thể gợi ý khóa học phù hợp với trình độ hiện tại của bạn.
+            </Paragraph>
+
+            <ul>
+              {tests.map((test) => (
+                <li key={test._id}>
+                  <StyledButton onClick={() => startQuiz(test)} type="primary">
+                    {test.testName || test.courseType}
+                  </StyledButton>
+                </li>
+              ))}
+            </ul>
         </TestListContainer>
       )}
 
@@ -143,7 +150,7 @@ const QuizPage = () => {
               renderItem={(course) => (
                 <CourseItemLink>
                   <Link to={`/course-details/${course._id}`}>
-                    {course.name} (Mã: {course.courseCode})
+                    {course.name}
                   </Link>
                 </CourseItemLink>
               )}

@@ -25,6 +25,12 @@ export const Container = styled.div`
 
 export const TestListContainer = styled.div`
   margin-bottom: 32px;
+  text-align: center; /* Căn giữa tiêu đề + đoạn mô tả */
+
+  .test-wrapper {
+    display: flex;
+    justify-content: center;
+  }
 
   ul {
     list-style: none;
@@ -32,9 +38,10 @@ export const TestListContainer = styled.div`
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+    justify-content: center; /* ✅ Căn giữa các nút trong hàng */
 
     li {
-      flex: 1 1 45%;
+      flex: 1 1 220px;
 
       @media (max-width: 768px) {
         flex: 1 1 100%;

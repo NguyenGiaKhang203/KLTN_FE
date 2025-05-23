@@ -124,19 +124,26 @@ const ScoreManagement = () => {
     }
   };
 
-  const handleExamSelect = async (examId) => {
-    setSelectedExam(examId);
-    setIsEditMode(false);
-    setEditingScoreId(null);
-    try {
-      const res = await ClassService.getStudentsInClass(selectedClass, token);
-      setStudentsInClass(res?.students || []);
-      toast.success("Đã chọn bài thi, hãy nhập điểm cho học viên.");
-      setIsModalVisible(true);
-    } catch (err) {
-      toast.error("Lỗi khi lấy danh sách học viên:", err);
-    }
-  };
+const handleExamSelect = async (examId) => {
+  setSelectedExam(examId);
+  setIsEditMode(true); // Cho phép nhập điểm
+  setEditingScoreId(null); // Vì đây là tạo mới
+  try {
+    const res = await ClassService.getStudentsInClass(selectedClass, token);
+    const students = res?.students || [];
+    const initializedStudents = students.map((student) => ({
+      _id: student._id,
+      name: student.name,
+      email: student.email,
+      score: null, // Khởi tạo điểm trống
+    }));
+    setStudentsInClass(initializedStudents);
+    toast.success("Đã chọn bài thi, hãy nhập điểm cho học viên.");
+    setIsModalVisible(true);
+  } catch (err) {
+    toast.error("Lỗi khi lấy danh sách học viên:", err);
+  }
+};
 
   const handleEditScore = async (examId) => {
     try {

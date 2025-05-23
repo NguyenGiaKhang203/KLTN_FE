@@ -55,21 +55,24 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
 
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await NotificationService.getAllNotification();
-        if (response.status === 'OK') {
-          setNotifications(response.data);
-        } else {
-          message.error("Không thể tải danh sách thông báo");
-        }
-      } catch (error) {
-        message.error("Có lỗi xảy ra khi tải thông báo");
+  const fetchData = async () => {
+    try {
+      const response = await NotificationService.getAllNotification();
+      if (response.status === 'OK') {
+        setNotifications(response.data);
+      } else {
+        message.error("Không thể tải danh sách thông báo");
       }
-    };
+    } catch (error) {
+      message.error("Có lỗi xảy ra khi tải thông báo");
+    }
+  };
 
+  if (user?.access_token) {
     fetchData();
-  }, []);
+  }
+}, [user]);
+
 
   useEffect(() => {
     if (user) {
@@ -226,25 +229,28 @@ const HeaderComponent = ({ isHiddenCart = false }) => {
             </WrapperCartIcon>
           )}
 
-          <Popover
-            content={
-              <NotificationList
-                notifications={notifications}
-                onNotificationClick={handleNotificationRead}
-              />
-            }
-            trigger="click"
-            placement="bottomRight"
-          >
-            <WrapperCartIcon>
-              <Badge
-                count={Array.isArray(notifications) ? notifications.filter(n => !n.read).length : 0}
-                size="small"
-              >
-                <BellOutlined className="icon" />
-              </Badge>
-            </WrapperCartIcon>
-          </Popover>
+          {user?.access_token && (
+            <Popover
+              content={
+                <NotificationList
+                  notifications={notifications}
+                  onNotificationClick={handleNotificationRead}
+                />
+              }
+              trigger="click"
+              placement="bottomRight"
+            >
+              <WrapperCartIcon>
+                <Badge
+                  count={Array.isArray(notifications) ? notifications.filter(n => !n.read).length : 0}
+                  size="small"
+                >
+                  <BellOutlined className="icon" />
+                </Badge>
+              </WrapperCartIcon>
+            </Popover>
+          )}
+
 
 
 
