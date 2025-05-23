@@ -35,10 +35,8 @@ const NotificationList = ({ notifications = [], onNotificationClick }) => {
             onClick={() => handleItemClick(item)}
           >
             <NotificationContent>
-              {item.message}
-              {!item.read && (
-                <Badge dot color="blue" style={{ marginLeft: 8 }} />
-              )}
+              {item.title}
+              {!item.read && <Badge dot color="blue" style={{ marginLeft: 8 }} />}
               <NotificationTime>{item.time}</NotificationTime>
             </NotificationContent>
           </NotificationItem>

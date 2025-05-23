@@ -63,6 +63,15 @@ const AttendanceManagementPage = () => {
     }
   }, [teacherId]);
 
+  const handleBulkStatusChange = (status) => {
+    setStudentList((prev) =>
+      prev.map((student) => ({
+        ...student,
+        status,
+      }))
+    );
+  };
+
   const handleSelectClass = async (classId) => {
     setSelectedClass(classId);
     setStudentList([]);
@@ -241,27 +250,49 @@ const AttendanceManagementPage = () => {
   const columns = [
     {
       title: "STT",
-      render: (_, __, index) => index + 1,
+      render: (_, record, index) =>
+        record._id === "bulk-actions" ? "" : index,
       width: 70,
     },
     {
       title: "Họ tên học viên",
       dataIndex: "name",
+      render: (text, record) =>
+        record._id === "bulk-actions" ? (
+          <span style={{ fontWeight: "bold" }}>Áp dụng trạng thái cho tất cả:</span>
+        ) : (
+          text
+        ),
     },
     {
       title: "Trạng thái điểm danh",
       dataIndex: "status",
-      render: (_, record) => (
-        <Radio.Group
-          onChange={(e) => handleStatusChange(record._id, e.target.value)}
-          value={record.status || undefined}
-        >
-          <Radio value="present">✅ Có mặt</Radio>
-          <Radio value="absent">❌ Vắng</Radio>
-        </Radio.Group>
-      ),
+      render: (_, record) =>
+        record._id === "bulk-actions" ? (
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button
+              size="small"
+              onClick={() => handleBulkStatusChange("present")}
+              style={{ borderColor: "#52c41a", color: "#52c41a" }}
+            >
+              ✅ Tất cả có mặt
+            </Button>
+            <Button size="small" danger onClick={() => handleBulkStatusChange("absent")}>
+              ❌ Tất cả vắng mặt
+            </Button>
+          </div>
+        ) : (
+          <Radio.Group
+            onChange={(e) => handleStatusChange(record._id, e.target.value)}
+            value={record.status || undefined}
+          >
+            <Radio value="present">✅ Có mặt</Radio>
+            <Radio value="absent">❌ Vắng</Radio>
+          </Radio.Group>
+        ),
     },
   ];
+
   
 
   return (
@@ -307,11 +338,10 @@ const AttendanceManagementPage = () => {
             ? "Danh sách điểm danh học viên"
             : "Vui lòng chọn lớp và ngày học hợp lệ"}
         </SubSectionTitle>
-
         {studentList.length > 0 ? (
           <>
             <Table
-              dataSource={studentList}
+              dataSource={[{ _id: "bulk-actions" }, ...studentList]}
               rowKey="_id"
               columns={columns}
               pagination={false}
