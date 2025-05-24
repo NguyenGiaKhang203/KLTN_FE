@@ -110,7 +110,7 @@ const ClassSelectModal = ({ isOpen, onClose, course, onConfirm, token }) => {
                   <ClassInfoContainer>
                     <strong>{cls.name}</strong>
                     <ClassDetail>
-                      Đã đăng ký: <span>{cls.students?.length || 0}/{cls.studentCount}</span>
+                      Đã đăng ký: <span>{cls.students?.length || 0}/{cls.maxStudent}</span>
                     </ClassDetail>
                     <ClassDetail>
                       Giảng viên: <span>{cls.teacher?.name}</span>

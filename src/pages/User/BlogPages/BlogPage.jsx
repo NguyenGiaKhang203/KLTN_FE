@@ -72,19 +72,6 @@ const BlogPage = () => {
             ))}
           </ul>
         </Section>
-
-        <Section>
-          <AntTitle level={4}>Chủ đề</AntTitle>
-          <ul>
-            {categories.map((c, i) => (
-              <li key={i}>{c}</li>
-            ))}
-          </ul>
-        </Section>
-
-        <div>
-          <PromoTitle>Khoá học cờ vua trung cấp</PromoTitle>
-        </div>
       </Sidebar>
     </WrapperBlogPage>
   );

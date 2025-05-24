@@ -134,7 +134,7 @@ export default function ReportPage() {
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card className="card-info best-course">
-            <Statistic title="Khóa học bán chạy" value="Cờ vua nâng cao" />
+            <Statistic title="Khóa học bán chạy" value="Cờ vua cơ bản" />
           </Card>
         </Col>
       </Row>
