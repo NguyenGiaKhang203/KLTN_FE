@@ -108,7 +108,7 @@ const OrderSuccessPage = () => {
   };
 
   const handleViewOrders = () => {
-    navigate("/my-order");
+    navigate("/my-orders");
   };
 
   if (orderStatus === null) {

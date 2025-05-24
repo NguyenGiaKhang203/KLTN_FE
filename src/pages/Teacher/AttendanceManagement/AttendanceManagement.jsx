@@ -63,15 +63,6 @@ const AttendanceManagementPage = () => {
     }
   }, [teacherId]);
 
-  const handleBulkStatusChange = (status) => {
-    setStudentList((prev) =>
-      prev.map((student) => ({
-        ...student,
-        status,
-      }))
-    );
-  };
-
   const handleSelectClass = async (classId) => {
     setSelectedClass(classId);
     setStudentList([]);
@@ -121,7 +112,7 @@ const AttendanceManagementPage = () => {
 
   const handleDateChange = async (dateString) => {
     if (!scheduleInfo || !validDates.length) return;
-  
+
     if (!validDates.includes(dateString)) {
       toast.warning("Ngày này không nằm trong lịch học của lớp.");
       setSelectedDate(null);
@@ -130,57 +121,57 @@ const AttendanceManagementPage = () => {
       setAttendanceId(null);
       return;
     }
-  
+
     setSelectedDate(dayjs(dateString));
-  
+
     try {
       const attendanceRes = await AttendanceService.getAttendanceByClassAndDate(
         selectedClass,
         dateString,
         token
       );
-  
+
       if (attendanceRes && attendanceRes.attendances?.length > 0) {
         const formattedStudents = attendanceRes.attendances.map((att) => ({
           _id: att.student,
-          name: "", // sẽ điền sau
+          name: "",
           status: att.status,
         }));
-  
+
         try {
           const res = await ClassService.getStudentsInClass(selectedClass);
           const studentMap = {};
           res.students.forEach((stu) => {
             studentMap[stu._id] = stu.name;
           });
-  
+
           const studentsWithName = formattedStudents.map((stu) => ({
             ...stu,
             name: studentMap[stu._id] || "Không rõ",
           }));
-  
+
           setStudentList(studentsWithName);
-        } catch (innerErr) {
+        } catch {
           setStudentList(formattedStudents);
         }
-  
+
         setIsAttendanceExist(true);
-        setAttendanceId(attendanceRes._id); // 👈 lấy ObjectId thực
+        setAttendanceId(attendanceRes._id);
       } else {
         throw new Error("Attendance not found");
       }
-    } catch (err) {
+    } catch {
       try {
         const res = await ClassService.getStudentsInClass(selectedClass);
         const formattedStudents = res.students.map((stu) => ({
           _id: stu._id,
           name: stu.name,
-          status: "",
+          status: "present", // ✅ mặc định là 'present'
         }));
         setStudentList(formattedStudents);
         setIsAttendanceExist(false);
-        setAttendanceId(null); // 👈 reset lại nếu không có điểm danh
-      } catch (innerErr) {
+        setAttendanceId(null);
+      } catch {
         toast.error("Lỗi khi tải danh sách học viên.");
         setStudentList([]);
         setIsAttendanceExist(false);
@@ -188,7 +179,6 @@ const AttendanceManagementPage = () => {
       }
     }
   };
-  
 
   const handleStatusChange = (id, newStatus) => {
     setStudentList((prev) =>
@@ -203,97 +193,114 @@ const AttendanceManagementPage = () => {
       toast.error("Vui lòng chọn ngày hợp lệ trước khi lưu.");
       return;
     }
-  
+
     const classroomId = selectedClass;
     const attendances = studentList.map((student) => ({
       student: student._id,
       status: student.status,
       date: selectedDate.format("YYYY-MM-DD"),
     }));
-  
+
     const isValid = attendances.every(
       (record) => record.student && record.status
     );
-  
+
     if (!isValid) {
       toast.error("Vui lòng chọn đầy đủ trạng thái cho tất cả học viên.");
       return;
     }
-  
+
     try {
       if (isAttendanceExist && attendanceId) {
-        await AttendanceService.updateAttendance(
-          attendanceId, // 👈 dùng ObjectId từ backend
-          attendances,
-          token
-        );
-        toast.success(" Cập nhật điểm danh thành công!");
+        await AttendanceService.updateAttendance(attendanceId, attendances, token);
+        toast.success("Cập nhật điểm danh thành công!");
       } else {
-        await AttendanceService.bulkAttendance(
-          classroomId,
-          attendances,
-          teacherId,
-          token
-        );
-        toast.success(" Điểm danh thành công!");
+        await AttendanceService.bulkAttendance(classroomId, attendances, teacherId, token);
+        toast.success("Điểm danh thành công!");
         setIsAttendanceExist(true);
       }
-    } catch (error) {
-      toast.error(" Lưu điểm danh thất bại. Vui lòng thử lại!");
+    } catch {
+      toast.error("Lưu điểm danh thất bại. Vui lòng thử lại!");
     }
   };
-  
+
   const handleDateSelectChange = (value) => {
     handleDateChange(value);
   };
 
-  const columns = [
-    {
-      title: "STT",
-      render: (_, record, index) =>
-        record._id === "bulk-actions" ? "" : index,
-      width: 70,
-    },
-    {
-      title: "Họ tên học viên",
-      dataIndex: "name",
-      render: (text, record) =>
-        record._id === "bulk-actions" ? (
-          <span style={{ fontWeight: "bold" }}>Áp dụng trạng thái cho tất cả:</span>
-        ) : (
-          text
-        ),
-    },
-    {
-      title: "Trạng thái điểm danh",
-      dataIndex: "status",
-      render: (_, record) =>
-        record._id === "bulk-actions" ? (
-          <div style={{ display: "flex", gap: 8 }}>
-            <Button
-              size="small"
-              onClick={() => handleBulkStatusChange("present")}
-              style={{ borderColor: "#52c41a", color: "#52c41a" }}
-            >
-              ✅ Tất cả có mặt
-            </Button>
-            <Button size="small" danger onClick={() => handleBulkStatusChange("absent")}>
-              ❌ Tất cả vắng mặt
-            </Button>
-          </div>
-        ) : (
-          <Radio.Group
-            onChange={(e) => handleStatusChange(record._id, e.target.value)}
-            value={record.status || undefined}
-          >
-            <Radio value="present">✅ Có mặt</Radio>
-            <Radio value="absent">❌ Vắng</Radio>
-          </Radio.Group>
-        ),
-    },
-  ];
+  // const columns = [
+  //   {
+  //     title: "STT",
+  //     render: (_, record, index) =>
+  //       record._id === "bulk-actions" ? "" : index,
+  //     width: 70,
+  //   },
+  //   {
+  //     title: "Họ tên học viên",
+  //     dataIndex: "name",
+  //     render: (text, record) =>
+  //       record._id === "bulk-actions" ?"" :text,
+  //   },
+  //   {
+  //     title: "Trạng thái điểm danh",
+  //     dataIndex: "status",
+  //     render: (_, record) => {
+  //       if (record._id === "bulk-actions") {
+  //         return (
+  //           <Radio.Group
+  //             onChange={(e) => {
+  //               const newStatus = e.target.value;
+  //               setStudentList((prev) =>
+  //                 prev.map((student) =>
+  //                   student._id === "bulk-actions" ? student : { ...student, status: newStatus }
+  //                 )
+  //               );
+  //             }}
+  //           >
+  //             <Radio value="present">✅ Có mặt</Radio>
+  //             <Radio value="absent">❌ Vắng</Radio>
+  //           </Radio.Group>
+  //         );
+  //       }
 
-  
+  //       return (
+  //         <Radio.Group
+  //           onChange={(e) => handleStatusChange(record._id, e.target.value)}
+  //           value={record.status || undefined}
+  //         >
+  //           <Radio value="present">✅ Có mặt</Radio>
+  //           <Radio value="absent">❌ Vắng</Radio>
+  //         </Radio.Group>
+  //       );
+  //     },
+  //   }
+  // ];
+
+  const columns = [
+  {
+    title: "STT",
+    render: (_, __, index) => index + 1,
+    width: 70,
+  },
+  {
+    title: "Họ tên học viên",
+    dataIndex: "name",
+  },
+  {
+    title: "Trạng thái điểm danh",
+    dataIndex: "status",
+    render: (_, record) => (
+      <Radio.Group
+        onChange={(e) => handleStatusChange(record._id, e.target.value)}
+        value={record.status || undefined}
+      >
+        <Radio value="present">✅ Có mặt</Radio>
+        <Radio value="absent">❌ Vắng</Radio>
+      </Radio.Group>
+    ),
+  }
+];
+
 
   return (
     <div style={{ padding: 24 }}>
@@ -341,32 +348,22 @@ const AttendanceManagementPage = () => {
         {studentList.length > 0 ? (
           <>
             <Table
-              dataSource={[{ _id: "bulk-actions" }, ...studentList]}
+              dataSource={studentList}
               rowKey="_id"
               columns={columns}
               pagination={false}
               bordered
-              locale={{
-                emptyText: "Không có dữ liệu điểm danh",
-              }}
             />
-
-            <CenteredAction style={{ marginTop: 20 }}>
+            <CenteredAction>
               <Button type="primary" onClick={handleSave}>
-                {isAttendanceExist ? "Thay đổi" : "Điểm danh"}
+                Lưu điểm danh
               </Button>
             </CenteredAction>
           </>
-        ) : (
-          <p style={{ color: "#888", padding: 12 }}>
-            {selectedClass && selectedDate
-              ? "Không có dữ liệu điểm danh cho ngày này."
-              : "Chọn lớp và ngày học để xem điểm danh."}
-          </p>
-        )}
+        ) : null}
       </StudentListWrapper>
 
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer />
     </div>
   );
 };
